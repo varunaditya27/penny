@@ -39,6 +39,9 @@ class UserProfile:
     def considers_method(self, method: str) -> bool:
         return method in self.payment_methods_user_will_consider
 
+    def will_consider(self, method: str) -> bool:
+        return self.considers_method(method)
+
     def is_category_protected(self, category: str) -> bool:
         return category in self.expense_categories_to_protect
 
