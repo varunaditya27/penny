@@ -6,16 +6,16 @@
 
 | Model Provider & Name | API Calls | Input Tokens | Output Tokens | Total Tokens | Estimated Cost (USD) |
 |---|---|---|---|---|---|
-| `openai/gpt-oss-20b` | 20 | 11,803 | 2,772 | 14,575 | $0.0017 |
+| `openai/gpt-oss-20b` | 20 | 13,743 | 2,543 | 16,286 | $0.0018 |
 
 ## 2. Totals and Averages
 
 - **Total API Calls**: 20
-- **Total Input Tokens**: 11,803
-- **Total Output Tokens**: 2,772
-- **Total Combined Tokens**: 14,575
-- **Average Tokens per Request** (250 requests): 58.3
-- **Estimated Total Cost**: $0.0017
+- **Total Input Tokens**: 13,743
+- **Total Output Tokens**: 2,543
+- **Total Combined Tokens**: 16,286
+- **Average Tokens per Request** (250 requests): 65.1
+- **Estimated Total Cost**: $0.0018
 - **Estimated Cost per Request**: $0.00001
 
 ## 3. Notes on Token Efficiency & Caching

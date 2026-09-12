@@ -19,6 +19,22 @@ logger = logging.getLogger("buy_or_wait.explanations.llm")
 GROQ_CHAT_COMPLETIONS_URL = "https://api.groq.com/openai/v1/chat/completions"
 DEFAULT_GROQ_MODEL = "openai/gpt-oss-20b"
 
+EXPLANATION_JSON_SCHEMA: Dict[str, Any] = {
+    "name": "financial_decision_explanation",
+    "strict": True,
+    "schema": {
+        "type": "object",
+        "properties": {
+            "decision_explanation": {
+                "type": "string",
+                "description": "A single concise, grounded decision explanation sentence ending with a period.",
+            }
+        },
+        "required": ["decision_explanation"],
+        "additionalProperties": False,
+    },
+}
+
 
 class LLMExplanationGenerator:
     """
@@ -71,11 +87,12 @@ class LLMExplanationGenerator:
     ) -> list:
         system_prompt = (
             "You are the explanation synthesizer for the Buy or Wait AI financial decision agent.\n"
-            "Your task is to generate a single concise, grounded decision explanation sentence.\n"
+            "Your task is to generate a single concise, grounded decision explanation sentence in JSON.\n"
             "Strict Rules:\n"
-            "1. Output ONLY the single final explanation sentence. No explanations, no quotes, no markdown, no conversational filler.\n"
-            "2. Follow the exact vocabulary, currency formatting, and style of the reference examples.\n"
-            "3. Conclude with: 'This leaves at least {currency} {min_balance} available.'\n"
+            "1. Output a JSON object with key 'decision_explanation'.\n"
+            "2. The value must be a single final explanation sentence ending with a period. No markdown, no conversational filler.\n"
+            "3. Follow the exact vocabulary, currency formatting, and style of the reference examples.\n"
+            "4. Conclude with: 'This leaves at least {currency} {min_balance} available.'\n"
         )
 
         few_shots = [
@@ -90,7 +107,11 @@ class LLMExplanationGenerator:
             },
             {
                 "role": "assistant",
-                "content": "Stop the family streaming plan, then pay EUR 620.40 today. This leaves at least EUR 800 available.",
+                "content": json.dumps(
+                    {
+                        "decision_explanation": "Stop the family streaming plan, then pay EUR 620.40 today. This leaves at least EUR 800 available."
+                    }
+                ),
             },
             # request_11: single reduce
             {
@@ -103,7 +124,11 @@ class LLMExplanationGenerator:
             },
             {
                 "role": "assistant",
-                "content": "Reduce the weekend food delivery to IDR 665,950, then pay IDR 13,110,000 today. This leaves at least IDR 34,140,600 available.",
+                "content": json.dumps(
+                    {
+                        "decision_explanation": "Reduce the weekend food delivery to IDR 665,950, then pay IDR 13,110,000 today. This leaves at least IDR 34,140,600 available."
+                    }
+                ),
             },
             # request_21: multiple spending changes
             {
@@ -116,7 +141,11 @@ class LLMExplanationGenerator:
             },
             {
                 "role": "assistant",
-                "content": "Stop the online backup subscription and reduce the streaming subscription to USD 23.50, then pay USD 1,574.40 today. This leaves at least USD 1,800 available.",
+                "content": json.dumps(
+                    {
+                        "decision_explanation": "Stop the online backup subscription and reduce the streaming subscription to USD 23.50, then pay USD 1,574.40 today. This leaves at least USD 1,800 available."
+                    }
+                ),
             },
         ]
 
@@ -169,6 +198,10 @@ class LLMExplanationGenerator:
             "temperature": 0.0,
             "reasoning_effort": "low",
             "max_tokens": 220,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": EXPLANATION_JSON_SCHEMA,
+            },
         }
 
         max_retries = 3
@@ -208,9 +241,19 @@ class LLMExplanationGenerator:
                 # Record in global tracker for usage report
                 tracker.record(self.model, prompt_tokens, completion_tokens)
 
-                content = data["choices"][0]["message"].get("content", "").strip()
+                raw_content = data["choices"][0]["message"].get("content", "").strip()
                 # Clean narrow no-break space and non-breaking space
-                content = content.replace("\u202f", " ").replace("\u00a0", " ")
+                raw_content = raw_content.replace("\u202f", " ").replace("\u00a0", " ")
+
+                # Extract explanation from structured JSON schema output
+                try:
+                    parsed = json.loads(raw_content)
+                    if isinstance(parsed, dict) and "decision_explanation" in parsed:
+                        content = str(parsed["decision_explanation"]).strip()
+                    else:
+                        content = raw_content
+                except (json.JSONDecodeError, TypeError):
+                    content = raw_content
 
                 # Strip wrapping quotation marks if present
                 if (content.startswith('"') and content.endswith('"')) or (
