@@ -205,13 +205,20 @@ class CandidateGenerator:
                 candidate_payments=test_payments,
             )
 
-            if not test_ledger.is_safe():
-                continue
-
             plan_str = "|".join(f"{d}:{format_plan_amount(opt.payment_amount)}" for d in dates)
             last_date = dates[-1] if dates else opt.first_payment_date
             completes = last_date <= request.desired_completion_date
             has_changes = spending_changes != "none" and bool(spending_changes)
+
+            # Check safety through the duration of the installment schedule
+            if last_date in test_ledger.dates:
+                end_idx = test_ledger.dates.index(last_date)
+                is_safe = all(b >= user.minimum_balance_to_keep for b in test_ledger.balances[: end_idx + 1])
+            else:
+                is_safe = test_ledger.is_safe()
+
+            if not is_safe:
+                continue
 
             candidates.append(
                 CandidatePlan(

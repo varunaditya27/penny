@@ -233,11 +233,13 @@ class ExplanationTemplateSynthesizer:
     Matches 100% of the sentence patterns found in dataset/sample_requests.csv.
     """
 
+    @classmethod
     def synthesize(
-        self,
+        cls,
         plan: CandidatePlan,
-        profile: UserProfile,
-        request: PurchaseRequest,
+        profile: Optional[UserProfile] = None,
+        request: Optional[PurchaseRequest] = None,
+        user: Optional[UserProfile] = None,
         events_by_id: Optional[Dict[str, Any]] = None,
         style: Optional[str] = None,
         plan_rejected_by_deadline: Optional[bool] = None,
@@ -245,8 +247,11 @@ class ExplanationTemplateSynthesizer:
         """
         Synthesizes a decision explanation from plan, user profile, and request.
         """
-        currency = profile.home_currency
-        min_balance = profile.minimum_balance_to_keep
+        prof = profile or user
+        if not prof or not request:
+            raise ValueError("profile/user and request must be provided")
+        currency = prof.home_currency
+        min_balance = prof.minimum_balance_to_keep
         requested_amount = request.requested_amount
 
         # 1. Check spending changes first

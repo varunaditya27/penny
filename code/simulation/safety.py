@@ -37,6 +37,7 @@ class SafetyEngine:
         request_date: str,
         requested_amount: float,
         days: int = 90,
+        desired_completion_date: Optional[str] = None,
     ) -> str:
         """
         Scans each day d in [0, 90]. Tests if a single payment of requested_amount on date(request_date + d)
@@ -45,6 +46,11 @@ class SafetyEngine:
         If no date is safe within the forecast period, returns empty string "".
         """
         start_dt = datetime.strptime(request_date, "%Y-%m-%d")
+        target_end_dt = (
+            datetime.strptime(desired_completion_date, "%Y-%m-%d")
+            if desired_completion_date
+            else None
+        )
         req_amt = float(requested_amount)
 
         for d in range(days + 1):
@@ -60,7 +66,14 @@ class SafetyEngine:
                 candidate_payments=[(candidate_date_str, req_amt)],
             )
 
-            if test_ledger.is_safe():
+            if target_end_dt:
+                end_dt = max(candidate_dt, target_end_dt)
+                end_idx = min(len(test_ledger.dates) - 1, (end_dt - start_dt).days)
+                is_safe_candidate = all(b >= user.minimum_balance_to_keep for b in test_ledger.balances[d : end_idx + 1])
+            else:
+                is_safe_candidate = test_ledger.is_safe()
+
+            if is_safe_candidate:
                 logger.debug(f"Found earliest safe full payment date: {candidate_date_str} (day {d})")
                 return candidate_date_str
 
@@ -80,6 +93,7 @@ def find_earliest_full_payment_date(
     request_date: str,
     requested_amount: float,
     days: int = 90,
+    desired_completion_date: Optional[str] = None,
 ) -> str:
     return SafetyEngine.find_earliest_full_payment_date(
         user=user,
@@ -88,4 +102,5 @@ def find_earliest_full_payment_date(
         request_date=request_date,
         requested_amount=requested_amount,
         days=days,
+        desired_completion_date=desired_completion_date,
     )
