@@ -4,7 +4,7 @@
 
 **Goal:** Build and package "Buy or Wait?", an evaluable, deterministic AI-powered financial decision agent that evaluates purchase requests against a 90-day cash flow simulation, produces `output.csv`, and generates the required hackathon deliverables (`code.zip`, `evaluation/usage_report.md`).
 
-**Architecture:** A layered architecture with a 100% deterministic Python core for daily balance simulation, currency conversion, recurrence detection, and 6-tier tie-breaking; complemented by versioned JSON caches and targeted Groq API calls (Qwen 3.6 27B for 16 vision receipts, LLaMA 3.3 70B for 215 multilingual messages, and GPT-OSS 20B for hybrid explanation synthesis).
+**Architecture:** Layered architecture with a 100% deterministic Python core for daily balance simulation, graph-based currency triangulation, 5-way linked event dispatch, recurrence detection, option pre-filtering, and 6-tier tie-breaking; complemented by versioned JSON caches and targeted Groq API calls (Qwen 3.6 27B for 16 vision receipts, LLaMA 3.3 70B for 215 multilingual messages, and GPT-OSS 20B for hybrid explanation synthesis).
 
 **Tech Stack:** Python 3.10+, Groq Python SDK / HTTP requests, standard library (`csv`, `json`, `dataclasses`, `datetime`, `collections`, `itertools`, `pathlib`, `typing`).
 
@@ -15,6 +15,7 @@
 - Must run from the terminal via `python code/main.py`.
 - Must generate `output.csv` with exact columns: `request_id,amount_safe_to_pay,affordability_status,recommended_payment_method,payment_plan,earliest_date_for_full_payment,spending_changes_needed,decision_explanation`.
 - Must satisfy all invariant rules: $0 \le \text{amount\_safe\_to\_pay} \le \text{requested\_amount}$; balance $\ge \text{minimum\_balance\_to\_keep}$ for all 90 days.
+- Must filter out installment options exceeding `max_installment_months` before ranking.
 - Must operate gracefully if `GROQ_API_KEY` is not provided (offline autograder fallback).
 - Must append per-turn entries to `log.txt` with exact tool name `tool=Antigravity`.
 - Must package submission as `code.zip` containing `evaluation/usage_report.md`.
@@ -46,7 +47,7 @@
 
 ---
 
-### Task 2: Data Loaders & Currency Conversion
+### Task 2: Data Loaders & Graph Currency Conversion
 **Files:**
 - Create: `code/data/__init__.py`
 - Create: `code/data/loader.py`
@@ -57,38 +58,51 @@
 - Consumes: Models from `code/models/domain.py`.
 - Produces: `DataLoader.load_all()`, `ExchangeRateConverter.convert(amount, from_curr, to_curr, date_str)`.
 
-- [ ] **Step 1: Write tests for currency conversion and CSV loading**
+- [ ] **Step 1: Write tests for currency triangulation and CSV loading**
   - Test exact dated exchange rate conversions between EUR, INR, IDR, USD, ZAR.
-  - Test CSV parser loading requests, profiles, events, and options.
+  - Test graph triangulation (e.g. ZAR -> EUR -> USD -> INR) and inversion (`1 / rate`).
+  - Test "as-of" rate selection: latest rate dated on or before event date.
+  - Test sample user isolation guard (ensuring `user_01`–`user_25` are segregated).
 - [ ] **Step 2: Implement `ExchangeRateConverter`**
-  - Reads `dataset/exchange_rates.csv` into a composite lookup map `(rate_date, from_currency, to_currency) -> rate`.
-  - Converts amounts accurately, returning identity `1.0` if `from_curr == to_curr`.
+  - Builds adjacency graph of currency pairs from `dataset/exchange_rates.csv`.
+  - Implements BFS traversal to triangulate multi-hop conversions.
+  - Inverts rates when only reverse direction is provided.
+  - Implements as-of date matching.
 - [ ] **Step 3: Implement `DataLoader`**
-  - Loads and joins datasets cleanly with type casting (floats for amounts, bools for flags).
+  - Loads requests, profiles, events, and options cleanly with type casting.
+  - Excludes sample profiles (`user_01`–`user_25`) during evaluation runs.
 - [ ] **Step 4: Run loader tests and verify passing**
 - [ ] **Step 5: Commit Task 2**
 
 ---
 
-### Task 3: Multimodal & Message Evidence Caching
+### Task 3: Linked Event Dispatch & Evidence Management
 **Files:**
+- Create: `code/data/linker.py`
 - Create: `code/cache/image_amounts.json`
 - Create: `code/cache/message_mutations.json`
 - Create: `code/data/evidence.py`
 - Test: `tests/test_evidence.py`
 
 **Interfaces:**
-- Consumes: Raw images in `dataset/media/images/` and `dataset/messages.csv`.
-- Produces: `EvidenceManager.get_image_amount(event_id)`, `EvidenceManager.get_message_mutations(user_id)`.
+- Consumes: Raw images in `dataset/media/images/`, `dataset/messages.csv`, and linked events.
+- Produces: `EventLinker.resolve_linked_events(events)`, `EvidenceManager.get_image_amount(event_id)`, `EvidenceManager.get_user_mutations(user_id, request_date)`.
 
-- [ ] **Step 1: Write verified ground-truth amounts into `code/cache/image_amounts.json`**
-  - Populate all 16 extracted values for `event_253`, `event_1442`, `event_1545`, `event_1700`, `event_1786`, `event_3051`, `event_3231`, `event_4535`, `event_5170`, `event_6033`, `event_6859`, `event_7307`, `event_7941`, `event_9421`, `event_9806`, `event_10521`.
-- [ ] **Step 2: Pre-extract and verify all 215 message mutations into `code/cache/message_mutations.json`**
-  - Parse Indonesian and English salary updates, pending bonus exclusions, and expense increases.
+- [ ] **Step 1: Implement `EventLinker` with 5-way type dispatch**
+  - `refund`: keep both (original debit and settled reversal credit).
+  - `expense`: duplicate consolidation (collapse pending/cancelled authorization into settled transaction).
+  - `investment_valuation`: exclude entirely (unrealized mark-to-market).
+  - `debt_payment`: keep as distinct real cash payments.
+  - `investment_sale`: keep cash proceeds, exclude non-cash purchase basis.
+- [ ] **Step 2: Populate `code/cache/image_amounts.json`**
+  - Store verified ground-truth amounts for all 16 images.
 - [ ] **Step 3: Implement `EvidenceManager`**
-  - Implements offline cache loading first; falls back to live Groq API (Qwen 3.6 27B / LLaMA 3.3 70B) if `--refresh-cache` flag is passed.
-  - Integrates `TokenTracker` to record token counts and costs into `code/evaluation/usage_report.md`.
-- [ ] **Step 4: Run evidence tests and verify passing**
+  - Implements orphan message resolution: joins by `user_id` where `sent_at <= request_date`.
+  - Handles brand-new employment messages ("first salary" / "gaji pertama") by injecting new monthly recurring salary streams.
+  - Applies percentage rent increases (+12%) deterministically.
+  - Cross-references message + image on same event (e.g. `event_4535` / `user_48`).
+  - Pre-populates `code/cache/message_mutations.json` and tracks token usage in `TokenTracker`.
+- [ ] **Step 4: Run evidence and linker tests and verify passing**
 - [ ] **Step 5: Commit Task 3**
 
 ---
@@ -105,7 +119,7 @@
 
 - [ ] **Step 1: Write tests for cadence detection**
   - Test weekly (7-day), 10-day, bi-weekly (14-day), 21-day, and 5-day intervals.
-  - Test fixed monthly day-of-month recurrence (e.g. rent on 2nd, utility on 6th, salary on 15th).
+  - Test fixed monthly day-of-month recurrence (rent on 2nd, utility on 6th, salary on 15th).
 - [ ] **Step 2: Implement `RecurrenceDetector`**
   - Clusters past settled transactions by `description` and `category`.
   - Validates constant step difference $\Delta d \in \{5, 7, 10, 14, 21\}$ or constant day-of-month ($\ge 2$ occurrences).
@@ -115,7 +129,7 @@
 
 ---
 
-### Task 5: 90-Day Balance Ledger & Safety Engine
+### Task 5: 90-Day Balance Ledger & Decoupled Safety Engine
 **Files:**
 - Create: `code/simulation/ledger.py`
 - Create: `code/simulation/safety.py`
@@ -125,22 +139,22 @@
 - Consumes: `UserProfile`, recurring streams, scheduled events, pending debits, currency converter.
 - Produces: `Ledger.simulate(start_date, days=90, payments=None, modifications=None)`, `compute_safe_amount()`, `find_earliest_full_payment_date()`.
 
-- [ ] **Step 1: Write tests for daily ledger simulation**
-  - Test that balance never breaches `minimum_balance_to_keep`.
-  - Test that pending debits are subtracted on settlement dates and pending credits are ignored.
-  - Test that confirmed salary credits on settlement dates replenish balance.
+- [ ] **Step 1: Write tests for daily ledger simulation and decoupled safety calculation**
+  - Verify balance never breaches `minimum_balance_to_keep`.
+  - Verify pending debits are subtracted on settlement dates and pending credits are ignored.
+  - Verify `amount_safe_to_pay` is purely the baseline headroom independent of candidate plan.
 - [ ] **Step 2: Implement `Ledger`**
   - Maintains daily balance array across $[0, 90]$ days from `request_date`.
-  - Applies projected recurring events, confirmed future salary credits, and optional candidate payments.
+  - Applies projected recurring events, confirmed future salary credits, and candidate plan cash flows.
 - [ ] **Step 3: Implement `SafetyEngine`**
-  - `compute_safe_amount(ledger, requested_amount, min_balance)`: $\min(\text{requested\_amount}, \min_t(\text{balance}_t - \text{min\_balance}))$.
+  - `compute_safe_amount(ledger, requested_amount, min_balance)`: $\max(0, \min(\text{requested\_amount}, \min_t(\text{balance}_t - \text{min\_balance})))$.
   - `find_earliest_full_payment_date(ledger, requested_amount, min_balance, start_date)`: tests each day $d \in [0, 90]$ for safe full payment without spending modifications.
 - [ ] **Step 4: Run simulation tests and verify passing**
 - [ ] **Step 5: Commit Task 5**
 
 ---
 
-### Task 6: Candidate Generator & 6-Tier Tie-Breaker
+### Task 6: Candidate Generator & 6-Tier Tie-Breaker (With Installment Cap Filtering)
 **Files:**
 - Create: `code/optimizer/__init__.py`
 - Create: `code/optimizer/candidates.py`
@@ -151,12 +165,14 @@
 - Consumes: `PurchaseRequest`, `UserProfile`, available `PaymentOption` records, `SafetyEngine`.
 - Produces: `CandidatePlan` list, `rank_candidate_plans(plans, desired_completion_date)`.
 
-- [ ] **Step 1: Write tests for candidate generation and 6-tier ranking**
-  - Test ranking hierarchy: deadline compliance > no changes > min cost > earlier start > fewer payments > lowest option ID.
-  - Test payment method filtering based on `payment_methods_user_will_consider` and `max_installment_months`.
+- [ ] **Step 1: Write tests for candidate generation and installment filtering**
+  - Ensure installment options exceeding `max_installment_months` are strictly discarded (traps eliminated).
+  - Ensure users with null `max_installment_months` or lacking `installments` in considered methods reject installments.
+  - Test 6-tier ranking hierarchy: deadline compliance > no changes > min cost > earlier start > fewer payments > lowest option ID.
 - [ ] **Step 2: Implement `CandidateGenerator`**
+  - Discards illegal options before safety simulation.
   - Generates full payment option (if allowed and considered).
-  - Generates installment options from `request_payment_options.csv` (filtering by user duration cap and method preference).
+  - Generates eligible installment options from `request_payment_options.csv`.
   - Generates partial payment option (exactly 2 payments: safe amount today, remainder on earliest date) if conditions met.
   - Generates wait option (full payment on earliest safe date).
 - [ ] **Step 3: Implement `PlanRanker`**
@@ -267,7 +283,7 @@
 
 - [ ] **Step 1: Generate `code/evaluation/usage_report.md`**
   - Summarize model providers, names, calls, input/output tokens, and costs across Qwen 3.6 27B, LLaMA 3.3 70B, and GPT-OSS 20B.
-- [ ] **Step 2: Update `README.md` with setup, dependencies, and execution instructions**
+- [ ] **Step 2: Update `README.md` with setup, dependencies, exchange rate triangulation assumptions, and execution instructions**
 - [ ] **Step 3: Create clean submission package `code.zip`**
   - Verify that `code.zip` contains runnable code, README, prompts, and `evaluation/usage_report.md` without secrets or `log.txt`.
 - [ ] **Step 4: Commit Task 12 and perform final verification check**
