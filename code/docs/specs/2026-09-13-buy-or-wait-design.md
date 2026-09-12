@@ -102,10 +102,25 @@ Rather than a naive global deduplication or global retention, `linked_event_id` 
   - *Percentage Adjustments* (e.g., *"Rent increases 12%"*): LLM extracts `+12%`; deterministic Python code applies the arithmetic.
   - *Message + Image Cross-Referencing*: On dual-linked events (e.g. `event_4535` for `user_48`), cross-reference date/status from message and amount from image.
 
-### 3.5 Multimodal Image Extraction
+### 3.5 Multimodal Image Extraction & Ground Truth Heuristics
 - Exactly 16 events have blank amounts in `financial_events.csv`, mapping 1-to-1 to `dataset/media/images/image_01.png` through `image_16.png`.
-- All 16 ground-truth values are stored in `code/cache/image_amounts.json`.
-- When `--refresh-cache` is invoked, Groq Qwen 3.6 27B processes each image with strict JSON schema.
+- **Currency Enum Enforcement (Anti-Trap Guard)**:
+  - Currencies MUST strictly belong to `CurrencyEnum = {"INR", "IDR", "ZAR", "EUR", "USD"}`.
+  - Prefix matching or fuzzy matching is forbidden to prevent catastrophic confusion between **IDR** (Indonesian Rupiah, ~15,800/USD) and **INR** (Indian Rupee, ~83/USD) — a ~190x magnitude error.
+  - Log a warning/assertion if extracted currency ever contradicts the ledger event's currency.
+- **Multi-Number Disambiguation Rules**:
+  - Documents with multiple figures MUST resolve to the definitive cash movement:
+    1. *Grand Total / Net Pay / Total Amount Received / Balance Due* overrides subtotals, gross earnings, and pre-tax lines.
+    2. *Scheduled / Pending Partial Payments*: For receipts showing prior partial payment (e.g. `image_02` for `event_1442`), select **Balance Due** (₹1,00,000.00), not total or amount received.
+    3. *Un-lapsed Utility Bills*: For bills with standard vs late fees (e.g. `image_05` Airtel bill for `event_1786`), select the amount before due date (**₹704.05**) since pending indicates standard processing.
+    4. *Net Salary*: For payslips (e.g. `image_01` for `event_253`), select **Net Pay** (**IDR 4,365,000.00** matching Bank Central Asia transfer line), never gross earnings before deductions.
+- **Partial Visibility & Incomplete Documents**:
+  - `image_04` (`event_1700`) is visibly cropped right below `Item Bill ₹2,854.00`. Extraction schema includes `confidence: "exact" | "partial"`. `image_04` is tagged as `partial`, using the best visible figure.
+- **Handwritten OCR & Built-in Arithmetic Validation**:
+  - `image_14` (`event_9421`) is a handwritten pharmacy receipt. The deterministic validator verifies that line items (Samhan ₹1,500 + Moov ₹724 + Axe oil ₹796 + ₹550 + Stayfree ₹303 + Benadryl ₹670) sum to the stated TOTAL of **₹4,543.00**.
+  - Cross-check numeric total against **"Amount in Words"** when present (e.g., `image_01` "Four Million Three Hundred Sixty Five Thousand Rupiahs", `image_05` "Seven Hundred Four Rupees and Five Paise Only").
+- **Primary Calibration Anchor**:
+  - Use `event_253` / `image_01` / `request_03` (`user_03`) as the end-to-end calibration anchor. Its exact output must match `sample_requests.csv` before running predictions.
 
 ---
 

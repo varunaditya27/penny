@@ -34,9 +34,11 @@
 **Interfaces:**
 - Produces: `UserProfile`, `PurchaseRequest`, `FinancialEvent`, `PaymentOption`, `CandidatePlan`, `OutputRow`.
 
-- [ ] **Step 1: Write tests for domain data models**
+- [ ] **Step 1: Write tests for domain data models and CurrencyEnum**
   - Verify dataclass fields, type coercion, and immutability.
+  - Test strict 5-value `CurrencyEnum = {"INR", "IDR", "ZAR", "EUR", "USD"}` validation (hard-fail on invalid or prefix matches, preventing IDR vs INR confusion).
 - [ ] **Step 2: Implement domain and result dataclasses**
+  - `CurrencyEnum`: hardcoded set `{"INR", "IDR", "ZAR", "EUR", "USD"}` with validation.
   - `UserProfile`: `user_id`, `home_currency`, `current_available_balance`, `minimum_balance_to_keep`, sets of protected/reducible/stoppable categories, considered methods, `max_installment_months`.
   - `PurchaseRequest`: `request_id`, `user_id`, `request_date`, `request_type`, `requested_amount`, `desired_completion_date`, `allows_partial_payment`, `request_text`.
   - `FinancialEvent`: `event_id`, `user_id`, `event_type`, `description`, `category`, `direction`, `amount`, `currency`, `event_date`, `settlement_date`, `status`, `linked_event_id`, `flexibility`, `minimum_allowed_amount`.
@@ -94,9 +96,18 @@
   - `investment_valuation`: exclude entirely (unrealized mark-to-market).
   - `debt_payment`: keep as distinct real cash payments.
   - `investment_sale`: keep cash proceeds, exclude non-cash purchase basis.
-- [ ] **Step 2: Populate `code/cache/image_amounts.json`**
-  - Store verified ground-truth amounts for all 16 images.
+- [ ] **Step 2: Populate `code/cache/image_amounts.json` with ground truth & metadata**
+  - Store verified ground-truth amounts for all 16 images incorporating multi-number disambiguation:
+    - `image_01`: Net Pay IDR 4,365,000 (transferred cash)
+    - `image_02`: Balance Due INR 100,000 (scheduled remaining balance)
+    - `image_04`: Item Bill INR 2,854 (flagged with `confidence: "partial"` due to cropping)
+    - `image_05`: Amount due before due date INR 704.05 (standard un-lapsed window)
+    - `image_07`: Grand Total INR 8,528 (final bolded total)
+    - `image_14`: Handwritten receipt TOTAL INR 4,543 (arithmetic line-item reconciliation verified: 1500+724+796+550+303+670 = 4543)
+    - `image_15`: Grand Total INR 9,968 (all-inclusive final total)
 - [ ] **Step 3: Implement `EvidenceManager`**
+  - Implements currency consistency assertion (warns if extracted currency contradicts ledger).
+  - Implements words-form and line-item arithmetic validation where available.
   - Implements orphan message resolution: joins by `user_id` where `sent_at <= request_date`.
   - Handles brand-new employment messages ("first salary" / "gaji pertama") by injecting new monthly recurring salary streams.
   - Applies percentage rent increases (+12%) deterministically.
@@ -266,6 +277,7 @@
 - Generate predictions for `dataset/requests.csv` (250 cases).
 
 - [ ] **Step 1: Execute `python code/main.py --eval-sample`**
+  - Run primary calibration anchor on `request_03` (`user_03` / `event_253` / `image_01`) first to ensure end-to-end exact match on safe amount and affordability status before testing other samples.
   - Run full benchmark against all 25 public samples.
   - Diagnose and resolve any discrepancies to reach 100% agreement.
 - [ ] **Step 2: Execute `python code/main.py`**
