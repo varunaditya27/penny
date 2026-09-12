@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Set
 from code.data.evidence import EvidenceManager
 from code.data.linker import EventLinker
 from code.data.loader import DataLoader
+from code.explanations.llm import LLMExplanationGenerator
 from code.explanations.templates import ExplanationTemplateSynthesizer
 from code.models.domain import FinancialEvent, PaymentOption, PurchaseRequest, UserProfile
 from code.models.results import AffordabilityStatus, CandidatePlan, OutputRow, PaymentMethod
@@ -37,9 +38,17 @@ class DecisionPipeline:
         "severance",
     }
 
-    def __init__(self, data_loader: Optional[DataLoader] = None, evidence_manager: Optional[EvidenceManager] = None):
+    def __init__(
+        self,
+        data_loader: Optional[DataLoader] = None,
+        evidence_manager: Optional[EvidenceManager] = None,
+        explanation_generator: Optional[LLMExplanationGenerator] = None,
+        use_llm: bool = True,
+    ):
         self.loader = data_loader or DataLoader()
         self.evidence_mgr = evidence_manager or EvidenceManager()
+        self.explanation_generator = explanation_generator or LLMExplanationGenerator()
+        self.use_llm = use_llm
 
     def _extract_recurring_salary_stream(
         self,
@@ -298,11 +307,13 @@ class DecisionPipeline:
                 )
 
         # 7. Synthesize explanation
-        explanation = ExplanationTemplateSynthesizer.synthesize(
+        events_map = {ev.event_id: ev for ev in user_events}
+        explanation = self.explanation_generator.generate_explanation(
             plan=chosen_plan,
-            user=user,
+            profile=user,
             request=request,
-            events_by_id={ev.event_id: ev for ev in user_events},
+            events_by_id=events_map,
+            use_llm_for_complex=self.use_llm,
         )
 
         return OutputRow(

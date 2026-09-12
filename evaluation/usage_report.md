@@ -6,19 +6,17 @@
 
 | Model Provider & Name | API Calls | Input Tokens | Output Tokens | Total Tokens | Estimated Cost (USD) |
 |---|---|---|---|---|---|
-| `llama-3.3-70b-versatile` | 0 | 0 | 0 | 0 | $0.0000 |
-| `openai/gpt-oss-20b` | 0 | 0 | 0 | 0 | $0.0000 |
-| `qwen/qwen3.6-27b` | 0 | 0 | 0 | 0 | $0.0000 |
+| `openai/gpt-oss-20b` | 20 | 11,803 | 2,772 | 14,575 | $0.0017 |
 
 ## 2. Totals and Averages
 
-- **Total API Calls**: 0
-- **Total Input Tokens**: 0
-- **Total Output Tokens**: 0
-- **Total Combined Tokens**: 0
-- **Average Tokens per Request** (25 requests): 0.0
-- **Estimated Total Cost**: $0.0000
-- **Estimated Cost per Request**: $0.00000
+- **Total API Calls**: 20
+- **Total Input Tokens**: 11,803
+- **Total Output Tokens**: 2,772
+- **Total Combined Tokens**: 14,575
+- **Average Tokens per Request** (250 requests): 58.3
+- **Estimated Total Cost**: $0.0017
+- **Estimated Cost per Request**: $0.00001
 
 ## 3. Notes on Token Efficiency & Caching
 - Multimodal vision extractions for all 16 images are pre-extracted and cached in `code/cache/image_amounts.json`.

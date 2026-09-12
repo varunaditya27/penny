@@ -41,7 +41,11 @@ class TokenTracker:
         total_cost = 0.0
         total_calls = 0
 
-        for model in sorted(set(list(self.calls.keys()) + list(self.pricing.keys()))):
+        models_to_report = [m for m in sorted(set(list(self.calls.keys()) + list(self.pricing.keys()))) if self.calls.get(m, 0) > 0]
+        if not models_to_report:
+            models_to_report = sorted(self.pricing.keys())
+
+        for model in models_to_report:
             calls = self.calls.get(model, 0)
             in_tok = self.input_tokens.get(model, 0)
             out_tok = self.output_tokens.get(model, 0)

@@ -1,8 +1,10 @@
 import json
 import logging
 import os
+import time
 from typing import Optional, Dict, Any
 
+from code.data.evidence import tracker
 from code.explanations.templates import (
     ExplanationTemplateSynthesizer,
     format_currency_amount,
@@ -32,7 +34,7 @@ class LLMExplanationGenerator:
         timeout: float = 10.0,
         fallback_synthesizer: Optional[ExplanationTemplateSynthesizer] = None,
     ):
-        self.api_key = api_key or os.environ.get("GROQ_API_KEY", "")
+        self.api_key = api_key if api_key is not None else os.environ.get("GROQ_API_KEY", "")
         self.model = model
         self.timeout = timeout
         self.fallback_synthesizer = fallback_synthesizer or ExplanationTemplateSynthesizer()
@@ -71,9 +73,9 @@ class LLMExplanationGenerator:
             "You are the explanation synthesizer for the Buy or Wait AI financial decision agent.\n"
             "Your task is to generate a single concise, grounded decision explanation sentence.\n"
             "Strict Rules:\n"
-            "1. Output ONLY the single final explanation sentence. No explanations, no quotes, no conversational filler.\n"
+            "1. Output ONLY the single final explanation sentence. No explanations, no quotes, no markdown, no conversational filler.\n"
             "2. Follow the exact vocabulary, currency formatting, and style of the reference examples.\n"
-            "3. State the action, relevant amounts/dates, and minimum balance impact clearly.\n"
+            "3. Conclude with: 'This leaves at least {currency} {min_balance} available.'\n"
         )
 
         few_shots = [
@@ -83,7 +85,7 @@ class LLMExplanationGenerator:
                 "content": (
                     "Request: amount=620.40, currency=EUR, completion_date=2026-01-14\n"
                     "Profile: min_balance=800\n"
-                    "Decision: method=full_payment, spending_changes=stop:event_476 (Family streaming plan)"
+                    "Decision: method=full_payment, spending_changes=stop:event_476 (family streaming plan)"
                 ),
             },
             {
@@ -94,9 +96,9 @@ class LLMExplanationGenerator:
             {
                 "role": "user",
                 "content": (
-                    "Request: amount=13110000, currency=IDR, completion_date=2025-06-12\n"
-                    "Profile: min_balance=34140600\n"
-                    "Decision: method=full_payment, spending_changes=reduce_to:event_989:665950 (Weekend food delivery to IDR 665,950)"
+                    "Request: amount=13,110,000, currency=IDR, completion_date=2025-06-12\n"
+                    "Profile: min_balance=34,140,600\n"
+                    "Decision: method=full_payment, spending_changes=reduce_to:event_989:665950 (weekend food delivery to IDR 665,950)"
                 ),
             },
             {
@@ -107,40 +109,14 @@ class LLMExplanationGenerator:
             {
                 "role": "user",
                 "content": (
-                    "Request: amount=1574.40, currency=USD, completion_date=2026-04-14\n"
-                    "Profile: min_balance=1800\n"
-                    "Decision: method=full_payment, spending_changes=stop:event_1815 (Online backup subscription) and reduce_to:event_1816:23.50 (Streaming subscription to USD 23.50)"
+                    "Request: amount=1,574.40, currency=USD, completion_date=2026-04-14\n"
+                    "Profile: min_balance=1,800\n"
+                    "Decision: method=full_payment, spending_changes=stop:event_1815 (online backup subscription) and reduce_to:event_1816:23.50 (streaming subscription to USD 23.50)"
                 ),
             },
             {
                 "role": "assistant",
                 "content": "Stop the online backup subscription and reduce the streaming subscription to USD 23.50, then pay USD 1,574.40 today. This leaves at least USD 1,800 available.",
-            },
-            # request_02: installments
-            {
-                "role": "user",
-                "content": (
-                    "Request: amount=46018000, currency=IDR, completion_date=2025-10-10\n"
-                    "Profile: min_balance=29158400\n"
-                    "Decision: method=installments, 3 installments of IDR 15,952,906.67 starting 2025-08-08"
-                ),
-            },
-            {
-                "role": "assistant",
-                "content": "Use 3 installments of IDR 15,952,906.67, starting 8 August 2025. This leaves at least IDR 29,158,400 available.",
-            },
-            # request_03: wait
-            {
-                "role": "user",
-                "content": (
-                    "Request: amount=5491000, currency=IDR, completion_date=2019-11-15\n"
-                    "Profile: min_balance=2668700\n"
-                    "Decision: method=wait, earliest_full_payment_date=2019-11-15"
-                ),
-            },
-            {
-                "role": "assistant",
-                "content": "Pay IDR 5,491,000 in full on 15 November 2019. Paying earlier would take the balance below the IDR 2,668,700 minimum.",
             },
         ]
 
@@ -152,11 +128,19 @@ class LLMExplanationGenerator:
                 act_type = parts[0]
                 ev_id = parts[1] if len(parts) > 1 else ""
                 ev_desc = _extract_event_description(ev_id, events_by_id)
+                clean_desc = ev_desc.strip().lower()
                 if act_type == "stop":
-                    changes_desc.append(f"stop:{ev_id} ({ev_desc})")
+                    changes_desc.append(f"stop:{ev_id} ({clean_desc})")
                 elif act_type == "reduce_to":
                     new_val = parts[2] if len(parts) > 2 else "0"
-                    changes_desc.append(f"reduce_to:{ev_id}:{new_val} ({ev_desc} to {profile.home_currency} {new_val})")
+                    try:
+                        f_val = float(new_val)
+                        formatted_new = format_currency_amount(f_val)
+                    except ValueError:
+                        formatted_new = new_val
+                    changes_desc.append(
+                        f"reduce_to:{ev_id}:{new_val} ({clean_desc} to {profile.home_currency} {formatted_new})"
+                    )
 
         changes_summary = " and ".join(changes_desc) if changes_desc else "none"
 
@@ -172,7 +156,7 @@ class LLMExplanationGenerator:
         return messages
 
     def _call_groq_api(self, messages: list) -> str:
-        """Call Groq API over HTTP with error handling."""
+        """Call Groq API over HTTP with error handling and retry for rate limits."""
         import requests
 
         headers = {
@@ -183,32 +167,67 @@ class LLMExplanationGenerator:
             "model": self.model,
             "messages": messages,
             "temperature": 0.0,
-            "max_tokens": 120,
+            "reasoning_effort": "low",
+            "max_tokens": 220,
         }
 
-        response = requests.post(
-            GROQ_CHAT_COMPLETIONS_URL,
-            headers=headers,
-            json=payload,
-            timeout=self.timeout,
-        )
-        response.raise_for_status()
-        data = response.json()
+        max_retries = 3
+        backoff = 2.0
 
-        # Update usage metrics
-        self.total_calls += 1
-        usage = data.get("usage", {})
-        self.total_prompt_tokens += usage.get("prompt_tokens", 0)
-        self.total_completion_tokens += usage.get("completion_tokens", 0)
-        self.total_tokens += usage.get("total_tokens", 0)
+        for attempt in range(max_retries):
+            try:
+                response = requests.post(
+                    GROQ_CHAT_COMPLETIONS_URL,
+                    headers=headers,
+                    json=payload,
+                    timeout=self.timeout,
+                )
+                if response.status_code == 429:
+                    retry_after = float(response.headers.get("retry-after", backoff))
+                    logger.warning(
+                        f"Groq API 429 Rate Limit. Sleeping {retry_after}s before retry (attempt {attempt + 1}/{max_retries})."
+                    )
+                    time.sleep(retry_after)
+                    backoff *= 1.5
+                    continue
 
-        content = data["choices"][0]["message"]["content"].strip()
-        # Strip wrapping quotation marks if present
-        if (content.startswith('"') and content.endswith('"')) or (
-            content.startswith("'") and content.endswith("'")
-        ):
-            content = content[1:-1].strip()
-        return content
+                response.raise_for_status()
+                data = response.json()
+
+                # Update usage metrics
+                self.total_calls += 1
+                usage = data.get("usage", {})
+                prompt_tokens = usage.get("prompt_tokens", 0)
+                completion_tokens = usage.get("completion_tokens", 0)
+                total_tokens = usage.get("total_tokens", 0)
+
+                self.total_prompt_tokens += prompt_tokens
+                self.total_completion_tokens += completion_tokens
+                self.total_tokens += total_tokens
+
+                # Record in global tracker for usage report
+                tracker.record(self.model, prompt_tokens, completion_tokens)
+
+                content = data["choices"][0]["message"].get("content", "").strip()
+                # Clean narrow no-break space and non-breaking space
+                content = content.replace("\u202f", " ").replace("\u00a0", " ")
+
+                # Strip wrapping quotation marks if present
+                if (content.startswith('"') and content.endswith('"')) or (
+                    content.startswith("'") and content.endswith("'")
+                ):
+                    content = content[1:-1].strip()
+
+                # Small delay to respect token-per-minute limits
+                time.sleep(1.0)
+                return content
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise e
+                time.sleep(backoff)
+                backoff *= 1.5
+
+        raise RuntimeError("Exceeded maximum retries for Groq API call.")
 
     def generate_explanation(
         self,
@@ -226,14 +245,12 @@ class LLMExplanationGenerator:
         gracefully uses deterministic templates.
         """
         # 1. Check if LLM should be invoked
+        is_complex = bool(
+            plan.spending_changes_needed
+            and plan.spending_changes_needed != "none"
+        )
         should_call_llm = self.is_available and (
-            force_llm
-            or (
-                use_llm_for_complex
-                and plan.spending_changes_needed
-                and plan.spending_changes_needed != "none"
-                and "|" in plan.spending_changes_needed
-            )
+            force_llm or (use_llm_for_complex and is_complex)
         )
 
         if not should_call_llm:
@@ -255,8 +272,19 @@ class LLMExplanationGenerator:
                 events_by_id=events_by_id,
             )
             explanation = self._call_groq_api(messages)
-            if explanation:
+            if (
+                explanation
+                and explanation.endswith(".")
+                and profile.home_currency in explanation
+                and "\n" not in explanation
+                and not explanation.startswith("*")
+                and not explanation.startswith("-")
+            ):
                 return explanation
+            else:
+                logger.warning(
+                    f"Groq API returned malformed explanation: {repr(explanation)}; falling back to template."
+                )
         except Exception as err:
             self.failed_calls += 1
             logger.warning(

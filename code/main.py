@@ -11,7 +11,11 @@ while cur_dir in sys.path:
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
 
-from typing import List
+from typing import List, Optional
+from dotenv import load_dotenv
+
+# Automatically load environment variables (such as GROQ_API_KEY) from .env in repo root
+load_dotenv()
 
 from code.data.evidence import EvidenceManager, tracker
 from code.data.loader import DataLoader
@@ -27,10 +31,18 @@ def run_pipeline(
     sample_mode: bool = False,
     output_path: str = "output.csv",
     tolerance: float = 5.0,
+    use_llm: Optional[bool] = None,
 ) -> None:
+    if use_llm is None:
+        use_llm = not sample_mode
+
     loader = DataLoader()
     evidence_mgr = EvidenceManager()
-    pipeline = DecisionPipeline(data_loader=loader, evidence_manager=evidence_mgr)
+    pipeline = DecisionPipeline(
+        data_loader=loader,
+        evidence_manager=evidence_mgr,
+        use_llm=use_llm,
+    )
 
     profiles = loader.load_profiles()
     events = loader.load_events()
@@ -124,12 +136,21 @@ def main():
     parser.add_argument("--eval-sample", action="store_true", help="Run evaluation on dataset/sample_requests.csv")
     parser.add_argument("--tolerance", type=float, default=5.0, help="Numerical tolerance for safe amount")
     parser.add_argument("--output", type=str, default="output.csv", help="Path to write output CSV")
+    parser.add_argument("--use-llm", action="store_true", help="Explicitly enable LLM explanation calls via Groq API")
+    parser.add_argument("--no-llm", action="store_true", help="Disable LLM calls and use deterministic templates only")
     args = parser.parse_args()
+
+    use_llm = None
+    if args.no_llm:
+        use_llm = False
+    elif args.use_llm:
+        use_llm = True
 
     run_pipeline(
         sample_mode=args.eval_sample,
         output_path=args.output,
         tolerance=args.tolerance,
+        use_llm=use_llm,
     )
 
 
