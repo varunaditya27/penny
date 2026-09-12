@@ -16,7 +16,7 @@
 - **Total Input Tokens**: 0
 - **Total Output Tokens**: 0
 - **Total Combined Tokens**: 0
-- **Average Tokens per Request** (250 requests): 0.0
+- **Average Tokens per Request** (25 requests): 0.0
 - **Estimated Total Cost**: $0.0000
 - **Estimated Cost per Request**: $0.00000
 
