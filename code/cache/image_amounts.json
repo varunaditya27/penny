@@ -1,0 +1,146 @@
+{
+  "event_253": {
+    "image_id": "image_01",
+    "user_id": "user_03",
+    "amount": 4365000.0,
+    "currency": "IDR",
+    "document_type": "payslip",
+    "selected_field": "Net Pay",
+    "confidence": "exact"
+  },
+  "event_1442": {
+    "image_id": "image_02",
+    "user_id": "user_16",
+    "amount": 100000.0,
+    "currency": "INR",
+    "document_type": "rent_receipt",
+    "selected_field": "Balance Due",
+    "confidence": "exact"
+  },
+  "event_1545": {
+    "image_id": "image_03",
+    "user_id": "user_17",
+    "amount": 41272.0,
+    "currency": "INR",
+    "document_type": "store_bill",
+    "selected_field": "Net Amount",
+    "confidence": "exact"
+  },
+  "event_1700": {
+    "image_id": "image_04",
+    "user_id": "user_19",
+    "amount": 2854.0,
+    "currency": "INR",
+    "document_type": "food_delivery_receipt",
+    "selected_field": "Item Bill (Cropped)",
+    "confidence": "partial"
+  },
+  "event_1786": {
+    "image_id": "image_05",
+    "user_id": "user_20",
+    "amount": 704.05,
+    "currency": "INR",
+    "document_type": "telecom_bill",
+    "selected_field": "Amount due till 06-Feb-2026",
+    "confidence": "exact"
+  },
+  "event_3051": {
+    "image_id": "image_06",
+    "user_id": "user_33",
+    "amount": 1995.0,
+    "currency": "INR",
+    "document_type": "grocery_invoice",
+    "selected_field": "Total Amount",
+    "confidence": "exact"
+  },
+  "event_3231": {
+    "image_id": "image_07",
+    "user_id": "user_35",
+    "amount": 8528.0,
+    "currency": "INR",
+    "document_type": "restaurant_bill",
+    "selected_field": "Grand Total",
+    "confidence": "exact"
+  },
+  "event_4535": {
+    "image_id": "image_08",
+    "user_id": "user_48",
+    "amount": 15339.0,
+    "currency": "INR",
+    "document_type": "maintenance_receipt",
+    "selected_field": "Total Received",
+    "confidence": "exact"
+  },
+  "event_5170": {
+    "image_id": "image_09",
+    "user_id": "user_55",
+    "amount": 723.0,
+    "currency": "INR",
+    "document_type": "water_bill",
+    "selected_field": "Total Payable",
+    "confidence": "exact"
+  },
+  "event_6033": {
+    "image_id": "image_10",
+    "user_id": "user_64",
+    "amount": 79679.26,
+    "currency": "INR",
+    "document_type": "supermarket_invoice",
+    "selected_field": "Total Due",
+    "confidence": "exact"
+  },
+  "event_6859": {
+    "image_id": "image_11",
+    "user_id": "user_73",
+    "amount": 3650.0,
+    "currency": "INR",
+    "document_type": "hospital_bill",
+    "selected_field": "Total Balance",
+    "confidence": "exact"
+  },
+  "event_7307": {
+    "image_id": "image_12",
+    "user_id": "user_78",
+    "amount": 33.50,
+    "currency": "USD",
+    "document_type": "taxi_receipt",
+    "selected_field": "Total Fare",
+    "confidence": "exact"
+  },
+  "event_7941": {
+    "image_id": "image_13",
+    "user_id": "user_84",
+    "amount": 2298.0,
+    "currency": "INR",
+    "document_type": "shopping_receipt",
+    "selected_field": "Total Paid",
+    "confidence": "exact"
+  },
+  "event_9421": {
+    "image_id": "image_14",
+    "user_id": "user_101",
+    "amount": 4543.0,
+    "currency": "INR",
+    "document_type": "handwritten_pharmacy_receipt",
+    "selected_field": "TOTAL (Verified by line-item sum 1500+724+796+550+303+670=4543)",
+    "confidence": "exact"
+  },
+  "event_9806": {
+    "image_id": "image_15",
+    "user_id": "user_105",
+    "amount": 9968.0,
+    "currency": "INR",
+    "document_type": "airline_invoice",
+    "selected_field": "Grand Total",
+    "confidence": "exact"
+  },
+  "event_10521": {
+    "image_id": "image_16",
+    "user_id": "user_113",
+    "amount": 393.22,
+    "currency": "INR",
+    "document_type": "ev_charging_invoice",
+    "selected_field": "Total Amount",
+    "confidence": "exact"
+  }
+}

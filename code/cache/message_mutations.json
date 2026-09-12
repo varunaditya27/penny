@@ -1,0 +1,1630 @@
+{
+  "message_01": {
+    "message_id": "message_01",
+    "user_id": "user_02",
+    "action": "AMEND_SALARY",
+    "amount": 42750000.0,
+    "currency": "IDR",
+    "effective_date": "2025-08-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_02": {
+    "message_id": "message_02",
+    "user_id": "user_03",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_03": {
+    "message_id": "message_03",
+    "user_id": "user_04",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_04": {
+    "message_id": "message_04",
+    "user_id": "user_06",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_05": {
+    "message_id": "message_05",
+    "user_id": "user_07",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_06": {
+    "message_id": "message_06",
+    "user_id": "user_08",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_07": {
+    "message_id": "message_07",
+    "user_id": "user_10",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_08": {
+    "message_id": "message_08",
+    "user_id": "user_11",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_09": {
+    "message_id": "message_09",
+    "user_id": "user_12",
+    "action": "STOP_INCOME",
+    "effective_date": "",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_10": {
+    "message_id": "message_10",
+    "user_id": "user_14",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_11": {
+    "message_id": "message_11",
+    "user_id": "user_15",
+    "action": "NEW_JOB_SALARY",
+    "amount": 1661.0,
+    "currency": "EUR",
+    "effective_date": "2026-01-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_12": {
+    "message_id": "message_12",
+    "user_id": "user_16",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_13": {
+    "message_id": "message_13",
+    "user_id": "user_18",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_14": {
+    "message_id": "message_14",
+    "user_id": "user_20",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_1785",
+    "confidence": "exact"
+  },
+  "message_15": {
+    "message_id": "message_15",
+    "user_id": "user_22",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_1960",
+    "confidence": "exact"
+  },
+  "message_16": {
+    "message_id": "message_16",
+    "user_id": "user_23",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_17": {
+    "message_id": "message_17",
+    "user_id": "user_24",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_2165",
+    "confidence": "exact"
+  },
+  "message_18": {
+    "message_id": "message_18",
+    "user_id": "user_26",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_19": {
+    "message_id": "message_19",
+    "user_id": "user_27",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_20": {
+    "message_id": "message_20",
+    "user_id": "user_28",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_21": {
+    "message_id": "message_21",
+    "user_id": "user_29",
+    "action": "STOP_INCOME",
+    "effective_date": "",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_22": {
+    "message_id": "message_22",
+    "user_id": "user_32",
+    "action": "NEW_JOB_SALARY",
+    "amount": 54120.0,
+    "currency": "ZAR",
+    "effective_date": "2025-02-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_23": {
+    "message_id": "message_23",
+    "user_id": "user_33",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_24": {
+    "message_id": "message_24",
+    "user_id": "user_34",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_25": {
+    "message_id": "message_25",
+    "user_id": "user_35",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_3230",
+    "confidence": "exact"
+  },
+  "message_26": {
+    "message_id": "message_26",
+    "user_id": "user_36",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_27": {
+    "message_id": "message_27",
+    "user_id": "user_37",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_28": {
+    "message_id": "message_28",
+    "user_id": "user_38",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_3491",
+    "confidence": "exact"
+  },
+  "message_29": {
+    "message_id": "message_29",
+    "user_id": "user_40",
+    "action": "NEW_JOB_SALARY",
+    "amount": 1760.0,
+    "currency": "EUR",
+    "effective_date": "2024-06-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_30": {
+    "message_id": "message_30",
+    "user_id": "user_42",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_31": {
+    "message_id": "message_31",
+    "user_id": "user_43",
+    "action": "NEW_JOB_SALARY",
+    "amount": 32870000.0,
+    "currency": "IDR",
+    "effective_date": "2024-09-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_32": {
+    "message_id": "message_32",
+    "user_id": "user_44",
+    "action": "NEW_JOB_SALARY",
+    "amount": 115000.0,
+    "currency": "INR",
+    "effective_date": "2025-02-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_33": {
+    "message_id": "message_33",
+    "user_id": "user_45",
+    "action": "AMEND_SALARY",
+    "amount": 17290000.0,
+    "currency": "IDR",
+    "effective_date": "2026-07-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_34": {
+    "message_id": "message_34",
+    "user_id": "user_47",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_35": {
+    "message_id": "message_35",
+    "user_id": "user_48",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_4535",
+    "confidence": "exact"
+  },
+  "message_36": {
+    "message_id": "message_36",
+    "user_id": "user_49",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_37": {
+    "message_id": "message_37",
+    "user_id": "user_50",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_38": {
+    "message_id": "message_38",
+    "user_id": "user_52",
+    "action": "NEW_JOB_SALARY",
+    "amount": 69000.0,
+    "currency": "INR",
+    "effective_date": "2024-06-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_39": {
+    "message_id": "message_39",
+    "user_id": "user_53",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_4994",
+    "confidence": "exact"
+  },
+  "message_40": {
+    "message_id": "message_40",
+    "user_id": "user_54",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_41": {
+    "message_id": "message_41",
+    "user_id": "user_57",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_42": {
+    "message_id": "message_42",
+    "user_id": "user_58",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_43": {
+    "message_id": "message_43",
+    "user_id": "user_59",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_44": {
+    "message_id": "message_44",
+    "user_id": "user_60",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_45": {
+    "message_id": "message_45",
+    "user_id": "user_61",
+    "action": "STOP_INCOME",
+    "effective_date": "",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_46": {
+    "message_id": "message_46",
+    "user_id": "user_62",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_47": {
+    "message_id": "message_47",
+    "user_id": "user_64",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_48": {
+    "message_id": "message_48",
+    "user_id": "user_65",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_49": {
+    "message_id": "message_49",
+    "user_id": "user_66",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_50": {
+    "message_id": "message_50",
+    "user_id": "user_68",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_51": {
+    "message_id": "message_51",
+    "user_id": "user_69",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_52": {
+    "message_id": "message_52",
+    "user_id": "user_70",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_6532",
+    "confidence": "exact"
+  },
+  "message_53": {
+    "message_id": "message_53",
+    "user_id": "user_71",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_54": {
+    "message_id": "message_54",
+    "user_id": "user_72",
+    "action": "NEW_JOB_SALARY",
+    "amount": 18700.0,
+    "currency": "ZAR",
+    "effective_date": "2026-07-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_55": {
+    "message_id": "message_55",
+    "user_id": "user_73",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_56": {
+    "message_id": "message_56",
+    "user_id": "user_74",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_57": {
+    "message_id": "message_57",
+    "user_id": "user_75",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_58": {
+    "message_id": "message_58",
+    "user_id": "user_76",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_59": {
+    "message_id": "message_59",
+    "user_id": "user_77",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_7186",
+    "confidence": "exact"
+  },
+  "message_60": {
+    "message_id": "message_60",
+    "user_id": "user_80",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_61": {
+    "message_id": "message_61",
+    "user_id": "user_81",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_62": {
+    "message_id": "message_62",
+    "user_id": "user_82",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_63": {
+    "message_id": "message_63",
+    "user_id": "user_83",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_64": {
+    "message_id": "message_64",
+    "user_id": "user_84",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_7941",
+    "confidence": "exact"
+  },
+  "message_65": {
+    "message_id": "message_65",
+    "user_id": "user_85",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_66": {
+    "message_id": "message_66",
+    "user_id": "user_87",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_67": {
+    "message_id": "message_67",
+    "user_id": "user_88",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_68": {
+    "message_id": "message_68",
+    "user_id": "user_90",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_69": {
+    "message_id": "message_69",
+    "user_id": "user_91",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_8575",
+    "confidence": "exact"
+  },
+  "message_70": {
+    "message_id": "message_70",
+    "user_id": "user_92",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_71": {
+    "message_id": "message_71",
+    "user_id": "user_93",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_72": {
+    "message_id": "message_72",
+    "user_id": "user_94",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_73": {
+    "message_id": "message_73",
+    "user_id": "user_95",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_74": {
+    "message_id": "message_74",
+    "user_id": "user_98",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_75": {
+    "message_id": "message_75",
+    "user_id": "user_101",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_9420",
+    "confidence": "exact"
+  },
+  "message_76": {
+    "message_id": "message_76",
+    "user_id": "user_102",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_77": {
+    "message_id": "message_77",
+    "user_id": "user_103",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_78": {
+    "message_id": "message_78",
+    "user_id": "user_104",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_79": {
+    "message_id": "message_79",
+    "user_id": "user_105",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_9805",
+    "confidence": "exact"
+  },
+  "message_80": {
+    "message_id": "message_80",
+    "user_id": "user_106",
+    "action": "NEW_JOB_SALARY",
+    "amount": 1815.0,
+    "currency": "EUR",
+    "effective_date": "2024-12-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_81": {
+    "message_id": "message_81",
+    "user_id": "user_107",
+    "action": "NEW_JOB_SALARY",
+    "amount": 2123.0,
+    "currency": "EUR",
+    "effective_date": "2025-05-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_82": {
+    "message_id": "message_82",
+    "user_id": "user_108",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_83": {
+    "message_id": "message_83",
+    "user_id": "user_110",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_84": {
+    "message_id": "message_84",
+    "user_id": "user_111",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_85": {
+    "message_id": "message_85",
+    "user_id": "user_112",
+    "action": "NEW_JOB_SALARY",
+    "amount": 627.0,
+    "currency": "EUR",
+    "effective_date": "2024-06-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_86": {
+    "message_id": "message_86",
+    "user_id": "user_113",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_10521",
+    "confidence": "exact"
+  },
+  "message_87": {
+    "message_id": "message_87",
+    "user_id": "user_114",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_88": {
+    "message_id": "message_88",
+    "user_id": "user_115",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_10699",
+    "confidence": "exact"
+  },
+  "message_89": {
+    "message_id": "message_89",
+    "user_id": "user_117",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_90": {
+    "message_id": "message_90",
+    "user_id": "user_118",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_91": {
+    "message_id": "message_91",
+    "user_id": "user_119",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_92": {
+    "message_id": "message_92",
+    "user_id": "user_120",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_11129",
+    "confidence": "exact"
+  },
+  "message_93": {
+    "message_id": "message_93",
+    "user_id": "user_122",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_94": {
+    "message_id": "message_94",
+    "user_id": "user_123",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_95": {
+    "message_id": "message_95",
+    "user_id": "user_125",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_96": {
+    "message_id": "message_96",
+    "user_id": "user_126",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_97": {
+    "message_id": "message_97",
+    "user_id": "user_127",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_98": {
+    "message_id": "message_98",
+    "user_id": "user_128",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_99": {
+    "message_id": "message_99",
+    "user_id": "user_129",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_11925",
+    "confidence": "exact"
+  },
+  "message_100": {
+    "message_id": "message_100",
+    "user_id": "user_130",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_101": {
+    "message_id": "message_101",
+    "user_id": "user_131",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_102": {
+    "message_id": "message_102",
+    "user_id": "user_132",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_103": {
+    "message_id": "message_103",
+    "user_id": "user_133",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_104": {
+    "message_id": "message_104",
+    "user_id": "user_135",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_105": {
+    "message_id": "message_105",
+    "user_id": "user_137",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_106": {
+    "message_id": "message_106",
+    "user_id": "user_138",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_12709",
+    "confidence": "exact"
+  },
+  "message_107": {
+    "message_id": "message_107",
+    "user_id": "user_140",
+    "action": "NEW_JOB_SALARY",
+    "amount": 31900.0,
+    "currency": "ZAR",
+    "effective_date": "2025-02-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_108": {
+    "message_id": "message_108",
+    "user_id": "user_141",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_13032",
+    "confidence": "exact"
+  },
+  "message_109": {
+    "message_id": "message_109",
+    "user_id": "user_142",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_110": {
+    "message_id": "message_110",
+    "user_id": "user_143",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_13207",
+    "confidence": "exact"
+  },
+  "message_111": {
+    "message_id": "message_111",
+    "user_id": "user_144",
+    "action": "NEW_JOB_SALARY",
+    "amount": 864.0,
+    "currency": "USD",
+    "effective_date": "2026-07-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_112": {
+    "message_id": "message_112",
+    "user_id": "user_145",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_113": {
+    "message_id": "message_113",
+    "user_id": "user_147",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_114": {
+    "message_id": "message_114",
+    "user_id": "user_148",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_13663",
+    "confidence": "exact"
+  },
+  "message_115": {
+    "message_id": "message_115",
+    "user_id": "user_150",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_116": {
+    "message_id": "message_116",
+    "user_id": "user_151",
+    "action": "NEW_JOB_SALARY",
+    "amount": 46170000.0,
+    "currency": "IDR",
+    "effective_date": "2024-09-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_117": {
+    "message_id": "message_117",
+    "user_id": "user_152",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_14026",
+    "confidence": "exact"
+  },
+  "message_118": {
+    "message_id": "message_118",
+    "user_id": "user_153",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_119": {
+    "message_id": "message_119",
+    "user_id": "user_154",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_120": {
+    "message_id": "message_120",
+    "user_id": "user_155",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_121": {
+    "message_id": "message_121",
+    "user_id": "user_156",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_14399",
+    "confidence": "exact"
+  },
+  "message_122": {
+    "message_id": "message_122",
+    "user_id": "user_157",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_123": {
+    "message_id": "message_123",
+    "user_id": "user_159",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_124": {
+    "message_id": "message_124",
+    "user_id": "user_160",
+    "action": "NEW_JOB_SALARY",
+    "amount": 1672.0,
+    "currency": "EUR",
+    "effective_date": "2024-06-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_125": {
+    "message_id": "message_125",
+    "user_id": "user_161",
+    "action": "NEW_JOB_SALARY",
+    "amount": 26790000.0,
+    "currency": "IDR",
+    "effective_date": "2025-11-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_126": {
+    "message_id": "message_126",
+    "user_id": "user_162",
+    "action": "AMEND_SALARY",
+    "amount": 29070000.0,
+    "currency": "IDR",
+    "effective_date": "2026-07-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_127": {
+    "message_id": "message_127",
+    "user_id": "user_163",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_128": {
+    "message_id": "message_128",
+    "user_id": "user_164",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_129": {
+    "message_id": "message_129",
+    "user_id": "user_165",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_130": {
+    "message_id": "message_130",
+    "user_id": "user_166",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_131": {
+    "message_id": "message_131",
+    "user_id": "user_167",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_132": {
+    "message_id": "message_132",
+    "user_id": "user_168",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_133": {
+    "message_id": "message_133",
+    "user_id": "user_169",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_134": {
+    "message_id": "message_134",
+    "user_id": "user_170",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_135": {
+    "message_id": "message_135",
+    "user_id": "user_171",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_136": {
+    "message_id": "message_136",
+    "user_id": "user_172",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_137": {
+    "message_id": "message_137",
+    "user_id": "user_173",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_138": {
+    "message_id": "message_138",
+    "user_id": "user_175",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_139": {
+    "message_id": "message_139",
+    "user_id": "user_176",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_140": {
+    "message_id": "message_140",
+    "user_id": "user_177",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_141": {
+    "message_id": "message_141",
+    "user_id": "user_178",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_142": {
+    "message_id": "message_142",
+    "user_id": "user_179",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_143": {
+    "message_id": "message_143",
+    "user_id": "user_180",
+    "action": "NEW_JOB_SALARY",
+    "amount": 59000.0,
+    "currency": "INR",
+    "effective_date": "2026-07-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_144": {
+    "message_id": "message_144",
+    "user_id": "user_182",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_145": {
+    "message_id": "message_145",
+    "user_id": "user_183",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_146": {
+    "message_id": "message_146",
+    "user_id": "user_184",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_147": {
+    "message_id": "message_147",
+    "user_id": "user_185",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_148": {
+    "message_id": "message_148",
+    "user_id": "user_186",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_149": {
+    "message_id": "message_149",
+    "user_id": "user_187",
+    "action": "NEW_JOB_SALARY",
+    "amount": 145000.0,
+    "currency": "INR",
+    "effective_date": "2024-09-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_150": {
+    "message_id": "message_150",
+    "user_id": "user_188",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_17401",
+    "confidence": "exact"
+  },
+  "message_151": {
+    "message_id": "message_151",
+    "user_id": "user_189",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_152": {
+    "message_id": "message_152",
+    "user_id": "user_191",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_17662",
+    "confidence": "exact"
+  },
+  "message_153": {
+    "message_id": "message_153",
+    "user_id": "user_193",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_154": {
+    "message_id": "message_154",
+    "user_id": "user_194",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_155": {
+    "message_id": "message_155",
+    "user_id": "user_195",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_156": {
+    "message_id": "message_156",
+    "user_id": "user_197",
+    "action": "NEW_JOB_SALARY",
+    "amount": 38190000.0,
+    "currency": "IDR",
+    "effective_date": "2025-11-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_157": {
+    "message_id": "message_157",
+    "user_id": "user_198",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_18269",
+    "confidence": "exact"
+  },
+  "message_158": {
+    "message_id": "message_158",
+    "user_id": "user_199",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_159": {
+    "message_id": "message_159",
+    "user_id": "user_200",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_160": {
+    "message_id": "message_160",
+    "user_id": "user_201",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_161": {
+    "message_id": "message_161",
+    "user_id": "user_202",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_162": {
+    "message_id": "message_162",
+    "user_id": "user_204",
+    "action": "NEW_JOB_SALARY",
+    "amount": 2024.0,
+    "currency": "EUR",
+    "effective_date": "2026-01-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_163": {
+    "message_id": "message_163",
+    "user_id": "user_208",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_19182",
+    "confidence": "exact"
+  },
+  "message_164": {
+    "message_id": "message_164",
+    "user_id": "user_210",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_19334",
+    "confidence": "exact"
+  },
+  "message_165": {
+    "message_id": "message_165",
+    "user_id": "user_212",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_166": {
+    "message_id": "message_166",
+    "user_id": "user_213",
+    "action": "STOP_INCOME",
+    "effective_date": "",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_167": {
+    "message_id": "message_167",
+    "user_id": "user_214",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_168": {
+    "message_id": "message_168",
+    "user_id": "user_215",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_169": {
+    "message_id": "message_169",
+    "user_id": "user_216",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_170": {
+    "message_id": "message_170",
+    "user_id": "user_219",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_171": {
+    "message_id": "message_171",
+    "user_id": "user_220",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_172": {
+    "message_id": "message_172",
+    "user_id": "user_221",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_20379",
+    "confidence": "exact"
+  },
+  "message_173": {
+    "message_id": "message_173",
+    "user_id": "user_222",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_174": {
+    "message_id": "message_174",
+    "user_id": "user_224",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_20615",
+    "confidence": "exact"
+  },
+  "message_175": {
+    "message_id": "message_175",
+    "user_id": "user_225",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_176": {
+    "message_id": "message_176",
+    "user_id": "user_226",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_177": {
+    "message_id": "message_177",
+    "user_id": "user_227",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_178": {
+    "message_id": "message_178",
+    "user_id": "user_228",
+    "action": "NEW_JOB_SALARY",
+    "amount": 30400000.0,
+    "currency": "IDR",
+    "effective_date": "2026-04-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_179": {
+    "message_id": "message_179",
+    "user_id": "user_229",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_21101",
+    "confidence": "exact"
+  },
+  "message_180": {
+    "message_id": "message_180",
+    "user_id": "user_230",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_181": {
+    "message_id": "message_181",
+    "user_id": "user_232",
+    "action": "NEW_JOB_SALARY",
+    "amount": 2772.0,
+    "currency": "EUR",
+    "effective_date": "2024-06-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_182": {
+    "message_id": "message_182",
+    "user_id": "user_233",
+    "action": "NEW_JOB_SALARY",
+    "amount": 16910000.0,
+    "currency": "IDR",
+    "effective_date": "2025-11-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_183": {
+    "message_id": "message_183",
+    "user_id": "user_234",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_21582",
+    "confidence": "exact"
+  },
+  "message_184": {
+    "message_id": "message_184",
+    "user_id": "user_235",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_185": {
+    "message_id": "message_185",
+    "user_id": "user_236",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_21785",
+    "confidence": "exact"
+  },
+  "message_186": {
+    "message_id": "message_186",
+    "user_id": "user_237",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_187": {
+    "message_id": "message_187",
+    "user_id": "user_238",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_188": {
+    "message_id": "message_188",
+    "user_id": "user_240",
+    "action": "NEW_JOB_SALARY",
+    "amount": 62000.0,
+    "currency": "INR",
+    "effective_date": "2026-01-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_189": {
+    "message_id": "message_189",
+    "user_id": "user_241",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_190": {
+    "message_id": "message_190",
+    "user_id": "user_242",
+    "action": "NEW_JOB_SALARY",
+    "amount": 968.0,
+    "currency": "EUR",
+    "effective_date": "2025-08-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_191": {
+    "message_id": "message_191",
+    "user_id": "user_245",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_192": {
+    "message_id": "message_192",
+    "user_id": "user_246",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_193": {
+    "message_id": "message_193",
+    "user_id": "user_247",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_194": {
+    "message_id": "message_194",
+    "user_id": "user_248",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_195": {
+    "message_id": "message_195",
+    "user_id": "user_249",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_196": {
+    "message_id": "message_196",
+    "user_id": "user_250",
+    "action": "NEW_JOB_SALARY",
+    "amount": 53680.0,
+    "currency": "ZAR",
+    "effective_date": "2024-12-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_197": {
+    "message_id": "message_197",
+    "user_id": "user_252",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_23203",
+    "confidence": "exact"
+  },
+  "message_198": {
+    "message_id": "message_198",
+    "user_id": "user_253",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_23306",
+    "confidence": "exact"
+  },
+  "message_199": {
+    "message_id": "message_199",
+    "user_id": "user_254",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_200": {
+    "message_id": "message_200",
+    "user_id": "user_256",
+    "action": "NEW_JOB_SALARY",
+    "amount": 214000.0,
+    "currency": "INR",
+    "effective_date": "2024-06-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_201": {
+    "message_id": "message_201",
+    "user_id": "user_259",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_23855",
+    "confidence": "exact"
+  },
+  "message_202": {
+    "message_id": "message_202",
+    "user_id": "user_261",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_203": {
+    "message_id": "message_203",
+    "user_id": "user_262",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_204": {
+    "message_id": "message_204",
+    "user_id": "user_263",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_205": {
+    "message_id": "message_205",
+    "user_id": "user_264",
+    "action": "INFORMATIONAL",
+    "related_event_id": "event_24352",
+    "confidence": "exact"
+  },
+  "message_206": {
+    "message_id": "message_206",
+    "user_id": "user_265",
+    "action": "STOP_INCOME",
+    "effective_date": "",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_207": {
+    "message_id": "message_207",
+    "user_id": "user_266",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_24534",
+    "confidence": "exact"
+  },
+  "message_208": {
+    "message_id": "message_208",
+    "user_id": "user_267",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_209": {
+    "message_id": "message_209",
+    "user_id": "user_268",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_210": {
+    "message_id": "message_210",
+    "user_id": "user_269",
+    "action": "NEW_JOB_SALARY",
+    "amount": 38280.0,
+    "currency": "ZAR",
+    "effective_date": "2025-11-15",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_211": {
+    "message_id": "message_211",
+    "user_id": "user_271",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_212": {
+    "message_id": "message_212",
+    "user_id": "user_272",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_213": {
+    "message_id": "message_213",
+    "user_id": "user_273",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_214": {
+    "message_id": "message_214",
+    "user_id": "user_274",
+    "action": "INFORMATIONAL",
+    "related_event_id": "",
+    "confidence": "exact"
+  },
+  "message_215": {
+    "message_id": "message_215",
+    "user_id": "user_275",
+    "action": "EXCLUDE_PENDING",
+    "description": "Excluded unconfirmed bonus/portfolio/pending funds",
+    "related_event_id": "event_25342",
+    "confidence": "exact"
+  }
+}
