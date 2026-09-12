@@ -29,10 +29,13 @@ logger = logging.getLogger("buy_or_wait.main")
 
 def run_pipeline(
     sample_mode: bool = False,
-    output_path: str = "output.csv",
+    output_path: Optional[str] = None,
     tolerance: float = 5.0,
     use_llm: Optional[bool] = None,
 ) -> None:
+    if output_path is None:
+        output_path = "evaluation/sample_output.csv" if sample_mode else "output.csv"
+
     if use_llm is None:
         use_llm = not sample_mode
 
@@ -125,7 +128,8 @@ def run_pipeline(
     # Generate token usage report
     report_content = tracker.generate_report_markdown(total_requests=len(requests))
     os.makedirs("evaluation", exist_ok=True)
-    usage_path = os.path.join("evaluation", "usage_report.md")
+    usage_filename = "sample_usage_report.md" if sample_mode else "usage_report.md"
+    usage_path = os.path.join("evaluation", usage_filename)
     with open(usage_path, "w", encoding="utf-8") as f:
         f.write(report_content)
     logger.info(f"Updated usage report at {usage_path}")
@@ -135,7 +139,7 @@ def main():
     parser = argparse.ArgumentParser(description="Buy or Wait? AI-powered financial decision agent CLI.")
     parser.add_argument("--eval-sample", action="store_true", help="Run evaluation on dataset/sample_requests.csv")
     parser.add_argument("--tolerance", type=float, default=5.0, help="Numerical tolerance for safe amount")
-    parser.add_argument("--output", type=str, default="output.csv", help="Path to write output CSV")
+    parser.add_argument("--output", type=str, default=None, help="Path to write output CSV")
     parser.add_argument("--use-llm", action="store_true", help="Explicitly enable LLM explanation calls via Groq API")
     parser.add_argument("--no-llm", action="store_true", help="Disable LLM calls and use deterministic templates only")
     args = parser.parse_args()
