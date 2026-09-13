@@ -11,8 +11,10 @@ from backend.app.schemas.affordability import (
     PaymentScheduleItem,
     SpendingChangeItem,
 )
+from backend.app.schemas.profile import CashFlowRiskMetrics
 from backend.core.models.domain import FinancialEvent, PaymentOption, PurchaseRequest, UserProfile
 from backend.core.pipeline import DecisionPipeline
+from backend.core.simulation.recurrence import RecurrenceDetector
 
 logger = logging.getLogger("penny.services.finance")
 
@@ -21,6 +23,44 @@ class FinanceService:
     def __init__(self, db: Session):
         self.db = db
         self.pipeline = DecisionPipeline(use_llm=False)
+
+    def compute_user_risk_metrics(self, user_db: UserDB) -> CashFlowRiskMetrics:
+        """
+        Calculates normalized cash-flow risk metrics based on discovered recurring streams:
+        - monthly_fixed_burn_rate: committed monthly living expenses
+        - monthly_confirmed_income: confirmed salary / employment credits
+        - fixed_cost_ratio: committed expenses / confirmed income
+        - discretionary_cashflow: surplus cash remaining
+        """
+        domain_events = self._map_events(user_db.events)
+        detector = RecurrenceDetector()
+        streams = detector.detect_streams(domain_events)
+
+        monthly_burn = 0.0
+        monthly_income = 0.0
+
+        for s in streams:
+            if s.cadence_type == "dom":
+                monthly_amt = s.baseline_amount
+            elif s.cadence_type == "step" and s.step_days and s.step_days > 0:
+                monthly_amt = s.baseline_amount * (30.0 / s.step_days)
+            else:
+                monthly_amt = s.baseline_amount
+
+            if s.is_credit:
+                monthly_income += monthly_amt
+            else:
+                monthly_burn += monthly_amt
+
+        ratio = round((monthly_burn / monthly_income), 4) if monthly_income > 0 else 0.0
+        discretionary = round(monthly_income - monthly_burn, 2)
+
+        return CashFlowRiskMetrics(
+            monthly_fixed_burn_rate=round(monthly_burn, 2),
+            monthly_confirmed_income=round(monthly_income, 2),
+            fixed_cost_ratio=ratio,
+            discretionary_cashflow=discretionary,
+        )
 
     def _map_user(self, user_db: UserDB) -> UserProfile:
         return UserProfile(

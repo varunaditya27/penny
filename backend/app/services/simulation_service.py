@@ -61,6 +61,7 @@ class SimulationService:
         dt_start = datetime.strptime(eval_date, "%Y-%m-%d")
         points = []
         lowest_balance = float("inf")
+        lowest_balance_date = eval_date
 
         for i in range(days + 1):
             day_str = (dt_start + timedelta(days=i)).strftime("%Y-%m-%d")
@@ -70,9 +71,11 @@ class SimulationService:
                 purch_bal = with_purchase_balances[i] if i < len(with_purchase_balances) else with_purchase_balances[-1]
                 if purch_bal < lowest_balance:
                     lowest_balance = purch_bal
+                    lowest_balance_date = day_str
             else:
                 if base_bal < lowest_balance:
                     lowest_balance = base_bal
+                    lowest_balance_date = day_str
 
             points.append(
                 TrajectoryPoint(
@@ -83,6 +86,7 @@ class SimulationService:
             )
 
         is_safe = lowest_balance >= domain_user.minimum_balance_to_keep
+        buffer_margin = round(lowest_balance - domain_user.minimum_balance_to_keep, 2)
 
         return TrajectoryResponse(
             user_id=user_id,
@@ -90,5 +94,7 @@ class SimulationService:
             minimum_balance_to_keep=domain_user.minimum_balance_to_keep,
             points=points,
             lowest_projected_balance=round(lowest_balance, 2),
+            lowest_balance_date=lowest_balance_date,
+            buffer_margin=buffer_margin,
             is_safe=is_safe,
         )

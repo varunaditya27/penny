@@ -36,17 +36,17 @@ The **Buy or Wait?** system is designed as a decoupled, multi-stage financial pi
 ```mermaid
 flowchart TD
     subgraph Ingestion["Stage 1: Ingestion & Reconciliation"]
-        A1["Raw CSVs<br/>(profiles, events, requests, options, messages, images)"] --> B1["DataLoader<br/>(code/data/loader.py)"]
-        B1 --> C1["EvidenceManager<br/>(code/data/evidence.py)"]
-        C1 -->|OCR Cache + Mutations| D1["EventLinker<br/>(code/data/linker.py)"]
-        D1 --> E1["ExchangeRateConverter<br/>(code/data/currency.py)"]
+        A1["Raw CSVs<br/>(profiles, events, requests, options, messages, images)"] --> B1["DataLoader<br/>(backend/core/data/loader.py)"]
+        B1 --> C1["EvidenceManager<br/>(backend/core/data/evidence.py)"]
+        C1 -->|OCR Cache + Mutations| D1["EventLinker<br/>(backend/core/data/linker.py)"]
+        D1 --> E1["ExchangeRateConverter<br/>(backend/core/data/currency.py)"]
     end
 
     subgraph Analysis["Stage 2: Recurrence & Cash Flow Analysis"]
-        E1 --> F1["IncomeStreamClassifier<br/>(code/data/classifier.py)"]
-        F1 --> G1["RecurrenceDetector<br/>(code/simulation/recurrence.py)"]
-        G1 -->|DOM & Step Streams| H1["DailyLedger Simulation<br/>(code/simulation/ledger.py)"]
-        H1 --> I1["SafetyEngine<br/>(code/simulation/safety.py)"]
+        E1 --> F1["IncomeStreamClassifier<br/>(backend/core/data/classifier.py)"]
+        F1 --> G1["RecurrenceDetector<br/>(backend/core/simulation/recurrence.py)"]
+        G1 -->|DOM & Step Streams| H1["DailyLedger Simulation<br/>(backend/core/simulation/ledger.py)"]
+        H1 --> I1["SafetyEngine<br/>(backend/core/simulation/safety.py)"]
     end
 
     subgraph Optimization["Stage 3: Candidate Generation & Optimization"]
@@ -54,7 +54,7 @@ flowchart TD
         J1 -->|Yes| K1["CandidateGenerator<br/>(Full Payment Today)"]
         J1 -->|No| L1["CandidateGenerator<br/>(Installments / Partial / Wait)"]
         L1 --> M1{"Viable Plan Found?"}
-        M1 -->|No| N1["SpendingOptimizer<br/>(code/optimizer/spending.py)"]
+        M1 -->|No| N1["SpendingOptimizer<br/>(backend/core/optimizer/spending.py)"]
         N1 -->|Tier 1 & Tier 2 Search| O1["Modified Candidates"]
         M1 -->|Yes| P1["Candidate Pool"]
         K1 --> P1
@@ -62,7 +62,7 @@ flowchart TD
     end
 
     subgraph Decision["Stage 4: Selection & Explanation"]
-        P1 --> Q1["PlanRanker: 6-Tier Lexicographic Sort<br/>(code/optimizer/ranker.py)"]
+        P1 --> Q1["PlanRanker: 6-Tier Lexicographic Sort<br/>(backend/core/optimizer/ranker.py)"]
         Q1 --> R1["Optimal CandidatePlan"]
         R1 --> S1["Explanation Generator<br/>(Deterministic Template / LLM Fallback)"]
         S1 --> T1["OutputRow<br/>(Final 8-Column Contract)"]
@@ -78,7 +78,7 @@ flowchart TD
 
 ## 2. Domain Entities & Data Contracts
 
-All core domain models are defined as immutable Python dataclasses in [`code/models/domain.py`](./models/domain.py) and [`code/models/results.py`](./models/results.py).
+All core domain models are defined as immutable Python dataclasses in [`backend/core/models/domain.py`](./core/models/domain.py) and [`backend/core/models/results.py`](./core/models/results.py).
 
 ### Core Dataclasses
 
@@ -175,7 +175,7 @@ Supporting evidence in `dataset/images.csv` and `dataset/messages.csv` contains 
 
 1. **Receipt Image Reconciliation**:
    - `images.csv` contains image references (`image_01.png` to `image_25.png`).
-   - Where a historical transaction has a missing or null amount (`amount` is blank in `dataset/financial_events.csv`), [`EvidenceManager`](./data/evidence.py) extracts the grounded OCR receipt value from [`code/cache/image_amounts.json`](./cache/image_amounts.json) and injects the verified amount.
+   - Where a historical transaction has a missing or null amount (`amount` is blank in `dataset/financial_events.csv`), [`EvidenceManager`](./core/data/evidence.py) extracts the grounded OCR receipt value from [`backend/core/cache/image_amounts.json`](./core/cache/image_amounts.json) and injects the verified amount.
 2. **Message Mutation Extraction**:
    - Unstructured messages in `dataset/messages.csv` are parsed for lifecycle events:
      - `STOP_INCOME`: Signals employment termination (`user_05`), halting ongoing recurring payroll projections.

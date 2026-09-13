@@ -1,5 +1,12 @@
 from typing import List, Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class CashFlowRiskMetrics(BaseModel):
+    monthly_fixed_burn_rate: float = Field(..., description="Estimated monthly fixed living commitments")
+    monthly_confirmed_income: float = Field(..., description="Confirmed recurring monthly income")
+    fixed_cost_ratio: float = Field(..., description="Percentage of income locked into fixed commitments")
+    discretionary_cashflow: float = Field(..., description="Estimated discretionary surplus remaining each month")
 
 
 class UserProfileResponse(BaseModel):
@@ -15,6 +22,7 @@ class UserProfileResponse(BaseModel):
     expense_categories_to_stop: List[str] = []
     payment_methods_user_will_consider: List[str] = []
     max_installment_months: Optional[int] = None
+    risk_metrics: Optional[CashFlowRiskMetrics] = None
 
 
 class UserProfileUpdate(BaseModel):

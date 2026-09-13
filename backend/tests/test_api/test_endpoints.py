@@ -10,6 +10,8 @@ def test_get_user_profile(client):
     data = res.json()
     assert data["user_id"] == "user_01"
     assert data["home_currency"] in ["EUR", "USD", "INR", "IDR", "ZAR"]
+    assert "risk_metrics" in data
+    assert data["risk_metrics"]["monthly_fixed_burn_rate"] >= 0.0
 
 
 def test_get_user_events(client):
@@ -45,4 +47,6 @@ def test_get_simulation_trajectory_endpoint(client):
     assert data["user_id"] == "user_01"
     assert len(data["points"]) == 91
     assert "lowest_projected_balance" in data
+    assert "lowest_balance_date" in data
+    assert "buffer_margin" in data
     assert "is_safe" in data

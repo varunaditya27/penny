@@ -54,3 +54,16 @@ def test_simulation_service_trajectory(db_session):
     assert len(traj.points) == 91  # 0..90 days
     assert traj.points[0].with_purchase_balance is not None
     assert traj.lowest_projected_balance <= traj.points[0].baseline_balance
+    assert traj.lowest_balance_date != ""
+    assert traj.buffer_margin is not None
+
+
+def test_finance_service_user_risk_metrics(db_session):
+    from backend.app.db.models import UserDB
+
+    service = FinanceService(db_session)
+    user_db = db_session.query(UserDB).filter_by(user_id="user_01").first()
+    metrics = service.compute_user_risk_metrics(user_db)
+    assert metrics.monthly_fixed_burn_rate >= 0.0
+    assert metrics.monthly_confirmed_income >= 0.0
+    assert metrics.fixed_cost_ratio >= 0.0

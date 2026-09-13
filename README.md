@@ -5,9 +5,9 @@
 **Autonomous, Multi-Horizon Financial Decision & Simulation Engine**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-85%20passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/tests-103%20passed-success.svg)]()
 [![Backend](https://img.shields.io/badge/core%20engine-simulation%20pipeline-blueviolet.svg)]()
-[![API Layer](https://img.shields.io/badge/api%20layer-FastAPI%20(planned)-orange.svg)]()
+[![API Layer](https://img.shields.io/badge/api%20layer-FastAPI-orange.svg)]()
 [![Frontend](https://img.shields.io/badge/frontend-React%20Native%20(planned)-61dafb.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-informational.svg)]()
 
@@ -20,7 +20,7 @@
 [Quick Start](#-quick-start) •
 [CLI Reference](#-cli-reference) •
 [Data Contract](#-decision-contract--output-schema) •
-[Technical Documentation ➔](code/ARCHITECTURE.md)
+[Technical Documentation ➔](backend/ARCHITECTURE.md)
 
 </div>
 
@@ -95,30 +95,30 @@ Penny is structured around a decoupled, 10-stage decision pipeline:
 ```mermaid
 flowchart TD
     subgraph Ingestion["Stage 1: Ingestion & Reconciliation"]
-        A1["Raw Profiles & Ledgers"] --> B1["DataLoader (code/data/loader.py)"]
-        A2["Messages & Receipts"] --> C1["EvidenceManager (code/data/evidence.py)"]
-        B1 --> D1["EventLinker & FX Converter (code/data/linker.py, currency.py)"]
+        A1["Raw Profiles & Ledgers"] --> B1["DataLoader (backend/core/data/loader.py)"]
+        A2["Messages & Receipts"] --> C1["EvidenceManager (backend/core/data/evidence.py)"]
+        B1 --> D1["EventLinker & FX Converter (backend/core/data/linker.py, currency.py)"]
         C1 --> D1
     end
 
     subgraph Simulation["Stage 2: Cash-Flow Modeling & Simulation"]
-        D1 --> E1["IncomeClassifier & RecurrenceDetector (code/simulation/recurrence.py)"]
-        E1 --> F1["DailyLedger 90-Day Simulation (code/simulation/ledger.py)"]
-        F1 --> G1["SafetyEngine (code/simulation/safety.py)"]
+        D1 --> E1["IncomeClassifier & RecurrenceDetector (backend/core/simulation/recurrence.py)"]
+        E1 --> F1["DailyLedger 90-Day Simulation (backend/core/simulation/ledger.py)"]
+        F1 --> G1["SafetyEngine (backend/core/simulation/safety.py)"]
     end
 
     subgraph Optimization["Stage 3: Candidate Search & Optimization"]
         G1 --> H1["CandidateGenerator (Full / Installments / Partial / Wait)"]
         H1 --> I1{"Viable Plan Found?"}
-        I1 -->|No| J1["SpendingOptimizer (code/optimizer/spending.py)"]
+        I1 -->|No| J1["SpendingOptimizer (backend/core/optimizer/spending.py)"]
         I1 -->|Yes| K1["Viable Candidates Pool"]
         J1 --> K1
     end
 
     subgraph Decision["Stage 4: Ranking & Grounded Explanation"]
-        K1 --> L1["PlanRanker: 6-Tier Lexicographic (code/optimizer/ranker.py)"]
+        K1 --> L1["PlanRanker: 6-Tier Lexicographic (backend/core/optimizer/ranker.py)"]
         L1 --> M1["Optimal Decision Plan"]
-        M1 --> N1["Explanation Generator (code/explanations/templates.py, llm.py)"]
+        M1 --> N1["Explanation Generator (backend/core/explanations/templates.py, llm.py)"]
         N1 --> O1["Standardized Output Contract (CSV / JSON)"]
     end
 
@@ -128,7 +128,7 @@ flowchart TD
     style Decision fill:#e6fcf5,stroke:#20c997,stroke-width:2px
 ```
 
-For complete mathematical models, state transitions, and safety proofs, read the [Technical Architecture Specification](code/ARCHITECTURE.md).
+For complete mathematical models, state transitions, and safety proofs, read the [Technical Architecture Specification](backend/ARCHITECTURE.md).
 
 ---
 
@@ -143,15 +143,15 @@ flowchart TD
     end
 
     subgraph Gateway["⚡ API Layer (High-Performance Service)"]
-        API["FastAPI Backend Service<br/>• REST Endpoints (/affordability, /simulate, /profile)<br/>• WebSocket Streaming for Real-Time LLM Explanations<br/>• Authentication, Rate Limiting & OpenAPI Spec"]
+        API["FastAPI Backend Service (backend/app/)<br/>• REST Endpoints (/users, /events, /affordability, /simulation)<br/>• OpenAPI Spec & Interactive Swagger Docs<br/>• Pydantic v2 Type Safety & SQLite / Postgres Persistence"]
     end
 
-    subgraph Engine["🧠 Core Financial Engine (code/)"]
-        Core["Penny Decision Core (code/)<br/>• DailyLedger Simulation Engine<br/>• Recurrence & Cadence Detection<br/>• Candidate Generator & Spending Optimizer<br/>• Multi-Currency Triangulation"]
+    subgraph Engine["🧠 Core Financial Engine (backend/core/)"]
+        Core["Penny Decision Core (backend/core/)<br/>• DailyLedger Simulation Engine<br/>• Recurrence & Cadence Detection<br/>• Candidate Generator & Spending Optimizer<br/>• Multi-Currency Triangulation"]
     end
 
     subgraph Storage["💾 Persistence & Integration"]
-        DB[("PostgreSQL / SQLite<br/>User Profiles & History")]
+        DB[("PostgreSQL / SQLite<br/>User Profiles, Events & Decisions")]
         OCR["Multimodal Vision / OCR Store"]
     end
 
@@ -168,17 +168,22 @@ flowchart TD
 
 ### Architecture Phases
 
-- [x] **Phase 1 — Core Decision Engine (`code/`)**: Deterministic 90-day forward simulation ledger, recurrence detector, multi-currency converter, candidate generation, spending optimizer, and evaluation harness.
-- [ ] **Phase 2 — API Layer (`FastAPI`)**:
-  - Restructure `code/` into a modular backend engine package (`penny.core`).
-  - Implement FastAPI REST endpoints for real-time affordability checks, scenario simulations, and user budget profiles.
-  - Add WebSocket endpoints for streaming AI reasoning and interactive budget changes.
-  - Interactive OpenAPI / Swagger UI documentation.
-- [ ] **Phase 3 — Mobile Frontend (`React Native`)**:
-  - Beautiful, reactive mobile user interface for iOS and Android.
-  - Natural conversational input: *"I want to buy an iPad for $650. Can I do it before the end of the month?"*
-  - Interactive balance graphs visualizing the 90-day projected trajectory against the minimum safety line.
-  - One-tap toggle for spending modifications (e.g. *"Pause Netflix & Gym for 2 months to unlock this purchase"*).
+- [x] **Phase 1 — Core Decision Engine (`backend/core/`)**: Deterministic 90-day forward simulation ledger, recurrence detector, multi-currency converter, candidate generation, spending optimizer, and evaluation harness.
+- [x] **Phase 2 — API Layer & Persistence (`FastAPI + SQLAlchemy`)**:
+  - Clean backend decoupled architecture (`backend/core/` pure simulation domain + `backend/app/` FastAPI service).
+  - Database schema & ORM with SQLite / PostgreSQL support, dataset seeder, and repository models.
+  - FastAPI REST endpoints for user profile risk metrics (`/users`), financial events (`/events`), affordability checks (`/affordability`), and forward trajectory simulation (`/simulation`).
+  - Quantitative cash-flow risk metrics (fixed burn rate, confirmed income, fixed cost ratio, headroom margin, lowest balance date).
+  - 103 unit, database, and API integration tests passing.
+- [ ] **Phase 3 — Conversational Agent Layer (`LangGraph + Groq`)**:
+  - LangGraph stateful multi-agent supervisor and tools (`evaluate_purchase`, `simulate_spending_reduction`, `get_cashflow_trajectory`).
+  - Human-in-the-Loop (HITL) approval gates for spending adjustments and budget modifications.
+  - Streaming responses (SSE / WebSockets).
+- [ ] **Phase 4 — Mobile Frontend (`React Native + Expo`)**:
+  - Cross-platform mobile UI for iOS and Android.
+  - Conversational "Can I afford this?" chat interface.
+  - Interactive 90-day cash-flow trajectory charts against the minimum safety line.
+  - One-tap toggles for flexible spending modifications.
 
 ---
 
@@ -186,47 +191,39 @@ flowchart TD
 
 ```text
 .
-├── README.md                      # You are here: Root project overview and roadmap
+├── README.md                      # Root project overview and roadmap
 ├── problem_statement.md           # Formal specification, constraints, and requirements
-├── requirements.txt               # Project dependencies (python-dotenv, requests)
 ├── output.csv                     # Final generated predictions for benchmark dataset
 │
-├── code/                          # 🧠 Backend Logic & Core Simulation Engine
-│   ├── README.md                  # Developer guide, CLI usage & module documentation
+├── backend/                       # 🧠 High-Performance Backend & Financial Engine
 │   ├── ARCHITECTURE.md            # In-depth architectural blueprint & formal specifications
-│   ├── main.py                    # Top-level CLI driver & execution orchestrator
-│   ├── pipeline.py                # DecisionPipeline coordinator (10-stage execution)
+│   ├── pyproject.toml             # Backend package metadata and dependencies
+│   ├── requirements.txt           # FastAPI, SQLAlchemy, Pydantic v2, pytest dependencies
+│   ├── cli.py                     # Backwards-compatible CLI runner for dataset processing
 │   │
-│   ├── models/                    # Domain entities & immutable data structures
-│   │   ├── domain.py              # UserProfile, FinancialEvent, PurchaseRequest, PaymentOption
-│   │   └── results.py             # CandidatePlan, OutputRow, AffordabilityStatus, PaymentMethod
+│   ├── app/                       # ⚡ FastAPI Service & Persistence Layer
+│   │   ├── main.py                # FastAPI application factory & lifespan seeder
+│   │   ├── config.py              # Application settings (env vars, DB URLs, CORS)
+│   │   ├── api/v1/                # REST endpoints (/users, /events, /affordability, /simulation)
+│   │   ├── db/                    # SQLAlchemy ORM models, session maker & dataset seeder
+│   │   ├── schemas/               # Pydantic v2 validation contracts & risk response schemas
+│   │   └── services/              # Domain orchestration services (FinanceService, SimulationService)
 │   │
-│   ├── data/                      # Ingestion, normalization & evidence reconciliation
-│   │   ├── loader.py              # DataLoader reading dataset CSVs with sample isolation
-│   │   ├── currency.py            # ExchangeRateConverter with BFS multi-currency graph
-│   │   ├── evidence.py            # EvidenceManager applying image receipts & message mutations
-│   │   ├── linker.py              # EventLinker resolving linked transaction lifecycles
-│   │   └── classifier.py          # IncomeStreamClassifier filtering confirmed vs non-cash credits
+│   ├── core/                      # 🔬 Pure Python Financial Simulation Domain (Zero Framework Deps)
+│   │   ├── pipeline.py            # DecisionPipeline coordinator (10-stage execution)
+│   │   ├── models/                # Domain entities & immutable data structures
+│   │   ├── data/                  # Ingestion, FX BFS triangulation, evidence & event linking
+│   │   ├── simulation/            # Recurrence detector, 90-day DailyLedger, SafetyEngine
+│   │   ├── optimizer/             # Candidate generator, spending optimizer, 6-tier ranker
+│   │   ├── explanations/          # Deterministic templates & Groq LLM explanation generator
+│   │   └── evaluation/            # Benchmark evaluator comparing predictions with ground truth
 │   │
-│   ├── simulation/                # 90-day daily balance simulation & recurrence
-│   │   ├── recurrence.py          # RecurrenceDetector (calendar DOM + integer step cadences)
-│   │   ├── ledger.py              # DailyLedger forward simulator & headroom evaluator
-│   │   └── safety.py              # SafetyEngine computing safe amounts & earliest full payment date
+│   ├── tests/                     # 🧪 103 Unit, DB & API Integration Tests
+│   │   ├── test_core/             # 85 core simulation domain tests
+│   │   ├── test_db/               # 5 database & seeder tests
+│   │   └── test_api/              # 13 FastAPI endpoint & service integration tests
 │   │
-│   ├── optimizer/                 # Candidate search, spending optimization & ranking
-│   │   ├── candidates.py          # CandidateGenerator (full, installment, partial, wait)
-│   │   ├── spending.py            # SpendingOptimizer (two-tier modification search)
-│   │   └── ranker.py              # PlanRanker implementing 6-tier lexicographic tie-breaking
-│   │
-│   ├── explanations/              # Grounded rationale & explanation synthesis
-│   │   ├── templates.py           # DeterministicTemplateSynthesizer matching benchmark style
-│   │   └── llm.py                 # LLMExplanationGenerator with graceful template fallback
-│   │
-│   ├── evaluation/                # Scoring, validation & token tracking
-│   │   ├── evaluator.py           # Evaluator comparing predictions with sample ground truth
-│   │   └── usage_report.md        # Token and model cost report
-│   │
-│   └── tests/                     # Exhaustive unit and regression test suite (85 tests)
+│   └── docs/                      # EDA and design specifications
 │
 ├── dataset/                       # Financial data, requests, and evidence files
 │   ├── requests.csv               # 250 test requests to evaluate
@@ -239,8 +236,8 @@ flowchart TD
 │   ├── images.csv                 # Metadata linking receipt/statement images to events
 │   └── media/images/              # Grounded PNG receipt and statement documents
 │
-├── evaluation/                    # Root benchmark outputs and usage reports
-│   └── usage_report.md            # Benchmark execution metrics and token accounting
+└── evaluation/                    # Root benchmark outputs and usage reports
+    └── usage_report.md            # Benchmark execution metrics and token accounting
 ```
 
 ---
@@ -249,57 +246,68 @@ flowchart TD
 
 ### Prerequisites
 - Python 3.10 or higher
-- `pip` or `uv` package manager
+- `uv` or `pip` package manager
 
 ### 1. Installation
 
-Clone the repository and install dependencies:
+Clone the repository and install dependencies using `uv` (recommended) or `pip`:
 
 ```bash
 git clone https://github.com/varunaditya27/penny.git
 cd penny
-python3 -m venv .venv
+uv venv
 source .venv/bin/activate
-pip install -r requirements.txt
+uv pip install -e backend/
 ```
 
-*(Note: Penny's core simulation engine uses standard library algorithms and has zero mandatory runtime dependencies. `requirements.txt` installs `python-dotenv` and `requests` for optional LLM explanation generation).*
+### 2. Launch the FastAPI Backend Service
 
-### 2. Environment Setup (Optional)
-
-If you wish to enable the LLM explanation generator via Groq, create a `.env` file in the project root:
+Start the development server with auto-reload:
 
 ```bash
-cp .env.example .env
-# Set your Groq API key:
-# GROQ_API_KEY=gsk_...
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-If the key is not set, Penny operates deterministically with zero degradation in accuracy or speed.
+Once running, visit:
+- **Interactive Swagger UI**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- **Alternative ReDoc UI**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- **API Health Check**: `curl http://127.0.0.1:8000/api/v1/health`
+
+### 3. Environment Setup (Optional)
+
+To configure database connection strings or enable the optional Groq LLM explanation generator, create a `backend/.env` file:
+
+```bash
+cp backend/.env.example backend/.env
+# Set your Groq API key (optional):
+# GROQ_API_KEY=gsk_...
+# Set custom database URL (defaults to SQLite penny.db):
+# DATABASE_URL=sqlite:///penny.db
+```
 
 ---
 
 ## 💻 CLI Reference
 
-Penny's main entry point is [`code/main.py`](code/main.py):
+Penny provides a CLI entry point at `backend/cli.py` for batch processing and evaluation:
 
 ### Run Full Production Pipeline
 Processes all 250 requests in `dataset/requests.csv` and outputs predictions to `output.csv`:
 
 ```bash
-python3 code/main.py --no-llm
+python3 -m backend.cli --no-llm
 ```
 
 ### Run Benchmark Calibration on Sample Dataset
 Evaluates accuracy against the 25 reference cases in `dataset/sample_requests.csv`:
 
 ```bash
-python3 code/main.py --eval-sample --no-llm
+python3 -m backend.cli --eval-sample --no-llm
 ```
 
 ### Specify Custom Output Path
 ```bash
-python3 code/main.py --output /path/to/custom_output.csv
+python3 -m backend.cli --output /path/to/custom_output.csv
 ```
 
 ### CLI Options
@@ -316,24 +324,19 @@ python3 code/main.py --output /path/to/custom_output.csv
 
 ## 🧪 Testing & Verification
 
-Penny maintains an exhaustive unit and integration test suite with **85 tests** covering:
-- BFS cross-currency conversion graph and rate inversion
-- Recurrence pattern detection (DOM and step cadences)
-- 90-day ledger simulation and balance headroom invariants
-- Installment schedule generation and post-term safety
-- Spending optimizer category constraints
-- Template formatting and CLI drivers
+Penny maintains an exhaustive test suite with **103 tests** across 3 test layers:
+- **Core Engine (`backend/tests/test_core/`)**: 85 tests covering BFS cross-currency conversion, recurrence detection (DOM and step cadences), 90-day ledger simulation, installment schedule generation, and spending optimizer.
+- **Database & Seeder (`backend/tests/test_db/`)**: 5 tests verifying SQLAlchemy ORM persistence, relationships, and CSV seeder idempotency.
+- **API Endpoints (`backend/tests/test_api/`)**: 13 integration tests validating FastAPI routes, cash-flow risk metrics calculations, 90-day trajectory endpoints, and Pydantic schemas.
 
 To run the complete test suite:
 
 ```bash
-PYTHONPATH=. python3 -m unittest discover code/tests
+PYTHONPATH=. pytest backend/tests/ -v
 ```
 
 ```text
-Ran 85 tests in 18.081s
-
-OK
+====================== 103 passed in 23.66s ======================
 ```
 
 ---
@@ -357,9 +360,9 @@ For each request evaluated, Penny produces an exact 8-column decision row:
 
 ## 📚 Technical Documentation & Deep Dives
 
-- **[Technical Architecture & Invariants](code/ARCHITECTURE.md)**: Deep dive into the 90-day simulation engine, cadence detection formulas, multi-currency BFS graph, and ranking algorithms.
-- **[Codebase Developer Guide](code/README.md)**: Detailed component breakdown, class diagrams, and test specifications.
+- **[Technical Architecture & Invariants](backend/ARCHITECTURE.md)**: Deep dive into the 90-day simulation engine, cadence detection formulas, multi-currency BFS graph, and ranking algorithms.
 - **[Formal Problem Statement](problem_statement.md)**: Original task rules, edge cases, and allowed values.
+- **[Specification & Design](backend/docs/specs/2026-09-13-buy-or-wait-design.md)**: In-depth design spec for affordability determination.
 
 ---
 

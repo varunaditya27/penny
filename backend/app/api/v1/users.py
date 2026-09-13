@@ -5,6 +5,8 @@ from backend.app.db.models import UserDB
 from backend.app.db.session import get_db
 from backend.app.schemas.profile import UserProfileResponse, UserProfileUpdate
 
+from backend.app.services.finance_service import FinanceService
+
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
@@ -13,6 +15,9 @@ def get_user_profile(user_id: str, db: Session = Depends(get_db)):
     user = db.query(UserDB).filter_by(user_id=user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User '{user_id}' not found.")
+
+    service = FinanceService(db)
+    risk_metrics = service.compute_user_risk_metrics(user)
 
     return UserProfileResponse(
         user_id=user.user_id,
@@ -25,6 +30,7 @@ def get_user_profile(user_id: str, db: Session = Depends(get_db)):
         expense_categories_to_stop=user.expense_categories_to_stop.split("|") if user.expense_categories_to_stop else [],
         payment_methods_user_will_consider=user.payment_methods_user_will_consider.split("|") if user.payment_methods_user_will_consider else [],
         max_installment_months=user.max_installment_months,
+        risk_metrics=risk_metrics,
     )
 
 

@@ -54,7 +54,11 @@ def test_simulation_trajectory_schema():
         minimum_balance_to_keep=200.0,
         points=[point],
         lowest_projected_balance=800.0,
+        lowest_balance_date="2026-09-13",
+        buffer_margin=600.0,
         is_safe=True,
     )
     assert resp.is_safe is True
+    assert resp.buffer_margin == 600.0
+    assert resp.lowest_balance_date == "2026-09-13"
     assert len(resp.points) == 1

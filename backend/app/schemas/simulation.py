@@ -16,4 +16,6 @@ class TrajectoryResponse(BaseModel):
     minimum_balance_to_keep: float
     points: List[TrajectoryPoint]
     lowest_projected_balance: float
+    lowest_balance_date: str
+    buffer_margin: float
     is_safe: bool
