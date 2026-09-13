@@ -6,18 +6,17 @@
 
 | Model Provider & Name | API Calls | Input Tokens | Output Tokens | Total Tokens | Estimated Cost (USD) |
 |---|---|---|---|---|---|
-| `openai/gpt-oss-20b` | 24 | 16,352 | 3,135 | 19,487 | $0.0022 |
 | `qwen/qwen3.6-27b` | 16 | 24,192 | 816 | 25,008 | $0.0050 |
 
 ## 2. Totals and Averages
 
-- **Total API Calls**: 40
-- **Total Input Tokens**: 40,544
-- **Total Output Tokens**: 3,951
-- **Total Combined Tokens**: 44,495
-- **Average Tokens per Request** (250 requests): 178.0
-- **Estimated Total Cost**: $0.0072
-- **Estimated Cost per Request**: $0.00003
+- **Total API Calls**: 16
+- **Total Input Tokens**: 24,192
+- **Total Output Tokens**: 816
+- **Total Combined Tokens**: 25,008
+- **Average Tokens per Request** (250 requests): 100.0
+- **Estimated Total Cost**: $0.0050
+- **Estimated Cost per Request**: $0.00002
 
 ## 3. Notes on Token Efficiency & Caching
 - Multimodal vision extractions for all 16 images were performed with `qwen/qwen3.6-27b` on Groq and cached in `code/cache/image_amounts.json`.

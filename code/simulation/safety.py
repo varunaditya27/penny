@@ -18,13 +18,19 @@ class SafetyEngine:
     """
 
     @classmethod
-    def compute_safe_amount(cls, ledger: DailyLedger, requested_amount: float) -> float:
+    def compute_safe_amount(
+        cls, ledger: DailyLedger, requested_amount: float, limit_days: Optional[int] = None
+    ) -> float:
         """
         Answers: 'What is the maximum cash that could safely leave today without breaching minimum balance
-        over the next 90 days before optional spending changes?'
-        Formula: max(0.0, min(requested_amount, ledger.min_headroom())), rounded to 2 decimal places.
+        over the forecast horizon before optional spending changes?'
+        Formula: max(0.0, min(requested_amount, headroom)), rounded to 2 decimal places.
         """
-        headroom = ledger.min_headroom()
+        if limit_days is not None and limit_days > 0:
+            effective_balances = ledger.balances[: min(limit_days, len(ledger.balances))]
+            headroom = min(b - ledger.user.minimum_balance_to_keep for b in effective_balances)
+        else:
+            headroom = ledger.min_headroom()
         safe = max(0.0, min(float(requested_amount), headroom))
         return round(safe, 2)
 
@@ -88,8 +94,10 @@ class SafetyEngine:
 
 
 # Module-level convenience functions
-def compute_safe_amount(ledger: DailyLedger, requested_amount: float) -> float:
-    return SafetyEngine.compute_safe_amount(ledger, requested_amount)
+def compute_safe_amount(
+    ledger: DailyLedger, requested_amount: float, limit_days: Optional[int] = None
+) -> float:
+    return SafetyEngine.compute_safe_amount(ledger, requested_amount, limit_days)
 
 
 def find_earliest_full_payment_date(

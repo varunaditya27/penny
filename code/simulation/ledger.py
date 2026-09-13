@@ -124,6 +124,38 @@ class DailyLedger:
             s_date = ev.settlement_date or ev.event_date
             events_by_date[s_date].append(ev)
 
+        # Conservative pre-salary living expense budgeting:
+        # If user has an upcoming recurring salary, ensure step streams (e.g. transport, dining)
+        # that have not yet fired in the pre-salary window are budgeted before salary arrives.
+        first_sal_dt = None
+        for stream in self.recurring_streams:
+            if stream.is_credit and stream.category == "salary" and stream.day_of_month:
+                for d in range(1, 35):
+                    cand = start_dt + timedelta(days=d)
+                    max_d = calendar.monthrange(cand.year, cand.month)[1]
+                    if cand.day == min(stream.day_of_month, max_d):
+                        first_sal_dt = cand
+                        break
+                if first_sal_dt:
+                    break
+
+        extra_step_fires: Dict[str, Set[str]] = defaultdict(set)
+        if first_sal_dt and (first_sal_dt - start_dt).days >= 7:
+            trough_date_str = (first_sal_dt - timedelta(days=2)).strftime("%Y-%m-%d")
+            for stream in self.recurring_streams:
+                if stream.cadence_type == "step" and stream.step_days and not stream.is_credit:
+                    stream_start = datetime.strptime(stream.latest_date, "%Y-%m-%d")
+                    natural_fire = False
+                    cur = start_dt
+                    while cur < first_sal_dt:
+                        d_days = (cur - stream_start).days
+                        if d_days > 0 and d_days % stream.step_days == 0:
+                            natural_fire = True
+                            break
+                        cur += timedelta(days=1)
+                    if not natural_fire:
+                        extra_step_fires[trough_date_str].add(stream.latest_event_id)
+
         self.dates = []
         self.balances = []
         current_balance = float(self.user.current_available_balance)
@@ -170,6 +202,8 @@ class DailyLedger:
                         stream_start = datetime.strptime(stream.latest_date, "%Y-%m-%d")
                         delta_days = (curr_dt - stream_start).days
                         if delta_days > 0 and delta_days % stream.step_days == 0:
+                            fires = True
+                        elif curr_str in extra_step_fires and stream.latest_event_id in extra_step_fires[curr_str]:
                             fires = True
                 elif stream.cadence_type == "dom":
                     if stream.day_of_month:

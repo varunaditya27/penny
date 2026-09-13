@@ -8,6 +8,7 @@ from code.data.currency import ExchangeRateConverter
 from code.data.evidence import EvidenceManager
 from code.data.linker import EventLinker
 from code.data.loader import DataLoader
+from code.data.classifier import IncomeStreamClassifier
 from code.explanations.llm import LLMExplanationGenerator
 from code.explanations.templates import ExplanationTemplateSynthesizer
 from code.models.domain import FinancialEvent, PaymentOption, PurchaseRequest, UserProfile
@@ -60,6 +61,7 @@ class DecisionPipeline:
         self.explanation_generator = explanation_generator or LLMExplanationGenerator()
         self.converter = converter or ExchangeRateConverter()
         self.use_llm = use_llm
+        self.income_classifier = IncomeStreamClassifier(use_llm=use_llm)
 
     def _extract_recurring_salary_stream(
         self,
@@ -86,23 +88,38 @@ class DecisionPipeline:
             for e in future_events
             if e.category == "salary" or "salary" in e.description.lower() or "payroll" in e.description.lower()
         ]
-        settled_salaries = [
+        # Check all historical salaries to verify if employment is still active
+        all_hist_salaries = [
             e
             for e in hist_events
             if (e.category == "salary" or "salary" in e.description.lower() or "payroll" in e.description.lower())
-            and not any(k in e.description.lower() for k in self.NON_RECURRING_INCOME_KEYWORDS)
+        ]
+        if all_hist_salaries:
+            latest_hist = sorted(all_hist_salaries, key=lambda x: x.event_date)[-1]
+            desc = latest_hist.description.lower()
+            if "final" in desc or "seasonal" in desc or "temporary" in desc:
+                # Terminated contract, seasonal work, or final payroll
+                return None
+
+        settled_salaries = [
+            e
+            for e in all_hist_salaries
+            if self.income_classifier.is_recurring_income(e.description)
         ]
 
         if sched_salaries:
             sched = sorted(sched_salaries, key=lambda x: x.event_date)[-1]
             dom = int(sched.event_date.split("-")[2])
+            sched_amt = float(sched.amount) if sched.amount is not None else 0.0
+            if sched.currency and sched.currency != user.home_currency:
+                sched_amt = round(self.converter.convert(sched_amt, sched.currency, user.home_currency, sched.event_date), 2)
             return RecurringStream(
                 description=sched.description,
                 category="salary",
                 cadence_type="dom",
                 step_days=None,
                 day_of_month=dom,
-                baseline_amount=sched.amount,
+                baseline_amount=sched_amt,
                 latest_date=sched.event_date,
                 latest_event_id=sched.event_id,
                 direction="credit",
@@ -110,10 +127,6 @@ class DecisionPipeline:
 
         if settled_salaries:
             latest_settled = sorted(settled_salaries, key=lambda x: x.event_date)[-1]
-            desc = latest_settled.description.lower()
-            if "final" in desc or "seasonal" in desc:
-                # Terminated contract or final payroll
-                return None
 
             # Calculate statistical mode of day of month across salary history
             doms = [int(e.event_date.split("-")[2]) for e in settled_salaries]
@@ -243,7 +256,6 @@ class DecisionPipeline:
             future_events=future_events,
         )
 
-        amount_safe_to_pay = SafetyEngine.compute_safe_amount(baseline_ledger, request.requested_amount)
         earliest_full_date = SafetyEngine.find_earliest_full_payment_date(
             user=user,
             recurring_streams=streams,
@@ -253,6 +265,9 @@ class DecisionPipeline:
             days=90,
             desired_completion_date=request.desired_completion_date,
         )
+        amount_safe_to_pay = SafetyEngine.compute_safe_amount(baseline_ledger, request.requested_amount)
+        if earliest_full_date == request.request_date and baseline_ledger.is_safe():
+            amount_safe_to_pay = round(float(request.requested_amount), 2)
 
         # 6. Candidate Generation without spending changes
         candidates: List[CandidatePlan] = []
@@ -308,6 +323,8 @@ class DecisionPipeline:
 
         chosen_plan: Optional[CandidatePlan] = None
 
+        events_map = {ev.event_id: ev for ev in user_events}
+
         if deadline_candidates:
             # Pick best plan that completes on time without spending changes
             chosen_plan = PlanRanker.select_best_plan(deadline_candidates)
@@ -321,6 +338,7 @@ class DecisionPipeline:
                 options=payment_options,
                 safe_amt_baseline=amount_safe_to_pay,
                 earliest_full_date=earliest_full_date,
+                events_map=events_map,
             )
             deadline_spending = [c for c in spending_plans if c.completes_by_deadline]
             if deadline_spending:
@@ -336,7 +354,6 @@ class DecisionPipeline:
                 )
 
         # 7. Synthesize explanation
-        events_map = {ev.event_id: ev for ev in user_events}
         explanation = self.explanation_generator.generate_explanation(
             plan=chosen_plan,
             profile=user,
