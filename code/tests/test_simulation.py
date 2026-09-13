@@ -377,6 +377,32 @@ class TestDailyLedgerAndSafety(unittest.TestCase):
         )
         self.assertEqual(earliest_never, "")
 
+    def test_earliest_payment_requires_the_full_forecast_to_be_safe(self):
+        """A payment cannot be called safe merely because it survives until its deadline."""
+        future_debit = FinancialEvent(
+            event_id="future_debit",
+            user_id="user_test",
+            event_type="expense",
+            description="Confirmed annual bill",
+            category="utilities",
+            direction="debit",
+            amount=1500.0,
+            currency="USD",
+            event_date="2024-04-20",
+            settlement_date="2024-04-20",
+            status="scheduled",
+        )
+        earliest = SafetyEngine.find_earliest_full_payment_date(
+            user=self.user,
+            recurring_streams=[],
+            future_events=[future_debit],
+            request_date=self.request_date,
+            requested_amount=3000.0,
+            days=90,
+            desired_completion_date="2024-03-10",
+        )
+        self.assertEqual(earliest, "")
+
     def test_calibration_anchor_request_03(self):
         """
         Primary Calibration Anchor: user_03 / request_03.

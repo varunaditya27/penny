@@ -16,7 +16,7 @@ class TestIncomeStreamClassifier(unittest.TestCase):
         self.assertEqual(self.classifier.classify("Delivery platform payout"), IncomeType.RECURRING_PLATFORM_GIG)
         self.assertEqual(self.classifier.classify("Driver platform payout"), IncomeType.RECURRING_PLATFORM_GIG)
         self.assertEqual(self.classifier.classify("Weekly app earnings"), IncomeType.RECURRING_PLATFORM_GIG)
-        self.assertTrue(self.classifier.is_recurring_income("Task marketplace payout"))
+        self.assertFalse(self.classifier.is_recurring_income("Task marketplace payout"))
 
     def test_freelance_contracts(self):
         self.assertEqual(self.classifier.classify("Website project payment"), IncomeType.RECURRING_CONTRACT)

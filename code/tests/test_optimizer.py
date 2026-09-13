@@ -1,6 +1,6 @@
 import unittest
 
-from code.models.domain import PaymentOption, PurchaseRequest, UserProfile
+from code.models.domain import FinancialEvent, PaymentOption, PurchaseRequest, UserProfile
 from code.models.results import AffordabilityStatus, CandidatePlan, PaymentMethod
 from code.optimizer.candidates import (
     CandidateGenerator,
@@ -104,6 +104,39 @@ class TestOptimizer(unittest.TestCase):
         self.assertEqual(cand.number_of_payments, 2)
         self.assertEqual(cand.total_payable_amount, 300.0)
         self.assertTrue(cand.completes_by_deadline)
+
+    def test_installments_must_stay_safe_after_the_last_payment(self):
+        option = PaymentOption(
+            payment_option_id="opt_post_term_breach",
+            request_id="req_test",
+            payment_method="installments",
+            payment_amount=100.0,
+            number_of_payments=2,
+            first_payment_date="2026-05-05",
+            payment_frequency_days=30,
+            financing_fee=0.0,
+            total_payable_amount=200.0,
+        )
+        future_debit = FinancialEvent(
+            event_id="confirmed_late_bill",
+            user_id="user_test",
+            event_type="expense",
+            description="Confirmed late bill",
+            category="utilities",
+            direction="debit",
+            amount=700.0,
+            currency="EUR",
+            event_date="2026-07-15",
+            settlement_date="2026-07-15",
+            status="scheduled",
+        )
+        cands = CandidateGenerator.generate_installment_candidates(
+            request=self.request,
+            user=self.user,
+            options=[option],
+            ledger=DailyLedger(self.user, "2026-05-01", days=90, future_events=[future_debit]),
+        )
+        self.assertEqual(cands, [])
 
     def test_6_tier_ranking_tie_breaker(self):
         # Tier 1: complete by deadline beats deadline violator

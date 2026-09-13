@@ -135,67 +135,19 @@ class SpendingOptimizer:
                         spending_modifications=mod_str,
                     )
 
-                    # 1. Check if savings from this modification combo directly cover shortfall for full payment
-                    combo_savings = 0.0
-                    for action, ev_id, min_amt, _ in combo:
-                        base_amt = 0.0
-                        if events_map and ev_id in events_map and getattr(events_map[ev_id], "amount", None) is not None:
-                            base_amt = float(events_map[ev_id].amount)
-                        else:
-                            matching = [s for s in recurring_streams if s.latest_event_id == ev_id]
-                            if matching:
-                                base_amt = matching[0].baseline_amount
-
-                        if action == "stop":
-                            combo_savings += base_amt
-                        elif action == "reduce_to" and min_amt is not None:
-                            combo_savings += max(0.0, base_amt - min_amt)
-
-                    shortfall = float(request.requested_amount) - safe_amt_baseline
-                    is_full_viable = False
-
-                    if user.will_consider("full_payment") and shortfall > 0:
-                        if combo_savings >= (shortfall * 0.95):
-                            is_full_viable = True
-                        elif combo_savings > 0 and (safe_amt_baseline + combo_savings >= float(request.requested_amount) * 0.85):
-                            if is_tier1:
-                                if len(eligible_mods) == 1 or combo_savings >= (shortfall * 0.80):
-                                    is_full_viable = True
-                            else:
-                                if combo_savings >= (shortfall * 0.40):
-                                    is_full_viable = True
-
-                    if is_full_viable:
-                        plan_str = f"{request.request_date}:{format_plan_amount(request.requested_amount)}"
-                        earliest = earliest_full_date if earliest_full_date else request.request_date
-                        full_cand = CandidatePlan(
-                            payment_method=PaymentMethod.FULL_PAYMENT,
-                            payment_plan=plan_str,
-                            first_payment_date=request.request_date,
-                            total_payable_amount=float(request.requested_amount),
-                            number_of_payments=1,
-                            spending_changes_needed=mod_str,
-                            payment_option_id="none",
-                            completes_by_deadline=(request.request_date <= request.desired_completion_date),
-                            requires_spending_changes=True,
-                            affordability_status=AffordabilityStatus.AFFORDABLE_WITH_PLAN,
-                            earliest_date_for_full_payment=earliest,
-                            amount_safe_to_pay=safe_amt_baseline,
-                        )
-                        if full_cand.completes_by_deadline:
-                            k_level_plans.append(full_cand)
-                    else:
-                        # 1b. Test simulated full payment candidate
-                        full_cand = CandidateGenerator.generate_full_payment_candidate(
-                            request=request,
-                            user=user,
-                            ledger=ledger,
-                            spending_changes=mod_str,
-                            earliest_full_date=earliest_full_date,
-                            safe_amt_baseline=safe_amt_baseline,
-                        )
-                        if full_cand and full_cand.completes_by_deadline:
-                            k_level_plans.append(full_cand)
+                    # Every recommendation must be backed by its full 90-day ledger.
+                    # Savings estimates are useful for search ordering, never as proof
+                    # that a payment is financially safe.
+                    full_cand = CandidateGenerator.generate_full_payment_candidate(
+                        request=request,
+                        user=user,
+                        ledger=ledger,
+                        spending_changes=mod_str,
+                        earliest_full_date=earliest_full_date,
+                        safe_amt_baseline=safe_amt_baseline,
+                    )
+                    if full_cand and full_cand.completes_by_deadline:
+                        k_level_plans.append(full_cand)
 
                     # 2. Installment options
                     inst_cands = CandidateGenerator.generate_installment_candidates(

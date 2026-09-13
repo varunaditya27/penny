@@ -147,9 +147,10 @@ class IncomeStreamClassifier:
     def is_recurring_income(self, description: str) -> bool:
         """Returns True if the income description represents confirmed, recurring ongoing income."""
         itype = self.classify(description)
+        # Per §6.3, variable platform gig earnings (e.g. QuickCrew/driver/delivery payouts)
+        # are not guaranteed future income, even if historic payouts recur.
         return itype in [
             IncomeType.CONFIRMED_SALARY,
-            IncomeType.RECURRING_PLATFORM_GIG,
             IncomeType.RECURRING_CONTRACT,
         ]
 
@@ -191,12 +192,10 @@ class IncomeStreamClassifier:
 
                 # Track tokens
                 usage = resp_json.get("usage", {})
-                tracker.record_llm_call(
-                    provider="groq",
-                    model=self.model,
-                    prompt_tokens=usage.get("prompt_tokens", 0),
-                    completion_tokens=usage.get("completion_tokens", 0),
-                    cost=0.0,
+                tracker.record(
+                    self.model,
+                    usage.get("prompt_tokens", 0),
+                    usage.get("completion_tokens", 0),
                 )
 
                 if "platform" in content or "gig" in content:

@@ -52,11 +52,6 @@ class SafetyEngine:
         If no date is safe within the forecast period, returns empty string "".
         """
         start_dt = datetime.strptime(request_date, "%Y-%m-%d")
-        target_end_dt = (
-            datetime.strptime(desired_completion_date, "%Y-%m-%d")
-            if desired_completion_date
-            else None
-        )
         req_amt = float(requested_amount)
 
         for d in range(days + 1):
@@ -72,18 +67,10 @@ class SafetyEngine:
                 candidate_payments=[(candidate_date_str, req_amt)],
             )
 
-            cushion = (user.minimum_balance_to_keep * 0.005) if d > 0 else 0.0
-            if target_end_dt and candidate_dt <= target_end_dt:
-                end_idx = min(len(test_ledger.dates) - 1, (target_end_dt - start_dt).days)
-            elif target_end_dt:
-                # Post-deadline deferred payment: must remain safe across subsequent 30-day cycle
-                end_idx = min(len(test_ledger.dates) - 1, d + 30)
-            else:
-                end_idx = len(test_ledger.dates) - 1
-
-            is_safe_candidate = all(
-                b >= (user.minimum_balance_to_keep + cushion) for b in test_ledger.balances[d : end_idx + 1]
-            )
+            # The challenge requires safety at every point in the full 90-day forecast.
+            # Do not shorten this window to the requested completion date or invent an
+            # additional cushion: either changes the contract's definition of safe.
+            is_safe_candidate = test_ledger.is_safe()
 
             if is_safe_candidate:
                 logger.debug(f"Found earliest safe full payment date: {candidate_date_str} (day {d})")

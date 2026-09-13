@@ -37,7 +37,9 @@ def run_pipeline(
         output_path = "evaluation/sample_output.csv" if sample_mode else "output.csv"
 
     if use_llm is None:
-        use_llm = not sample_mode
+        # Reproducible financial decisions should not depend on a network service.
+        # --use-llm remains available solely for optional explanation generation.
+        use_llm = False
 
     loader = DataLoader()
     evidence_mgr = EvidenceManager()
@@ -102,7 +104,7 @@ def run_pipeline(
 
     # Write to root output.csv
     with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow(fieldnames)
         for r in output_rows:
             writer.writerow(r.to_csv_row())

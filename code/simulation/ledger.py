@@ -124,9 +124,10 @@ class DailyLedger:
             s_date = ev.settlement_date or ev.event_date
             events_by_date[s_date].append(ev)
 
-        # Conservative pre-salary living expense budgeting:
-        # If user has an upcoming recurring salary, ensure step streams (e.g. transport, dining)
-        # that have not yet fired in the pre-salary window are budgeted before salary arrives.
+        # When a confirmed salary arrives well after the request date, budget one
+        # observed step-cadence expense in the pre-salary window if its established
+        # cadence has no natural occurrence there. This protects essential variable
+        # spending before the next cash inflow without altering the recurring cadence.
         first_sal_dt = None
         for stream in self.recurring_streams:
             if stream.is_credit and stream.category == "salary" and stream.day_of_month:

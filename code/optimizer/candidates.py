@@ -212,14 +212,9 @@ class CandidateGenerator:
             completes = last_date <= request.desired_completion_date
             has_changes = spending_changes != "none" and bool(spending_changes)
 
-            # Check safety through the duration of the installment schedule
-            if last_date in test_ledger.dates:
-                end_idx = test_ledger.dates.index(last_date)
-                is_safe = all(b >= user.minimum_balance_to_keep for b in test_ledger.balances[: end_idx + 1])
-            else:
-                is_safe = test_ledger.is_safe()
-
-            if not is_safe:
+            # A completed plan remains a financial commitment: require the entire
+            # forecast, not merely the period through its final installment.
+            if not test_ledger.is_safe():
                 continue
 
             candidates.append(
