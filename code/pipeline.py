@@ -187,6 +187,9 @@ class DecisionPipeline:
             home_currency=user.home_currency,
         )
 
+        # 1a. Event linking and non-cash reconciliation
+        augmented_events = EventLinker.resolve_linked_events(augmented_events)
+
         # 1b. Foreign currency conversion to user home currency
         for ev in augmented_events:
             if ev.amount is not None and ev.currency and ev.currency != user.home_currency:

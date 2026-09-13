@@ -117,11 +117,15 @@ For every row in `dataset/requests.csv`, produce one row in `output.csv` with:
 
 You may use any language or runtime. Python, JavaScript, and TypeScript are all reasonable choices.
 
-### Core Financial Modeling Assumptions
+### Core Financial Modeling & Architecture Decisions
+- **Event Linking & Cash-Flow Cleanup**: All financial events are reconciled through `EventLinker` before cash-flow partitioning. Authorizations linked to settled transactions are collapsed, pending refund credits and mark-to-market portfolio valuations are excluded, and real debt repayments are preserved.
+- **Statistical Cash-Flow Inference**: Rather than rigid transaction matching, ongoing living expenses are modeled via statistical cash-flow inference. Integer day-step cadences (5, 7, 10, 14, 21 days) use the mathematical median of settled amounts to protect against skewed outliers, while payroll events use statistical mode to identify true contract settlement dates immune to holiday/weekend shifts.
 - **Opening Balance Snapshot**: `current_available_balance` is treated as the opening available balance snapshot before any same-day scheduled or recurring transactions take place on `request_date`.
 - **Strict Blank Amount Handling (§6.1, §6.3)**: Blank amounts on cash events are never treated as zero. If an amount cannot be resolved via image extractions or message reconciliation, it is excluded from cash flow rather than silently coerced to zero.
 - **Effective-Date Gated Salary Amendments**: When evidence messages revise employment income effective on a future date (`effective_date > request_date`), the pre-effective cash flows strictly retain the historical settled baseline, with the amended amount applying on and after the specified effective date.
 - **Conservative Credit Recognition (§6.3)**: Only confirmed, scheduled credits are counted forward; pending credits, refunds, bonuses, or unrealized investments are strictly excluded until settled.
+- **Deterministic Snapshot FX Triangulation**: Cross-currency foreign cash events are converted using BFS graph triangulation over dated snapshot rates published on the 15th of each month, strictly respecting directional and published reverse pairs.
+- **Dual-Horizon Safety Semantics**: When evaluating on or before `desired_completion_date`, candidate payment safety is verified through the completion horizon. For deferred payment dates after the deadline, safety is verified across a 30-day subsequent billing cycle with a 0.5% minimum balance micro-cushion to prevent fragile solvency forecasts.
 - **Installment Cap Compliance**: Installment options are strictly evaluated against `max_installment_months` by both payment count and overall financing schedule span.
 
 ---
