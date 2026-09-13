@@ -53,7 +53,7 @@ class PaymentOptionDB(Base):
     payment_amount = Column(Float, nullable=False)
     number_of_payments = Column(Integer, nullable=False)
     first_payment_date = Column(String(16), nullable=False)
-    payment_frequency_days = Column(Integer, nullable=False)
+    payment_frequency_days = Column(Integer, nullable=True)
     financing_fee = Column(Float, default=0.0)
     total_payable_amount = Column(Float, nullable=False)
 
