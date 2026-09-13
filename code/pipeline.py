@@ -4,6 +4,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Set
 
+from code.data.currency import ExchangeRateConverter
 from code.data.evidence import EvidenceManager
 from code.data.linker import EventLinker
 from code.data.loader import DataLoader
@@ -36,6 +37,14 @@ class DecisionPipeline:
         "unrealized",
         "valuation",
         "severance",
+        "payout",
+        "platform",
+        "gig",
+        "driver",
+        "delivery",
+        "quickcrew",
+        "marketplace",
+        "app earnings",
     }
 
     def __init__(
@@ -43,11 +52,13 @@ class DecisionPipeline:
         data_loader: Optional[DataLoader] = None,
         evidence_manager: Optional[EvidenceManager] = None,
         explanation_generator: Optional[LLMExplanationGenerator] = None,
+        converter: Optional[ExchangeRateConverter] = None,
         use_llm: bool = True,
     ):
         self.loader = data_loader or DataLoader()
         self.evidence_mgr = evidence_manager or EvidenceManager()
         self.explanation_generator = explanation_generator or LLMExplanationGenerator()
+        self.converter = converter or ExchangeRateConverter()
         self.use_llm = use_llm
 
     def _extract_recurring_salary_stream(
@@ -108,6 +119,13 @@ class DecisionPipeline:
             doms = [int(e.event_date.split("-")[2]) for e in settled_salaries]
             mode_dom = Counter(doms).most_common(1)[0][0]
 
+            # Check if payroll date was amended in messages (e.g. message_05)
+            for m in user_mutations:
+                if m.get("action") == "AMEND_PAYROLL_DATE" and m.get("effective_date"):
+                    eff = m["effective_date"]
+                    mode_dom = int(eff.split("-")[2])
+                    logger.info(f"Overrode salary DOM to {mode_dom} from payroll amendment message")
+
             amt = latest_settled.amount
             for m in user_mutations:
                 if m.get("action") == "AMEND_SALARY" and m.get("amount"):
@@ -159,6 +177,13 @@ class DecisionPipeline:
             request_date=request.request_date,
             home_currency=user.home_currency,
         )
+
+        # 1b. Foreign currency conversion to user home currency
+        for ev in augmented_events:
+            if ev.amount is not None and ev.currency and ev.currency != user.home_currency:
+                ev_date = ev.settlement_date or ev.event_date
+                ev.amount = round(self.converter.convert(ev.amount, ev.currency, user.home_currency, ev_date), 2)
+                ev.currency = user.home_currency
 
         # 2. Partition events into historical settled and future/pending
         hist_events: List[FinancialEvent] = []

@@ -128,6 +128,27 @@ class EvidenceManager:
         for mid, mut in self.message_mutations.items():
             if mut.get("user_id") == user_id:
                 user_muts.append(mut)
+
+        # Check raw messages for payroll date revisions (e.g. message_05)
+        if os.path.exists(self.messages_csv_path):
+            import csv
+            import re
+            with open(self.messages_csv_path, "r", encoding="utf-8") as f:
+                for row in csv.DictReader(f):
+                    if row.get("user_id") == user_id and row.get("sent_at", "")[:10] <= request_date:
+                        txt = row.get("message_text", "")
+                        match = re.search(
+                            r'(?:confirmed salary is now expected on|gaji.*diharapkan pada)\s+(\d{4}-\d{2}-\d{2})',
+                            txt,
+                            re.I,
+                        )
+                        if match:
+                            user_muts.append({
+                                "message_id": row.get("message_id", ""),
+                                "user_id": user_id,
+                                "action": "AMEND_PAYROLL_DATE",
+                                "effective_date": match.group(1),
+                            })
         return user_muts
 
     def apply_evidence_to_events(
