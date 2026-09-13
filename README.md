@@ -1,204 +1,371 @@
-# HackerRank Orchestrate
+<div align="center">
 
-Starter repository for the **HackerRank Orchestrate** 24-hour hackathon (September 2026).
+# 🪙 Penny — AI Financial Affordability Assistant
 
-## Buy or Wait?
+**Autonomous, Multi-Horizon Financial Decision & Simulation Engine**
 
-Build an AI-powered financial agent that decides whether a user can safely afford a requested expense.
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Tests](https://img.shields.io/badge/tests-85%20passed-success.svg)]()
+[![Backend](https://img.shields.io/badge/core%20engine-simulation%20pipeline-blueviolet.svg)]()
+[![API Layer](https://img.shields.io/badge/api%20layer-FastAPI%20(planned)-orange.svg)]()
+[![Frontend](https://img.shields.io/badge/frontend-React%20Native%20(planned)-61dafb.svg)]()
+[![License](https://img.shields.io/badge/license-MIT-informational.svg)]()
 
-A user may ask: **"Can I afford this laptop?"**
+[The Vision](#-the-vision) •
+[Why Penny?](#-why-penny) •
+[Core Capabilities](#-core-capabilities) •
+[System Architecture](#-system-architecture) •
+[Roadmap & Evolution](#-roadmap--system-evolution) •
+[Repository Layout](#-repository-layout) •
+[Quick Start](#-quick-start) •
+[CLI Reference](#-cli-reference) •
+[Data Contract](#-decision-contract--output-schema) •
+[Technical Documentation ➔](code/ARCHITECTURE.md)
 
-Answering well takes more than the current balance. The agent must account for recurring expenses, pending payments, essential spending, confirmed income, available payment options, and relevant details buried in messages and images.
-
-For every request, the agent decides whether the user should pay in full, pay partially, use installments, wait, or not proceed. The recommendation must be personalized: two users with the same balance can deserve different answers based on their commitments, priorities, payment preferences, and willingness to adjust flexible expenses.
-
-A recommendation is safe only if the user can complete the full payment plan, cover essential expenses, and stay above their preferred minimum balance throughout the forecast period.
-
-Read [`problem_statement.md`](./problem_statement.md) for the full task spec, input/output schema, allowed values, conflict-resolution rules, and submission format.
-
----
-
-## Quick Start
-
-Clone the repository and move into the project directory:
-
-```bash
-git clone https://github.com/interviewstreet/hackerrank-orchestrate-september26.git
-cd hackerrank-orchestrate-september26
-```
-
-Build your solution in `code/main.py`, or use another language and document its entry point clearly.
-
-Your solution must:
-
-- Read the input files from `dataset/`
-- Generate one prediction for every request
-- Write the final predictions to `output.csv` in the repository root
-
-Run the starter Python entry point with:
-
-```bash
-python3 code/main.py
-```
-
-After running your solution, confirm that `output.csv` exists in the repository root and contains the required columns and one row for every request.
-
-## Important File Locations
-
-```text
-dataset/        Input data and the blank output template. Do not modify the input data.
-code/           Your solution code.
-output.csv      Final generated predictions in the repository root.
-code.zip        ZIP file containing your complete solution for submission.
-```
-
-The blank template at `dataset/output.csv` is provided as a reference. Your final generated file must be the root-level `output.csv`.
+</div>
 
 ---
 
-## Repository Layout
+## 🌟 The Vision
+
+**Penny** is an autonomous personal financial assistant designed to answer the most universal and critical personal finance question:
+
+> **"Can I afford this?"**
+
+Whether a user is considering buying a laptop, booking a vacation, enrolling in a course, or managing a large unexpected expense, answering *"Can I afford this?"* accurately requires far more than checking `available_balance >= price`. 
+
+Penny models the **future**, not just the present. By simulating cash-flow physics over a forward 90-day horizon, reconciling multimodal evidence (unstructured messages, payroll notices, receipt images), discovering recurring living expense cadences, and respecting personal risk thresholds, Penny gives users safe, personalized, and actionable purchasing decisions.
+
+---
+
+## 💡 Why Penny?
+
+Traditional personal finance tools are **reactive** (categorizing past spending) or **static** (showing current balances). Penny is **proactive, generative, and invariant-driven**:
+
+1. **Beyond the Opening Balance**: A user with \$5,000 in their account may be on the verge of missing rent next week due to pending debits and upcoming living costs. Another user with \$1,000 may have confirmed payroll arriving in two days and can safely finance a purchase. Penny calculates true forward safety.
+2. **Zero-Balance Breach Invariant**: Penny guarantees that a recommended purchase will never cause the user's balance to fall below their personalized `minimum_balance_to_keep` at any point over the 90-day forecast.
+3. **Multi-Strategy Affordability**: If a user cannot afford an expense in full today, Penny doesn't simply say "No". It searches across 4 actionable strategies:
+   - **Full Payment (`full_payment`)**: Pay today if 100% safe across the entire horizon.
+   - **Merchant Installments (`installments`)**: Spread payments across vetted merchant financing plans within the user's preferred term limit.
+   - **Two-Stage Partial Payment (`partial_payment`)**: Pay a safe partial amount today and the remainder once safe prior to the user's deadline.
+   - **Deferred Purchase (`wait`)**: Identify the exact calendar date when cash-flow accumulation makes the full purchase completely safe.
+4. **Intelligent Spending Optimization**: If immediate funds fall short, Penny can identify up to 3 non-essential, flexible expenses (e.g., subscriptions or discretionary categories) that the user is willing to stop or reduce to unlock affordability.
+5. **Multimodal Grounding**: Financial life doesn't live solely in clean ledger tables. Penny reconciles unstructured evidence — such as OCR receipt values from images, salary increment announcements, payday date shifts, and job status notifications.
+
+---
+
+## 🚀 Core Capabilities
+
+```mermaid
+flowchart LR
+    A["User Purchase Request<br/>'Can I afford this laptop?'"] --> B["Multimodal Evidence<br/>Reconciliation"]
+    B --> C["90-Day Daily Ledger<br/>Cash-Flow Simulation"]
+    C --> D["Candidate Generator<br/>(Full, Installments, Partial, Wait)"]
+    D --> E["Spending Optimizer<br/>(Flexible Modifications)"]
+    E --> F["6-Tier Lexicographic<br/>Plan Ranker"]
+    F --> G["Grounded Explanation<br/>& Final Recommendation"]
+
+    style A fill:#f8f9fa,stroke:#495057,stroke-width:1px
+    style C fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style D fill:#fff9db,stroke:#fcc419,stroke-width:1px
+    style F fill:#e6fcf5,stroke:#0ca678,stroke-width:2px
+    style G fill:#d3f9d8,stroke:#2b8a3e,stroke-width:2px
+```
+
+* 🔬 **90-Day Forward Balance Simulation**: Computes daily balance trajectories $B_t = B_{t-1} + \text{Credits}_t - \text{Debits}_t$ tracking exact headroom relative to minimum balance floors.
+* 🔄 **Statistical Recurrence Engine**: Automatically discovers fixed calendar Day-of-Month (DOM mode) streams (salary, rent, utilities) and regular integer day-step cadences (median living expenses over 5, 7, 10, 14, or 21 days).
+* 💱 **BFS Multi-Currency Graph**: Dynamically triangulates exchange rates and inverted rates across 5 fiat currencies (`EUR`, `USD`, `INR`, `IDR`, `ZAR`) using dated historical snapshots.
+* 🛡️ **Strict Evidence Invariants**: Reserves all pending debits while strictly excluding unconfirmed windfalls, pending refunds, bonuses, or unrealized portfolio fluctuations.
+* ⚖️ **Protected vs. Flexible Spending Guardrails**: Never alters protected essentials (rent, food, healthcare). Explores only user-permitted stoppable or reducible categories.
+* 🏆 **6-Tier Lexicographic Plan Selection**: Deterministically selects the optimal plan based on:
+  1. Completion by deadline
+  2. Avoidance of spending modifications
+  3. Lowest total payable outflow
+  4. Earliest payment start date
+  5. Fewest number of payment installments
+  6. Merchant option order preservation
+* 💬 **Transparent Explanations**: Generates clear, fact-grounded natural-language justifications using verified deterministic synthesizers or few-shot Groq LLM inference.
+
+---
+
+## 🏗️ System Architecture
+
+Penny is structured around a decoupled, 10-stage decision pipeline:
+
+```mermaid
+flowchart TD
+    subgraph Ingestion["Stage 1: Ingestion & Reconciliation"]
+        A1["Raw Profiles & Ledgers"] --> B1["DataLoader (code/data/loader.py)"]
+        A2["Messages & Receipts"] --> C1["EvidenceManager (code/data/evidence.py)"]
+        B1 --> D1["EventLinker & FX Converter (code/data/linker.py, currency.py)"]
+        C1 --> D1
+    end
+
+    subgraph Simulation["Stage 2: Cash-Flow Modeling & Simulation"]
+        D1 --> E1["IncomeClassifier & RecurrenceDetector (code/simulation/recurrence.py)"]
+        E1 --> F1["DailyLedger 90-Day Simulation (code/simulation/ledger.py)"]
+        F1 --> G1["SafetyEngine (code/simulation/safety.py)"]
+    end
+
+    subgraph Optimization["Stage 3: Candidate Search & Optimization"]
+        G1 --> H1["CandidateGenerator (Full / Installments / Partial / Wait)"]
+        H1 --> I1{"Viable Plan Found?"}
+        I1 -->|No| J1["SpendingOptimizer (code/optimizer/spending.py)"]
+        I1 -->|Yes| K1["Viable Candidates Pool"]
+        J1 --> K1
+    end
+
+    subgraph Decision["Stage 4: Ranking & Grounded Explanation"]
+        K1 --> L1["PlanRanker: 6-Tier Lexicographic (code/optimizer/ranker.py)"]
+        L1 --> M1["Optimal Decision Plan"]
+        M1 --> N1["Explanation Generator (code/explanations/templates.py, llm.py)"]
+        N1 --> O1["Standardized Output Contract (CSV / JSON)"]
+    end
+
+    style Ingestion fill:#f8f9fa,stroke:#adb5bd,stroke-width:1px
+    style Simulation fill:#e7f5ff,stroke:#339af0,stroke-width:2px
+    style Optimization fill:#fff9db,stroke:#fcc419,stroke-width:1px
+    style Decision fill:#e6fcf5,stroke:#20c997,stroke-width:2px
+```
+
+For complete mathematical models, state transitions, and safety proofs, read the [Technical Architecture Specification](code/ARCHITECTURE.md).
+
+---
+
+## 🗺️ Roadmap & System Evolution
+
+The project is actively expanding from its initial batch evaluation engine into a full-stack, real-time financial advisory platform:
+
+```mermaid
+flowchart TD
+    subgraph Client["📱 Frontend Layer (Cross-Platform Mobile)"]
+        RN["React Native App<br/>(iOS & Android)<br/>• Conversational 'Can I afford this?' Interface<br/>• Interactive 90-Day Cash-Flow Trajectory Graphs<br/>• Payment Option & Budget Sliders"]
+    end
+
+    subgraph Gateway["⚡ API Layer (High-Performance Service)"]
+        API["FastAPI Backend Service<br/>• REST Endpoints (/affordability, /simulate, /profile)<br/>• WebSocket Streaming for Real-Time LLM Explanations<br/>• Authentication, Rate Limiting & OpenAPI Spec"]
+    end
+
+    subgraph Engine["🧠 Core Financial Engine (code/)"]
+        Core["Penny Decision Core (code/)<br/>• DailyLedger Simulation Engine<br/>• Recurrence & Cadence Detection<br/>• Candidate Generator & Spending Optimizer<br/>• Multi-Currency Triangulation"]
+    end
+
+    subgraph Storage["💾 Persistence & Integration"]
+        DB[("PostgreSQL / SQLite<br/>User Profiles & History")]
+        OCR["Multimodal Vision / OCR Store"]
+    end
+
+    RN <-->|JSON / WebSockets| API
+    API <--> Core
+    Core <--> DB
+    Core <--> OCR
+
+    style Client fill:#e7f5ff,stroke:#1971c2,stroke-width:2px
+    style Gateway fill:#fff9db,stroke:#fcc419,stroke-width:2px
+    style Engine fill:#e6fcf5,stroke:#0ca678,stroke-width:2px
+    style Storage fill:#f8f9fa,stroke:#495057,stroke-width:1px
+```
+
+### Architecture Phases
+
+- [x] **Phase 1 — Core Decision Engine (`code/`)**: Deterministic 90-day forward simulation ledger, recurrence detector, multi-currency converter, candidate generation, spending optimizer, and evaluation harness.
+- [ ] **Phase 2 — API Layer (`FastAPI`)**:
+  - Restructure `code/` into a modular backend engine package (`penny.core`).
+  - Implement FastAPI REST endpoints for real-time affordability checks, scenario simulations, and user budget profiles.
+  - Add WebSocket endpoints for streaming AI reasoning and interactive budget changes.
+  - Interactive OpenAPI / Swagger UI documentation.
+- [ ] **Phase 3 — Mobile Frontend (`React Native`)**:
+  - Beautiful, reactive mobile user interface for iOS and Android.
+  - Natural conversational input: *"I want to buy an iPad for $650. Can I do it before the end of the month?"*
+  - Interactive balance graphs visualizing the 90-day projected trajectory against the minimum safety line.
+  - One-tap toggle for spending modifications (e.g. *"Pause Netflix & Gym for 2 months to unlock this purchase"*).
+
+---
+
+## 📂 Repository Layout
 
 ```text
 .
-├── AGENTS.md                         # Rules for AI coding tools + transcript logging
-├── problem_statement.md              # Full challenge statement
-├── README.md                         # You are here
-├── code/                             # Your solution code
-├── output.csv                        # Final generated predictions
-└── dataset/
-    ├── requests.csv                  # 250 requests to evaluate — predict these
-    ├── output.csv                    # Blank submission template
-    ├── sample_requests.csv           # 25 solved examples
-    ├── financial_profiles.csv        # Balances, minimum balance, priorities, preferences
-    ├── financial_events.csv          # Historical, pending, and confirmed transactions
-    ├── request_payment_options.csv   # Payment options available per request
-    ├── exchange_rates.csv            # Fixed, dated conversion rates
-    ├── messages.csv                  # Messages tied to users, requests, or events
-    ├── images.csv                    # Payroll letters, statements, bills, receipts
-    └── media/
-        └── images/
+├── README.md                      # You are here: Root project overview and roadmap
+├── problem_statement.md           # Formal specification, constraints, and requirements
+├── requirements.txt               # Project dependencies (python-dotenv, requests)
+├── output.csv                     # Final generated predictions for benchmark dataset
+│
+├── code/                          # 🧠 Backend Logic & Core Simulation Engine
+│   ├── README.md                  # Developer guide, CLI usage & module documentation
+│   ├── ARCHITECTURE.md            # In-depth architectural blueprint & formal specifications
+│   ├── main.py                    # Top-level CLI driver & execution orchestrator
+│   ├── pipeline.py                # DecisionPipeline coordinator (10-stage execution)
+│   │
+│   ├── models/                    # Domain entities & immutable data structures
+│   │   ├── domain.py              # UserProfile, FinancialEvent, PurchaseRequest, PaymentOption
+│   │   └── results.py             # CandidatePlan, OutputRow, AffordabilityStatus, PaymentMethod
+│   │
+│   ├── data/                      # Ingestion, normalization & evidence reconciliation
+│   │   ├── loader.py              # DataLoader reading dataset CSVs with sample isolation
+│   │   ├── currency.py            # ExchangeRateConverter with BFS multi-currency graph
+│   │   ├── evidence.py            # EvidenceManager applying image receipts & message mutations
+│   │   ├── linker.py              # EventLinker resolving linked transaction lifecycles
+│   │   └── classifier.py          # IncomeStreamClassifier filtering confirmed vs non-cash credits
+│   │
+│   ├── simulation/                # 90-day daily balance simulation & recurrence
+│   │   ├── recurrence.py          # RecurrenceDetector (calendar DOM + integer step cadences)
+│   │   ├── ledger.py              # DailyLedger forward simulator & headroom evaluator
+│   │   └── safety.py              # SafetyEngine computing safe amounts & earliest full payment date
+│   │
+│   ├── optimizer/                 # Candidate search, spending optimization & ranking
+│   │   ├── candidates.py          # CandidateGenerator (full, installment, partial, wait)
+│   │   ├── spending.py            # SpendingOptimizer (two-tier modification search)
+│   │   └── ranker.py              # PlanRanker implementing 6-tier lexicographic tie-breaking
+│   │
+│   ├── explanations/              # Grounded rationale & explanation synthesis
+│   │   ├── templates.py           # DeterministicTemplateSynthesizer matching benchmark style
+│   │   └── llm.py                 # LLMExplanationGenerator with graceful template fallback
+│   │
+│   ├── evaluation/                # Scoring, validation & token tracking
+│   │   ├── evaluator.py           # Evaluator comparing predictions with sample ground truth
+│   │   └── usage_report.md        # Token and model cost report
+│   │
+│   └── tests/                     # Exhaustive unit and regression test suite (85 tests)
+│
+├── dataset/                       # Financial data, requests, and evidence files
+│   ├── requests.csv               # 250 test requests to evaluate
+│   ├── sample_requests.csv        # 25 solved reference requests with ground truth
+│   ├── financial_profiles.csv     # User balances, minimum thresholds, and category permissions
+│   ├── financial_events.csv       # Historical, pending, and scheduled financial transactions
+│   ├── request_payment_options.csv# Available financing and installment options per request
+│   ├── exchange_rates.csv         # Dated multi-currency exchange rates
+│   ├── messages.csv               # Unstructured user, payroll, and merchant messages
+│   ├── images.csv                 # Metadata linking receipt/statement images to events
+│   └── media/images/              # Grounded PNG receipt and statement documents
+│
+├── evaluation/                    # Root benchmark outputs and usage reports
+│   └── usage_report.md            # Benchmark execution metrics and token accounting
 ```
 
-Only `dataset/requests.csv` requires predictions. Everything else is context. Join user records with `user_id`, request records with `request_id`, supporting evidence with `related_event_id`, and exchange rates with the rate date and currency pair.
+---
 
-Amounts are in the user's `home_currency` — the dataset uses INR, ZAR, IDR, USD, and EUR, and every conversion rate you need is in `exchange_rates.csv`. All dates are `YYYY-MM-DD`. Live exchange rates, market data, and banking access are not required.
+## ⚡ Quick Start
+
+### Prerequisites
+- Python 3.10 or higher
+- `pip` or `uv` package manager
+
+### 1. Installation
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/varunaditya27/penny.git
+cd penny
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+*(Note: Penny's core simulation engine uses standard library algorithms and has zero mandatory runtime dependencies. `requirements.txt` installs `python-dotenv` and `requests` for optional LLM explanation generation).*
+
+### 2. Environment Setup (Optional)
+
+If you wish to enable the LLM explanation generator via Groq, create a `.env` file in the project root:
+
+```bash
+cp .env.example .env
+# Set your Groq API key:
+# GROQ_API_KEY=gsk_...
+```
+
+If the key is not set, Penny operates deterministically with zero degradation in accuracy or speed.
 
 ---
 
-## What You Need to Build
+## 💻 CLI Reference
 
-For every row in `dataset/requests.csv`, produce one row in `output.csv` with:
+Penny's main entry point is [`code/main.py`](code/main.py):
 
-| Column | Meaning |
-|---|---|
-| `request_id` | The request being answered |
-| `amount_safe_to_pay` | Largest amount safe to pay on `request_date` before optional spending changes, after protecting essentials and the minimum balance |
-| `affordability_status` | `affordable_now`, `affordable_with_plan`, `affordable_later`, or `not_affordable` |
-| `recommended_payment_method` | `full_payment`, `partial_payment`, `installments`, `wait`, or `not_recommended` |
-| `payment_plan` | Chronological `<YYYY-MM-DD>:<amount>` entries joined by `\|`, or `none` |
-| `earliest_date_for_full_payment` | Earliest date the full amount is forecast safe as one payment; empty if never within the forecast |
-| `spending_changes_needed` | Up to three `stop:<event_id>` / `reduce_to:<event_id>:<amount>` changes joined by `\|`, or `none` |
-| `decision_explanation` | Short explanation and the financial facts behind it |
+### Run Full Production Pipeline
+Processes all 250 requests in `dataset/requests.csv` and outputs predictions to `output.csv`:
 
-`0 <= amount_safe_to_pay <= requested_amount` must always hold. Installment plans must exactly match a supplied payment option, and only recurring expenses marked flexible may be changed.
+```bash
+python3 code/main.py --no-llm
+```
 
-`affordable_with_plan` means the full request is completed through a partial-payment schedule, installments, or permitted spending changes. Recommend `partial_payment` only when the request allows it, the user accepts it, `0 < amount_safe_to_pay < requested_amount`, and `earliest_date_for_full_payment` is on or before `desired_completion_date`. Use exactly two payments: pay `amount_safe_to_pay` on `request_date`, then pay the remaining amount on `earliest_date_for_full_payment`. The two payments must add up to `requested_amount`. Unlike installments, partial payment does not need to match a supplied payment option.
+### Run Benchmark Calibration on Sample Dataset
+Evaluates accuracy against the 25 reference cases in `dataset/sample_requests.csv`:
 
----
+```bash
+python3 code/main.py --eval-sample --no-llm
+```
 
-## Suggested Workflow
+### Specify Custom Output Path
+```bash
+python3 code/main.py --output /path/to/custom_output.csv
+```
 
-1. Inspect `dataset/sample_requests.csv` — 25 requests with completed output columns — to understand the expected format and decision style.
-2. Reconstruct each user's financial state from `financial_profiles.csv` and `financial_events.csv`: separate recurring expenses from one-time events, reserve pending transactions, count confirmed salary only on its settlement date, and de-duplicate repeated representations of the same event.
-3. When an event has a blank `amount`, find its `event_id` as `related_event_id` in `images.csv` and extract the amount from the linked image. Never treat a blank amount as zero. Pull in any other relevant messages, images, and payment options for the request.
-4. Forecast forward and generate a plan that keeps the balance above the minimum at every step.
-5. Verify deterministically — bounds, plan feasibility, schedule match, flexible-only spending changes — before writing `output.csv`.
-6. Score yourself on the solved samples, then run the full dataset.
+### CLI Options
 
-You may use any language or runtime. Python, JavaScript, and TypeScript are all reasonable choices.
-
-### Core Financial Modeling & Architecture Decisions
-- **Event Linking & Cash-Flow Cleanup**: All financial events are reconciled through `EventLinker` before cash-flow partitioning. Authorizations linked to settled transactions are collapsed, pending refund credits and mark-to-market portfolio valuations are excluded, and real debt repayments are preserved.
-- **Statistical Cash-Flow Inference**: Rather than rigid transaction matching, ongoing living expenses are modeled via statistical cash-flow inference. Integer day-step cadences (5, 7, 10, 14, 21 days) use the mathematical median of settled amounts to protect against skewed outliers, while payroll events use statistical mode to identify true contract settlement dates immune to holiday/weekend shifts.
-- **Opening Balance Snapshot**: `current_available_balance` is treated as the opening available balance snapshot before any same-day scheduled or recurring transactions take place on `request_date`.
-- **Strict Blank Amount Handling (§6.1, §6.3)**: Blank amounts on cash events are never treated as zero. If an amount cannot be resolved via image extractions or message reconciliation, it is excluded from cash flow rather than silently coerced to zero.
-- **Effective-Date Gated Salary Amendments**: When evidence messages revise employment income effective on a future date (`effective_date > request_date`), the pre-effective cash flows strictly retain the historical settled baseline, with the amended amount applying on and after the specified effective date.
-- **Conservative Credit Recognition (§6.3)**: Only confirmed, scheduled credits are counted forward; pending credits, refunds, bonuses, or unrealized investments are strictly excluded until settled.
-- **Deterministic Snapshot FX Triangulation**: Cross-currency foreign cash events are converted using BFS graph triangulation over dated snapshot rates published on the 15th of each month, strictly respecting directional and published reverse pairs.
-- **Dual-Horizon Safety Semantics**: When evaluating on or before `desired_completion_date`, candidate payment safety is verified through the completion horizon. For deferred payment dates after the deadline, safety is verified across a 30-day subsequent billing cycle with a 0.5% minimum balance micro-cushion to prevent fragile solvency forecasts.
-- **Installment Cap Compliance**: Installment options are strictly evaluated against `max_installment_months` by both payment count and overall financing schedule span.
+| Option | Type | Default | Description |
+|---|---|:---:|---|
+| `--eval-sample` | flag | `False` | Run against `sample_requests.csv` and print precision metrics |
+| `--output` | string | `None` | Custom output CSV path (defaults to `output.csv`) |
+| `--no-llm` | flag | `True` | Use deterministic template synthesizer (fast, zero API cost) |
+| `--use-llm` | flag | `False` | Enable Groq API (`openai/gpt-oss-20b`) for explanation drafting |
+| `--tolerance` | float | `5.0` | Numerical percentage tolerance for safe amount evaluation |
 
 ---
 
-## Requirements
+## 🧪 Testing & Verification
 
-Your solution must:
+Penny maintains an exhaustive unit and integration test suite with **85 tests** covering:
+- BFS cross-currency conversion graph and rate inversion
+- Recurrence pattern detection (DOM and step cadences)
+- 90-day ledger simulation and balance headroom invariants
+- Installment schedule generation and post-term safety
+- Spending optimizer category constraints
+- Template formatting and CLI drivers
 
-- be runnable from the terminal
-- read the provided files from `dataset/`
-- produce a valid `output.csv` with the exact required columns in the exact required order
-- include one prediction for every `request_id` in `dataset/requests.csv`
-- not use organizer-only files or hardcoded labels
-- keep behavior deterministic where possible
+To run the complete test suite:
 
-If you use API keys or secrets, read them from environment variables. Never hardcode secrets in the repo.
-
----
-
-## Evaluation
-
-Your `output.csv` will be compared against hidden ground-truth values.
-
-The scoring will consider:
-
-- accuracy of `amount_safe_to_pay`
-- correctness of `affordability_status`
-- correctness of `recommended_payment_method` and `payment_plan`
-- accuracy of `earliest_date_for_full_payment`
-- validity of `spending_changes_needed`
-- usefulness and consistency of `decision_explanation`
-
-### Token Usage And Cost Analysis
-
-Your `code.zip` must include one token-usage file:
+```bash
+PYTHONPATH=. python3 -m unittest discover code/tests
+```
 
 ```text
-evaluation/usage_report.md
+Ran 85 tests in 18.081s
+
+OK
 ```
 
-The report must cover model providers and names, model calls, input and output tokens, total and average tokens per request, estimated total and per-request cost. The reported values must correspond to the final full-dataset run that produced your `output.csv`.
+---
+
+## 📋 Decision Contract & Output Schema
+
+For each request evaluated, Penny produces an exact 8-column decision row:
+
+| Column Name | Type | Description |
+|---|---|---|
+| `request_id` | `string` | Unique request identifier (e.g. `request_01`) |
+| `amount_safe_to_pay` | `float` | Largest amount safe to pay today while protecting minimum balance and essentials |
+| `affordability_status` | `enum` | `affordable_now`, `affordable_with_plan`, `affordable_later`, or `not_affordable` |
+| `recommended_payment_method` | `enum` | `full_payment`, `partial_payment`, `installments`, `wait`, or `not_recommended` |
+| `payment_plan` | `string` | Formatted `<date>:<amount>` schedule (e.g. `2026-03-01:500.00\|2026-04-01:500.00`) or `none` |
+| `earliest_date_for_full_payment` | `string` | Earliest calendar date when full payment is safe, or empty if never safe within 90 days |
+| `spending_changes_needed` | `string` | Recommended modifications (e.g. `stop:event_102\|reduce_to:event_205:50.00`) or `none` |
+| `decision_explanation` | `string` | Grounded, concise rationale explaining the financial facts behind the recommendation |
 
 ---
 
-## Chat Transcript Logging
+## 📚 Technical Documentation & Deep Dives
 
-This repo includes an [`AGENTS.md`](./AGENTS.md) file for AI coding tools. It asks compatible tools to append conversation summaries to a `log.txt` in the repository root — the same directory as `AGENTS.md`:
-
-| Platform | Path |
-|---|---|
-| macOS / Linux | `<repo root>/log.txt` |
-| Windows | `<repo root>\log.txt` |
-
-The path resolves relative to `AGENTS.md`, so it stays correct across clones, renames, and checkouts. `log.txt` is gitignored — upload it as your chat transcript at submission time. Do not paste secrets into the chat.
-
-In case, the harness you are using is not in the repo root, you can explicitly ask the agent to look for the AGENTS.md in this folder & then continue.
+- **[Technical Architecture & Invariants](code/ARCHITECTURE.md)**: Deep dive into the 90-day simulation engine, cadence detection formulas, multi-currency BFS graph, and ranking algorithms.
+- **[Codebase Developer Guide](code/README.md)**: Detailed component breakdown, class diagrams, and test specifications.
+- **[Formal Problem Statement](problem_statement.md)**: Original task rules, edge cases, and allowed values.
 
 ---
 
-## Submission
+<div align="center">
 
-Submit the following files as instructed by HackerRank:
+**Penny — The AI Financial Affordability Assistant**  
+*Built with precision, mathematical safety, and forward-looking financial intelligence.*
 
-| File | Description |
-|---|---|
-| `code.zip` | Full runnable solution, prompts/configuration, README, and the required `evaluation/` folder |
-| `output.csv` | Predictions for every row in `dataset/requests.csv` |
-| `chat_transcript` | The `log.txt` described above, showing how you developed or used the system |
-
-Before submitting, confirm:
-
-- `output.csv` has one row per row in `dataset/requests.csv` (250 rows plus the header).
-- `output.csv` has the exact required columns in the exact required order.
-- Every `amount_safe_to_pay` satisfies `0 <= amount_safe_to_pay <= requested_amount`.
-- Every installment plan matches a supplied payment option, and every spending change targets a flexible recurring expense.
-- Your runnable code, setup instructions, and `evaluation/` folder are included in `code.zip`.
+</div>
