@@ -8,7 +8,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg)](https://fastapi.tiangolo.com/)
 [![Pydantic v2](https://img.shields.io/badge/pydantic-v2-e92063.svg)](https://docs.pydantic.dev/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0+-red.svg)](https://www.sqlalchemy.org/)
-[![Tests](https://img.shields.io/badge/tests-105%20passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/tests-107%20passed-success.svg)]()
 
 </div>
 
@@ -79,9 +79,11 @@ backend/
 │   │   ├── event.py               # FinancialEventResponse, FinancialEventCreate
 │   │   ├── affordability.py       # AffordabilityRequest, AffordabilityResponse, PaymentOptionInput
 │   │   └── simulation.py          # TrajectoryResponse, TrajectoryPoint
-│   └── services/                  # Domain orchestration services
-│       ├── finance_service.py     # FinanceService (CRUD, risk metrics, affordability evaluation)
-│       └── simulation_service.py  # SimulationService (multi-horizon forward trajectory modeling)
+│   └── services/                  # Modular domain orchestration services
+│       ├── finance_service.py     # FinanceService (User CRUD & affordability pipeline coordination)
+│       ├── risk_service.py        # CashFlowRiskService (Fixed burn rate & underwriting metrics)
+│       ├── simulation_service.py  # SimulationService (Multi-horizon forward trajectory modeling)
+│       └── mappers.py             # Pure mappers between DB models, domain dataclasses & schemas
 │
 ├── core/                          # 🔬 Pure Python Simulation Domain
 │   ├── pipeline.py                # DecisionPipeline coordinating 10-stage evaluation
@@ -95,10 +97,10 @@ backend/
 │
 ├── docs/                          # Architectural specifications and exploratory analysis
 │
-└── tests/                         # 🧪 Comprehensive Test Suite (105 Tests)
+└── tests/                         # 🧪 Comprehensive Test Suite (107 Tests)
     ├── test_core/                 # 85 domain simulation, recurrence, and optimizer tests
     ├── test_db/                   # 5 database session, ORM, and seeder tests
-    └── test_api/                  # 15 FastAPI endpoint and service integration tests
+    └── test_api/                  # 17 FastAPI endpoint and service integration tests
 ```
 
 ---
@@ -250,5 +252,5 @@ PYTHONPATH=. pytest backend/tests/ -v
 ```
 
 ```text
-===================== 105 passed in 21.16s ======================
+===================== 107 passed in 21.18s ======================
 ```

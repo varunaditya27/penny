@@ -67,3 +67,46 @@ def test_finance_service_user_risk_metrics(db_session):
     assert metrics.monthly_fixed_burn_rate >= 0.0
     assert metrics.monthly_confirmed_income >= 0.0
     assert metrics.fixed_cost_ratio >= 0.0
+
+
+def test_cash_flow_risk_service_direct(db_session):
+    from backend.app.db.models import UserDB
+    from backend.app.services.risk_service import CashFlowRiskService
+
+    user_db = db_session.query(UserDB).filter_by(user_id="user_01").first()
+    metrics = CashFlowRiskService.compute_risk_metrics(user_db)
+    assert metrics.monthly_fixed_burn_rate >= 0.0
+    assert metrics.monthly_confirmed_income >= 0.0
+    assert metrics.discretionary_cashflow is not None
+
+
+def test_mappers_helpers(db_session):
+    from backend.app.db.models import UserDB
+    from backend.app.services.mappers import (
+        map_events_to_domain,
+        map_user_to_domain,
+        map_user_to_response,
+        parse_payment_schedule,
+        parse_spending_changes,
+    )
+
+    user_db = db_session.query(UserDB).filter_by(user_id="user_01").first()
+    domain_user = map_user_to_domain(user_db)
+    assert domain_user.user_id == "user_01"
+    assert isinstance(domain_user.expense_categories_to_protect, list)
+
+    domain_events = map_events_to_domain(user_db.events)
+    assert len(domain_events) == len(user_db.events)
+
+    response_schema = map_user_to_response(user_db)
+    assert response_schema.user_id == "user_01"
+
+    schedule = parse_payment_schedule("2026-01-01:100.00|2026-02-01:100.00")
+    assert len(schedule) == 2
+    assert schedule[0].amount == 100.0
+
+    changes = parse_spending_changes("stop:event_101|reduce_to:event_102:50.0")
+    assert len(changes) == 2
+    assert changes[0].action == "stop"
+    assert changes[1].amount == 50.0
+

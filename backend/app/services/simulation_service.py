@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from backend.app.db.models import UserDB
 from backend.app.schemas.simulation import TrajectoryPoint, TrajectoryResponse
-from backend.app.services.finance_service import FinanceService
+from backend.app.services.mappers import map_events_to_domain, map_user_to_domain
 from backend.core.simulation.ledger import DailyLedger
 from backend.core.simulation.recurrence import RecurrenceDetector
 
@@ -12,7 +12,6 @@ from backend.core.simulation.recurrence import RecurrenceDetector
 class SimulationService:
     def __init__(self, db: Session):
         self.db = db
-        self.finance_service = FinanceService(db)
 
     def compute_user_trajectory(
         self,
@@ -25,8 +24,8 @@ class SimulationService:
         if not user_db:
             raise ValueError(f"User '{user_id}' not found.")
 
-        domain_user = self.finance_service.map_user_to_domain(user_db)
-        domain_events = self.finance_service.map_events_to_domain(user_db.events)
+        domain_user = map_user_to_domain(user_db)
+        domain_events = map_events_to_domain(user_db.events)
 
         eval_date = start_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
