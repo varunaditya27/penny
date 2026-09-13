@@ -1,0 +1,3 @@
+"""
+Penny FastAPI Application Package.
+"""
