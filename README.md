@@ -117,6 +117,13 @@ For every row in `dataset/requests.csv`, produce one row in `output.csv` with:
 
 You may use any language or runtime. Python, JavaScript, and TypeScript are all reasonable choices.
 
+### Core Financial Modeling Assumptions
+- **Opening Balance Snapshot**: `current_available_balance` is treated as the opening available balance snapshot before any same-day scheduled or recurring transactions take place on `request_date`.
+- **Strict Blank Amount Handling (§6.1, §6.3)**: Blank amounts on cash events are never treated as zero. If an amount cannot be resolved via image extractions or message reconciliation, it is excluded from cash flow rather than silently coerced to zero.
+- **Effective-Date Gated Salary Amendments**: When evidence messages revise employment income effective on a future date (`effective_date > request_date`), the pre-effective cash flows strictly retain the historical settled baseline, with the amended amount applying on and after the specified effective date.
+- **Conservative Credit Recognition (§6.3)**: Only confirmed, scheduled credits are counted forward; pending credits, refunds, bonuses, or unrealized investments are strictly excluded until settled.
+- **Installment Cap Compliance**: Installment options are strictly evaluated against `max_installment_months` by both payment count and overall financing schedule span.
+
 ---
 
 ## Requirements

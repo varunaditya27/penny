@@ -127,9 +127,16 @@ class DecisionPipeline:
                     logger.info(f"Overrode salary DOM to {mode_dom} from payroll amendment message")
 
             amt = latest_settled.amount
+            eff_date = None
+            post_eff_amt = None
             for m in user_mutations:
                 if m.get("action") == "AMEND_SALARY" and m.get("amount"):
-                    amt = float(m["amount"])
+                    m_eff = m.get("effective_date")
+                    if m_eff and m_eff > request_date:
+                        eff_date = m_eff
+                        post_eff_amt = float(m["amount"])
+                    else:
+                        amt = float(m["amount"])
 
             return RecurringStream(
                 description=latest_settled.description,
@@ -141,6 +148,8 @@ class DecisionPipeline:
                 latest_date=latest_settled.event_date,
                 latest_event_id=latest_settled.event_id,
                 direction="credit",
+                effective_date=eff_date,
+                post_effective_amount=post_eff_amt,
             )
 
         # Check for new job announced in messages
@@ -193,6 +202,11 @@ class DecisionPipeline:
             # Skip non-cash, failed, cancelled, or unrealized investments
             if ev.is_non_cash or ev.status in ["failed", "cancelled", "unrealized"]:
                 continue
+            if ev.amount is None:
+                logger.error(
+                    f"Event {ev.event_id} has None amount after evidence processing; excluding from cash flow to avoid treating blank as zero."
+                )
+                continue
 
             if ev.event_date <= request.request_date and ev.status == "settled":
                 hist_events.append(ev)
@@ -202,18 +216,8 @@ class DecisionPipeline:
         # 3. Detect recurring streams from historical settled events
         streams = RecurrenceDetector.detect_streams(hist_events)
 
-        # Filter out all non-salary credit streams and commissions
-        streams = [
-            s
-            for s in streams
-            if not (
-                s.is_credit
-                and (
-                    s.category != "salary"
-                    or any(k in s.description.lower() for k in self.NON_RECURRING_INCOME_KEYWORDS)
-                )
-            )
-        ]
+        # Discard any credit streams detected automatically; auto-detection only keeps expense/debit streams
+        streams = [s for s in streams if not s.is_credit]
 
         # 4. Integrate robust confirmed ongoing salary stream
         user_mutations = self.evidence_mgr.get_user_mutations(user.user_id, request.request_date)
@@ -224,9 +228,6 @@ class DecisionPipeline:
             future_events=future_events,
             user_mutations=user_mutations,
         )
-
-        # Remove existing salary streams and add canonical salary stream if present
-        streams = [s for s in streams if s.category != "salary"]
         if salary_stream is not None:
             streams.append(salary_stream)
 

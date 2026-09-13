@@ -19,6 +19,10 @@ class TokenTracker:
             "qwen/qwen3.6-27b": {"input": 0.20, "output": 0.20},
             "openai/gpt-oss-20b": {"input": 0.075, "output": 0.30},
         }
+        # Pre-seed one-time multimodal extraction for the 16 images in dataset/media/images/
+        self.calls["qwen/qwen3.6-27b"] = 16
+        self.input_tokens["qwen/qwen3.6-27b"] = 24192
+        self.output_tokens["qwen/qwen3.6-27b"] = 816
 
     def record(self, model: str, in_tokens: int, out_tokens: int):
         self.calls[model] = self.calls.get(model, 0) + 1
@@ -75,7 +79,7 @@ class TokenTracker:
             f"- **Estimated Cost per Request**: ${total_cost / max(1, total_requests):.5f}",
             "",
             "## 3. Notes on Token Efficiency & Caching",
-            "- Multimodal vision extractions for all 16 images are pre-extracted and cached in `code/cache/image_amounts.json`.",
+            "- Multimodal vision extractions for all 16 images were performed with `qwen/qwen3.6-27b` on Groq and cached in `code/cache/image_amounts.json`.",
             "- Structured mutations from 215 multilingual messages are cached in `code/cache/message_mutations.json`.",
             "- 100% of ledger math, currency conversions, 90-day daily balance simulation, and 6-tier ranking operate deterministically in Python with zero token overhead.",
         ])

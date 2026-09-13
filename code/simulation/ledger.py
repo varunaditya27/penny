@@ -118,6 +118,9 @@ class DailyLedger:
             # Ignore non-cash, unrealized, failed, or cancelled
             if ev.is_non_cash or ev.status in ["failed", "cancelled", "unrealized"]:
                 continue
+            if ev.amount is None:
+                logger.error(f"Event {ev.event_id} has None amount; excluding from cash flow to avoid treating blank as zero.")
+                continue
             s_date = ev.settlement_date or ev.event_date
             events_by_date[s_date].append(ev)
 
@@ -136,17 +139,18 @@ class DailyLedger:
             # 1. Process future one-off / pending events on this settlement date
             if curr_str in events_by_date:
                 for ev in events_by_date[curr_str]:
-                    amt = float(ev.amount or 0.0)
+                    if ev.amount is None:
+                        logger.error(f"Event {ev.event_id} has None amount; skipping to prevent treating blank as zero.")
+                        continue
+                    amt = float(ev.amount)
                     if ev.is_debit:
                         # Subtract pending or scheduled debits
                         if ev.status in ["pending", "scheduled", "settled"]:
                             day_debits += amt
                     elif ev.is_credit:
-                        # Add confirmed future scheduled credits
-                        # Ignore unconfirmed pending credits, bonuses, lottery, unrealized gains
-                        if ev.status == "scheduled" or (
-                            ev.status == "pending" and (ev.category == "salary" or "confirmed" in ev.description.lower())
-                        ):
+                        # Add confirmed future scheduled credits per §6.3:
+                        # "Do not count pending credits, bonuses, commissions, refunds, lottery proceeds, or investment gains until they settle."
+                        if ev.status == "scheduled":
                             day_credits += amt
 
             # 2. Process recurring streams
@@ -154,7 +158,11 @@ class DailyLedger:
                 if stream.latest_event_id in stopped_ids:
                     continue
 
-                effective_amt = reduced_amts.get(stream.latest_event_id, stream.baseline_amount)
+                base_amt = reduced_amts.get(stream.latest_event_id, stream.baseline_amount)
+                effective_amt = base_amt
+                if stream.effective_date and stream.post_effective_amount is not None:
+                    if curr_str >= stream.effective_date:
+                        effective_amt = stream.post_effective_amount
                 fires = False
 
                 if stream.cadence_type == "step":

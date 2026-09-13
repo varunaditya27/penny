@@ -108,16 +108,6 @@ def run_pipeline(
             writer.writerow(r.to_csv_row())
     logger.info(f"Successfully wrote {len(output_rows)} rows to {output_path}")
 
-    # Also write to dataset/output.csv per challenge contract in production mode
-    if not sample_mode:
-        dataset_output_path = os.path.join("dataset", "output.csv")
-        with open(dataset_output_path, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(fieldnames)
-            for r in output_rows:
-                writer.writerow(r.to_csv_row())
-        logger.info(f"Successfully synchronized {len(output_rows)} rows to {dataset_output_path}")
-
     # If in sample mode, evaluate against ground truth
     if sample_mode:
         with open("dataset/sample_requests.csv", "r", encoding="utf-8") as f:

@@ -181,10 +181,12 @@ class CandidateGenerator:
             if opt.payment_method != "installments":
                 continue
 
-            # Trap elimination: discard if number of payments exceeds user preference cap
-            if opt.number_of_payments > user.max_installment_months:
+            # Trap elimination: discard if number of payments or schedule span exceeds user preference cap
+            span_days = (opt.number_of_payments - 1) * (opt.payment_frequency_days or 30)
+            span_months = (span_days + 15) // 30
+            if opt.number_of_payments > user.max_installment_months or span_months > user.max_installment_months:
                 logger.debug(
-                    f"Discarding option {opt.payment_option_id}: {opt.number_of_payments} payments > cap {user.max_installment_months}"
+                    f"Discarding option {opt.payment_option_id}: payments={opt.number_of_payments}, span_months={span_months} > cap {user.max_installment_months}"
                 )
                 continue
 

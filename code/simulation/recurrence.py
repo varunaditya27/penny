@@ -26,6 +26,8 @@ class RecurringStream:
     flexibility: str = "fixed"
     minimum_allowed_amount: Optional[float] = None
     direction: str = "debit"  # 'debit' or 'credit'
+    effective_date: Optional[str] = None
+    post_effective_amount: Optional[float] = None
 
     @property
     def is_credit(self) -> bool:
