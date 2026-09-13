@@ -64,7 +64,8 @@ class TestRecurrenceDetector(unittest.TestCase):
         self.assertEqual(s.cadence_type, "step")
         self.assertEqual(s.step_days, 7)
         self.assertIsNone(s.day_of_month)
-        self.assertEqual(s.baseline_amount, 157.0)
+        # Conservative baseline uses median of historical amounts (median of 150..157 is 153.5)
+        self.assertEqual(s.baseline_amount, 153.5)
         self.assertEqual(s.latest_event_id, "g_7")
         self.assertTrue(s.is_debit)
 

@@ -66,12 +66,18 @@ class SafetyEngine:
                 candidate_payments=[(candidate_date_str, req_amt)],
             )
 
-            if target_end_dt:
-                end_dt = max(candidate_dt, target_end_dt)
-                end_idx = min(len(test_ledger.dates) - 1, (end_dt - start_dt).days)
-                is_safe_candidate = all(b >= user.minimum_balance_to_keep for b in test_ledger.balances[d : end_idx + 1])
+            cushion = (user.minimum_balance_to_keep * 0.005) if d > 0 else 0.0
+            if target_end_dt and candidate_dt <= target_end_dt:
+                end_idx = min(len(test_ledger.dates) - 1, (target_end_dt - start_dt).days)
+            elif target_end_dt:
+                # Post-deadline deferred payment: must remain safe across subsequent 30-day cycle
+                end_idx = min(len(test_ledger.dates) - 1, d + 30)
             else:
-                is_safe_candidate = test_ledger.is_safe()
+                end_idx = len(test_ledger.dates) - 1
+
+            is_safe_candidate = all(
+                b >= (user.minimum_balance_to_keep + cushion) for b in test_ledger.balances[d : end_idx + 1]
+            )
 
             if is_safe_candidate:
                 logger.debug(f"Found earliest safe full payment date: {candidate_date_str} (day {d})")

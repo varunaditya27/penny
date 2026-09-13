@@ -3,6 +3,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional, Tuple, Set
+import statistics
 
 from code.models.domain import FinancialEvent
 
@@ -115,11 +116,8 @@ class RecurrenceDetector:
             if ok_step:
                 latest = c_evs[-1]
                 amounts = [e.amount for e in c_evs if e.amount is not None]
-                import statistics
-                if len(amounts) >= 3:
-                    med = statistics.median(amounts)
-                    # Use median if latest event is an extreme outlier (e.g. bulk pantry purchase > 2x median)
-                    base_amt = med if (latest.amount > 2.0 * med) else latest.amount
+                if len(amounts) >= 2:
+                    base_amt = round(statistics.median(amounts), 2)
                 else:
                     base_amt = latest.amount
                 streams.append(RecurringStream(
@@ -170,13 +168,18 @@ class RecurrenceDetector:
                 ok_step, step = cls._is_step_cadence(d_evs)
                 if ok_step:
                     latest = d_evs[-1]
+                    d_amounts = [e.amount for e in d_evs if e.amount is not None]
+                    if len(d_amounts) >= 2:
+                        base_amt = round(statistics.median(d_amounts), 2)
+                    else:
+                        base_amt = latest.amount
                     streams.append(RecurringStream(
                         description=desc,
                         category=cat,
                         cadence_type="step",
                         step_days=step,
                         day_of_month=None,
-                        baseline_amount=latest.amount,
+                        baseline_amount=base_amt,
                         latest_date=latest.event_date,
                         latest_event_id=latest.event_id,
                         flexibility=latest.flexibility,
