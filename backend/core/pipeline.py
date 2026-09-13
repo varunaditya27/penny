@@ -1,8 +1,7 @@
-import csv
 import logging
 from collections import Counter
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Set
+from datetime import datetime
+from typing import Dict, List, Optional
 
 from backend.core.data.currency import ExchangeRateConverter
 from backend.core.data.evidence import EvidenceManager
@@ -25,28 +24,8 @@ logger = logging.getLogger("buy_or_wait.pipeline")
 
 class DecisionPipeline:
     """
-    End-to-end Decision Pipeline for Buy or Wait? financial decision agent.
+    End-to-end Decision Pipeline for Penny financial affordability assistant.
     """
-
-    NON_RECURRING_INCOME_KEYWORDS = {
-        "commission",
-        "bonus",
-        "lottery",
-        "refund",
-        "gain",
-        "portfolio",
-        "unrealized",
-        "valuation",
-        "severance",
-        "payout",
-        "platform",
-        "gig",
-        "driver",
-        "delivery",
-        "quickcrew",
-        "marketplace",
-        "app earnings",
-    }
 
     def __init__(
         self,
@@ -343,8 +322,6 @@ class DecisionPipeline:
             deadline_spending = [c for c in spending_plans if c.completes_by_deadline]
             if deadline_spending:
                 chosen_plan = PlanRanker.select_best_plan(deadline_spending)
-            elif wait_cand and earliest_full_date <= request.desired_completion_date:
-                chosen_plan = wait_cand
             else:
                 # Neither baseline nor spending adjustments can complete the request safely by deadline
                 chosen_plan = CandidateGenerator.generate_not_recommended_candidate(

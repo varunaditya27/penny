@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy.orm import Session
 
@@ -25,10 +25,10 @@ class SimulationService:
         if not user_db:
             raise ValueError(f"User '{user_id}' not found.")
 
-        domain_user = self.finance_service._map_user(user_db)
-        domain_events = self.finance_service._map_events(user_db.events)
+        domain_user = self.finance_service.map_user_to_domain(user_db)
+        domain_events = self.finance_service.map_events_to_domain(user_db.events)
 
-        eval_date = start_date or datetime.utcnow().strftime("%Y-%m-%d")
+        eval_date = start_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
         hist_events = [e for e in domain_events if e.event_date <= eval_date]
         future_events = [e for e in domain_events if e.event_date > eval_date]

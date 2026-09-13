@@ -50,3 +50,42 @@ def test_get_simulation_trajectory_endpoint(client):
     assert "lowest_balance_date" in data
     assert "buffer_margin" in data
     assert "is_safe" in data
+
+
+def test_evaluate_affordability_with_installment_options(client):
+    payload = {
+        "user_id": "user_01",
+        "requested_amount": 600.0,
+        "desired_completion_date": "2026-03-31",
+        "request_date": "2026-01-01",
+        "allows_partial_payment": False,
+        "payment_options": [
+            {
+                "payment_option_id": "opt_split_3",
+                "payment_method": "installments",
+                "payment_amount": 200.0,
+                "number_of_payments": 3,
+                "first_payment_date": "2026-01-01",
+                "payment_frequency_days": 30,
+                "financing_fee": 0.0,
+                "total_payable_amount": 600.0,
+            }
+        ],
+    }
+    res = client.post("/api/v1/affordability/evaluate", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["user_id"] == "user_01"
+    assert "payment_plan" in data
+
+
+def test_update_user_profile_endpoint(client):
+    res = client.patch(
+        "/api/v1/users/user_01",
+        json={"minimum_balance_to_keep": 450.0},
+    )
+    assert res.status_code == 200
+    data = res.json()
+    assert data["user_id"] == "user_01"
+    assert data["minimum_balance_to_keep"] == 450.0
+    assert "risk_metrics" in data

@@ -1,6 +1,8 @@
-import os
+import csv
 import json
 import logging
+import os
+import re
 from typing import Dict, Any, Optional, List
 from backend.core.models.domain import FinancialEvent
 
@@ -74,7 +76,7 @@ class TokenTracker:
             "",
             "## 3. Notes on Token Efficiency & Caching",
             "- Counts above include only calls made during this run. Precomputed image and message caches are treated as input artifacts, not fabricated runtime calls.",
-            "- Structured mutations from 215 multilingual messages are read from `code/cache/message_mutations.json`.",
+            "- Structured mutations from 215 multilingual messages are read from `backend/core/cache/message_mutations.json`.",
             "- 100% of ledger math, currency conversions, 90-day daily balance simulation, and 6-tier ranking operate deterministically in Python with zero token overhead.",
         ])
         return "\n".join(lines)
@@ -98,9 +100,9 @@ class EvidenceManager:
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         default_img = os.path.join(base_dir, "cache", "image_amounts.json")
         default_msg = os.path.join(base_dir, "cache", "message_mutations.json")
-        
-        self.image_cache_path = image_cache_path or (default_img if os.path.exists(default_img) else "code/cache/image_amounts.json")
-        self.message_cache_path = message_cache_path or (default_msg if os.path.exists(default_msg) else "code/cache/message_mutations.json")
+
+        self.image_cache_path = image_cache_path or default_img
+        self.message_cache_path = message_cache_path or default_msg
         self.messages_csv_path = messages_csv_path
         self.image_amounts: Dict[str, Dict[str, Any]] = {}
         self.message_mutations: Dict[str, Dict[str, Any]] = {}
@@ -133,8 +135,6 @@ class EvidenceManager:
 
         # Check raw messages for payroll date revisions (e.g. message_05)
         if os.path.exists(self.messages_csv_path):
-            import csv
-            import re
             with open(self.messages_csv_path, "r", encoding="utf-8") as f:
                 for row in csv.DictReader(f):
                     if row.get("user_id") == user_id and row.get("sent_at", "")[:10] <= request_date:

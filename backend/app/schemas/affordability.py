@@ -13,6 +13,17 @@ class SpendingChangeItem(BaseModel):
     amount: Optional[float] = None
 
 
+class PaymentOptionInput(BaseModel):
+    payment_option_id: Optional[str] = None
+    payment_method: str = Field(..., description="Payment method: full_payment or installments")
+    payment_amount: float = Field(..., gt=0, description="Amount per installment or full payment")
+    number_of_payments: int = Field(..., ge=1, description="Number of payments")
+    first_payment_date: str = Field(..., description="First payment date (YYYY-MM-DD)")
+    payment_frequency_days: Optional[int] = Field(None, description="Cadence between payments in days")
+    financing_fee: float = Field(0.0, ge=0, description="Additional financing or interest fee")
+    total_payable_amount: float = Field(..., gt=0, description="Total amount payable over all installments")
+
+
 class AffordabilityRequest(BaseModel):
     user_id: str
     requested_amount: float = Field(..., gt=0, description="Total amount the user wants to spend")
@@ -20,6 +31,8 @@ class AffordabilityRequest(BaseModel):
     request_date: Optional[str] = Field(None, description="Evaluation date (defaults to today or dataset date)")
     allows_partial_payment: bool = Field(False, description="Whether the request permits paying in two split payments")
     request_text: Optional[str] = Field("", description="Optional user question or item description")
+    request_id: Optional[str] = Field(None, description="Optional existing request ID to link with pre-seeded merchant payment options")
+    payment_options: Optional[List[PaymentOptionInput]] = Field(None, description="Optional merchant financing options provided at checkout")
 
 
 class AffordabilityResponse(BaseModel):

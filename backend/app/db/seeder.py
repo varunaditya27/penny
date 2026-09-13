@@ -33,6 +33,11 @@ def seed_database_from_dataset(
     if not os.path.exists(profiles_path):
         raise FileNotFoundError(f"Profiles dataset not found at {profiles_path}")
 
+    existing_user_ids = {u[0] for u in db.query(UserDB.user_id).all()}
+    user_count = 0
+    new_users = 0
+    allowed_user_ids = set()
+
     with open(profiles_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
@@ -41,8 +46,8 @@ def seed_database_from_dataset(
                 break
 
             allowed_user_ids.add(uid)
-            existing = db.query(UserDB).filter_by(user_id=uid).first()
-            if not existing:
+            user_count += 1
+            if uid not in existing_user_ids:
                 max_inst = int(row["max_installment_months"]) if row.get("max_installment_months") else None
                 user = UserDB(
                     user_id=uid,
@@ -57,13 +62,13 @@ def seed_database_from_dataset(
                     max_installment_months=max_inst,
                 )
                 db.add(user)
-                user_count += 1
-            else:
-                user_count += 1
+                existing_user_ids.add(uid)
+                new_users += 1
     db.commit()
 
     event_count = 0
     if os.path.exists(events_path):
+        existing_event_ids = {e[0] for e in db.query(FinancialEventDB.event_id).all()}
         with open(events_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -72,8 +77,7 @@ def seed_database_from_dataset(
                     continue
 
                 ev_id = row["event_id"]
-                existing_ev = db.query(FinancialEventDB).filter_by(event_id=ev_id).first()
-                if not existing_ev:
+                if ev_id not in existing_event_ids:
                     amt = float(row["amount"]) if row.get("amount") else None
                     min_amt = float(row["minimum_allowed_amount"]) if row.get("minimum_allowed_amount") else None
                     event = FinancialEventDB(
@@ -93,17 +97,18 @@ def seed_database_from_dataset(
                         minimum_allowed_amount=min_amt,
                     )
                     db.add(event)
+                    existing_event_ids.add(ev_id)
                     event_count += 1
         db.commit()
 
     option_count = 0
     if os.path.exists(options_path):
+        existing_option_ids = {o[0] for o in db.query(PaymentOptionDB.payment_option_id).all()}
         with open(options_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 opt_id = row["payment_option_id"]
-                existing_opt = db.query(PaymentOptionDB).filter_by(payment_option_id=opt_id).first()
-                if not existing_opt:
+                if opt_id not in existing_option_ids:
                     raw_freq = row.get("payment_frequency_days", "")
                     freq = int(raw_freq.strip()) if raw_freq and raw_freq.strip() else None
                     opt = PaymentOptionDB(
@@ -118,10 +123,11 @@ def seed_database_from_dataset(
                         total_payable_amount=float(row["total_payable_amount"]),
                     )
                     db.add(opt)
+                    existing_option_ids.add(opt_id)
                     option_count += 1
         db.commit()
 
-    logger.info(f"Seeded {user_count} users, {event_count} new events, {option_count} new options.")
+    logger.info(f"Seeded {new_users} new users ({user_count} total), {event_count} new events, {option_count} new options.")
     return {"users": user_count, "events": event_count, "options": option_count}
 
 

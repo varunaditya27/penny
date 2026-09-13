@@ -4,14 +4,13 @@ import logging
 import os
 import sys
 
-from typing import List, Optional
+from typing import Optional
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from backend.core.data.evidence import EvidenceManager, tracker
+from backend.core.data.evidence import EvidenceManager
 from backend.core.data.loader import DataLoader
-from backend.core.models.results import OutputRow
 from backend.core.pipeline import DecisionPipeline
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
@@ -53,7 +52,6 @@ def run_pipeline(
         requests = loader.load_requests()
         logger.info(f"Loaded {len(requests)} production evaluation requests.")
 
-    output_rows: List[OutputRow] = []
     dict_rows = []
 
     for req in requests:
@@ -67,7 +65,6 @@ def run_pipeline(
             user_events=u_events,
             payment_options=u_options,
         )
-        output_rows.append(row)
         dict_rows.append({
             "request_id": row.request_id,
             "amount_safe_to_pay": str(row.amount_safe_to_pay),
@@ -96,6 +93,11 @@ def run_pipeline(
         writer.writerows(dict_rows)
 
     logger.info(f"Successfully wrote {len(dict_rows)} rows to {output_path}")
+
+    if sample_mode:
+        from backend.core.evaluation.evaluator import Evaluator
+        report = Evaluator.evaluate_csv_files(output_path, "dataset/sample_requests.csv", tolerance=tolerance)
+        report.print_summary()
 
 
 def main():

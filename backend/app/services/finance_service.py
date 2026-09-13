@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ from backend.app.schemas.affordability import (
     PaymentScheduleItem,
     SpendingChangeItem,
 )
-from backend.app.schemas.profile import CashFlowRiskMetrics
+from backend.app.schemas.profile import CashFlowRiskMetrics, UserProfileResponse, UserProfileUpdate
 from backend.core.models.domain import FinancialEvent, PaymentOption, PurchaseRequest, UserProfile
 from backend.core.pipeline import DecisionPipeline
 from backend.core.simulation.recurrence import RecurrenceDetector
@@ -24,6 +24,46 @@ class FinanceService:
         self.db = db
         self.pipeline = DecisionPipeline(use_llm=False)
 
+    def get_user(self, user_id: str) -> Optional[UserDB]:
+        return self.db.query(UserDB).filter_by(user_id=user_id).first()
+
+    def update_user(self, user: UserDB, update_in: UserProfileUpdate) -> UserDB:
+        if update_in.minimum_balance_to_keep is not None:
+            user.minimum_balance_to_keep = update_in.minimum_balance_to_keep
+        if update_in.financial_priorities is not None:
+            user.financial_priorities = "|".join(update_in.financial_priorities)
+        if update_in.expense_categories_to_protect is not None:
+            user.expense_categories_to_protect = "|".join(update_in.expense_categories_to_protect)
+        if update_in.expense_categories_to_reduce is not None:
+            user.expense_categories_to_reduce = "|".join(update_in.expense_categories_to_reduce)
+        if update_in.expense_categories_to_stop is not None:
+            user.expense_categories_to_stop = "|".join(update_in.expense_categories_to_stop)
+        if update_in.payment_methods_user_will_consider is not None:
+            user.payment_methods_user_will_consider = "|".join(update_in.payment_methods_user_will_consider)
+        if update_in.max_installment_months is not None:
+            user.max_installment_months = update_in.max_installment_months
+
+        self.db.commit()
+        self.db.refresh(user)
+        return user
+
+    def map_user_to_response(
+        self, user: UserDB, risk_metrics: Optional[CashFlowRiskMetrics] = None
+    ) -> UserProfileResponse:
+        return UserProfileResponse(
+            user_id=user.user_id,
+            home_currency=user.home_currency,
+            current_available_balance=user.current_available_balance,
+            minimum_balance_to_keep=user.minimum_balance_to_keep,
+            financial_priorities=user.financial_priorities.split("|") if user.financial_priorities else [],
+            expense_categories_to_protect=user.expense_categories_to_protect.split("|") if user.expense_categories_to_protect else [],
+            expense_categories_to_reduce=user.expense_categories_to_reduce.split("|") if user.expense_categories_to_reduce else [],
+            expense_categories_to_stop=user.expense_categories_to_stop.split("|") if user.expense_categories_to_stop else [],
+            payment_methods_user_will_consider=user.payment_methods_user_will_consider.split("|") if user.payment_methods_user_will_consider else [],
+            max_installment_months=user.max_installment_months,
+            risk_metrics=risk_metrics,
+        )
+
     def compute_user_risk_metrics(self, user_db: UserDB) -> CashFlowRiskMetrics:
         """
         Calculates normalized cash-flow risk metrics based on discovered recurring streams:
@@ -32,7 +72,7 @@ class FinanceService:
         - fixed_cost_ratio: committed expenses / confirmed income
         - discretionary_cashflow: surplus cash remaining
         """
-        domain_events = self._map_events(user_db.events)
+        domain_events = self.map_events_to_domain(user_db.events)
         detector = RecurrenceDetector()
         streams = detector.detect_streams(domain_events)
 
@@ -62,7 +102,7 @@ class FinanceService:
             discretionary_cashflow=discretionary,
         )
 
-    def _map_user(self, user_db: UserDB) -> UserProfile:
+    def map_user_to_domain(self, user_db: UserDB) -> UserProfile:
         return UserProfile(
             user_id=user_db.user_id,
             home_currency=user_db.home_currency,
@@ -76,7 +116,9 @@ class FinanceService:
             max_installment_months=user_db.max_installment_months,
         )
 
-    def _map_events(self, events_db: List[FinancialEventDB]) -> List[FinancialEvent]:
+    _map_user = map_user_to_domain
+
+    def map_events_to_domain(self, events_db: List[FinancialEventDB]) -> List[FinancialEvent]:
         return [
             FinancialEvent(
                 event_id=e.event_id,
@@ -97,7 +139,9 @@ class FinanceService:
             for e in events_db
         ]
 
-    def _map_options(self, options_db: List[PaymentOptionDB]) -> List[PaymentOption]:
+    _map_events = map_events_to_domain
+
+    def map_options_to_domain(self, options_db: List[PaymentOptionDB]) -> List[PaymentOption]:
         return [
             PaymentOption(
                 payment_option_id=o.payment_option_id,
@@ -112,6 +156,8 @@ class FinanceService:
             )
             for o in options_db
         ]
+
+    _map_options = map_options_to_domain
 
     def parse_payment_schedule(self, payment_plan_str: str) -> List[PaymentScheduleItem]:
         if not payment_plan_str or payment_plan_str.strip() in ["none", ""]:
@@ -142,16 +188,36 @@ class FinanceService:
         return changes
 
     def evaluate_affordability(self, request_in: AffordabilityRequest, save_decision: bool = True) -> AffordabilityResponse:
-        user_db = self.db.query(UserDB).filter_by(user_id=request_in.user_id).first()
+        user_db = self.get_user(request_in.user_id)
         if not user_db:
             raise ValueError(f"User '{request_in.user_id}' not found.")
 
-        req_id = f"req_{uuid.uuid4().hex[:8]}"
-        req_date = request_in.request_date or datetime.utcnow().strftime("%Y-%m-%d")
+        req_id = request_in.request_id or f"req_{uuid.uuid4().hex[:8]}"
+        req_date = request_in.request_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
-        domain_user = self._map_user(user_db)
-        domain_events = self._map_events(user_db.events)
-        domain_options = self._map_options(self.db.query(PaymentOptionDB).filter_by(request_id=req_id).all())
+        domain_user = self.map_user_to_domain(user_db)
+        domain_events = self.map_events_to_domain(user_db.events)
+
+        # Resolve payment options: inline provided options, or query seeded options if request_id supplied
+        domain_options: List[PaymentOption] = []
+        if request_in.payment_options:
+            for idx, opt_in in enumerate(request_in.payment_options):
+                domain_options.append(
+                    PaymentOption(
+                        payment_option_id=opt_in.payment_option_id or f"{req_id}_opt_{idx + 1}",
+                        request_id=req_id,
+                        payment_method=opt_in.payment_method,
+                        payment_amount=opt_in.payment_amount,
+                        number_of_payments=opt_in.number_of_payments,
+                        first_payment_date=opt_in.first_payment_date,
+                        payment_frequency_days=opt_in.payment_frequency_days,
+                        financing_fee=opt_in.financing_fee,
+                        total_payable_amount=opt_in.total_payable_amount,
+                    )
+                )
+        elif request_in.request_id:
+            db_opts = self.db.query(PaymentOptionDB).filter_by(request_id=request_in.request_id).all()
+            domain_options = self.map_options_to_domain(db_opts)
 
         purchase_request = PurchaseRequest(
             request_id=req_id,

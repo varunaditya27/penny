@@ -5,7 +5,7 @@
 **Autonomous, Multi-Horizon Financial Decision & Simulation Engine**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-103%20passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/tests-105%20passed-success.svg)]()
 [![Backend](https://img.shields.io/badge/core%20engine-simulation%20pipeline-blueviolet.svg)]()
 [![API Layer](https://img.shields.io/badge/api%20layer-FastAPI-orange.svg)]()
 [![Frontend](https://img.shields.io/badge/frontend-React%20Native%20(planned)-61dafb.svg)]()
@@ -19,8 +19,8 @@
 [Repository Layout](#-repository-layout) •
 [Quick Start](#-quick-start) •
 [CLI Reference](#-cli-reference) •
-[Data Contract](#-decision-contract--output-schema) •
-[Technical Documentation ➔](backend/ARCHITECTURE.md)
+[Backend Guide ➔](backend/README.md) •
+[Technical Spec ➔](backend/ARCHITECTURE.md)
 
 </div>
 
@@ -196,6 +196,7 @@ flowchart TD
 ├── output.csv                     # Final generated predictions for benchmark dataset
 │
 ├── backend/                       # 🧠 High-Performance Backend & Financial Engine
+│   ├── README.md                  # Dedicated backend developer guide & API documentation
 │   ├── ARCHITECTURE.md            # In-depth architectural blueprint & formal specifications
 │   ├── pyproject.toml             # Backend package metadata and dependencies
 │   ├── requirements.txt           # FastAPI, SQLAlchemy, Pydantic v2, pytest dependencies
@@ -324,10 +325,10 @@ python3 -m backend.cli --output /path/to/custom_output.csv
 
 ## 🧪 Testing & Verification
 
-Penny maintains an exhaustive test suite with **103 tests** across 3 test layers:
+Penny maintains an exhaustive test suite with **105 tests** across 3 test layers:
 - **Core Engine (`backend/tests/test_core/`)**: 85 tests covering BFS cross-currency conversion, recurrence detection (DOM and step cadences), 90-day ledger simulation, installment schedule generation, and spending optimizer.
 - **Database & Seeder (`backend/tests/test_db/`)**: 5 tests verifying SQLAlchemy ORM persistence, relationships, and CSV seeder idempotency.
-- **API Endpoints (`backend/tests/test_api/`)**: 13 integration tests validating FastAPI routes, cash-flow risk metrics calculations, 90-day trajectory endpoints, and Pydantic schemas.
+- **API Endpoints (`backend/tests/test_api/`)**: 15 integration tests validating FastAPI routes, cash-flow risk metrics calculations, 90-day trajectory endpoints, merchant installment plans, and Pydantic schemas.
 
 To run the complete test suite:
 
@@ -336,7 +337,7 @@ PYTHONPATH=. pytest backend/tests/ -v
 ```
 
 ```text
-====================== 103 passed in 23.66s ======================
+===================== 105 passed in 21.16s ======================
 ```
 
 ---
@@ -360,6 +361,7 @@ For each request evaluated, Penny produces an exact 8-column decision row:
 
 ## 📚 Technical Documentation & Deep Dives
 
+- **[Backend Service & API Guide](backend/README.md)**: FastAPI service architecture, endpoints specification, database seeder, and developer workflows.
 - **[Technical Architecture & Invariants](backend/ARCHITECTURE.md)**: Deep dive into the 90-day simulation engine, cadence detection formulas, multi-currency BFS graph, and ranking algorithms.
 - **[Formal Problem Statement](problem_statement.md)**: Original task rules, edge cases, and allowed values.
 - **[Specification & Design](backend/docs/specs/2026-09-13-buy-or-wait-design.md)**: In-depth design spec for affordability determination.
