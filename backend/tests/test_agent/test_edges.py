@@ -29,7 +29,7 @@ def test_route_from_agent():
     }
     assert route_from_agent(state_tool) == "tools"
 
-    # Case 3: Human approval tool call -> approval node
+    # Case 3: Approval tool calls route to tools node to execute and capture pending action
     state_approval = {
         "messages": [
             AIMessage(
@@ -42,7 +42,7 @@ def test_route_from_agent():
         "user_id": "user_01",
         "action_approved": None,
     }
-    assert route_from_agent(state_approval) == "approval"
+    assert route_from_agent(state_approval) == "tools"
 
 
 def test_route_from_tools():

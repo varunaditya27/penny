@@ -36,13 +36,14 @@ def create_spending_tools(db: Session) -> List[BaseTool]:
                 .filter(
                     FinancialEventDB.user_id == user_id,
                     FinancialEventDB.category.ilike(f"%{category}%"),
-                    FinancialEventDB.amount < 0,
+                    FinancialEventDB.direction == "debit",
+                    FinancialEventDB.amount > 0,
                 )
                 .all()
             )
 
-            total_past_spend = sum(abs(e.amount) for e in events)
-            # Estimate monthly spend from sample
+            total_past_spend = sum(abs(e.amount or 0.0) for e in events)
+            # Estimate monthly spend from sample (approx 90-day lookback / 3 months)
             monthly_est = total_past_spend / 3.0 if total_past_spend > 0 else 50.0
             monthly_savings = monthly_est * max(0.0, min(1.0, reduction_pct))
             estimated_90d_savings = monthly_savings * 3.0

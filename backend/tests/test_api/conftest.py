@@ -68,3 +68,13 @@ def client(session_engine):
     app.dependency_overrides.clear()
     transaction.rollback()
     connection.close()
+
+
+from backend.app.agent.checkpointers.memory import reset_memory_checkpointer
+
+
+@pytest.fixture(autouse=True)
+def clean_checkpointer():
+    reset_memory_checkpointer()
+    yield
+    reset_memory_checkpointer()

@@ -5,10 +5,10 @@ from langgraph.graph import END
 from backend.app.agent.state import AgentState
 
 
-def route_from_agent(state: AgentState) -> Literal["tools", "approval", "__end__"]:
+def route_from_agent(state: AgentState) -> Literal["tools", "__end__"]:
     """
     Evaluates whether the agent produced tool calls or completed its response.
-    Routes to tools, human-in-the-loop approval, or terminates turn.
+    Routes to tools node when tool invocations are requested, or terminates turn.
     """
     messages = state.get("messages", [])
     if not messages:
@@ -17,12 +17,6 @@ def route_from_agent(state: AgentState) -> Literal["tools", "approval", "__end__
     last_message = messages[-1]
     if not isinstance(last_message, AIMessage) or not last_message.tool_calls:
         return END
-
-    # Check if any tool call requires immediate human approval
-    for tc in last_message.tool_calls:
-        if tc["name"] == "request_spending_modification_approval":
-            if state.get("action_approved") is None:
-                return "approval"
 
     return "tools"
 

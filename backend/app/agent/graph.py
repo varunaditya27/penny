@@ -50,7 +50,7 @@ def create_penny_agent(
     workflow.add_conditional_edges(
         "agent",
         route_from_agent,
-        {"tools": "tools", "approval": "approval", END: END},
+        {"tools": "tools", END: END},
     )
     workflow.add_conditional_edges(
         "tools",

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from typing import Any, AsyncGenerator, Dict
@@ -85,6 +86,9 @@ async def generate_chat_stream(
             {"session_id": session_id, "user_id": request.user_id, "status": "completed"},
         )
 
+    except asyncio.CancelledError:
+        logger.info("SSE client disconnected from session %s", session_id)
+        raise
     except Exception as exc:
         logger.exception("Error during agent stream execution: %s", exc)
         yield format_sse(StreamEventType.ERROR, {"error": str(exc)})

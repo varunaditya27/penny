@@ -42,3 +42,13 @@ def db_session(session_engine):
         session.close()
         transaction.rollback()
         connection.close()
+
+
+from backend.app.agent.checkpointers.memory import reset_memory_checkpointer
+
+
+@pytest.fixture(autouse=True)
+def clean_checkpointer():
+    reset_memory_checkpointer()
+    yield
+    reset_memory_checkpointer()

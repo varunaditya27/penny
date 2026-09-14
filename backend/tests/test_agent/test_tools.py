@@ -72,17 +72,30 @@ def test_get_user_financial_profile_tool(db_session):
 
 
 def test_simulate_spending_reduction_tool(db_session):
-    """Tests spending reduction simulation on flexible categories."""
+    """Tests spending reduction simulation on flexible and protected categories."""
     tools = create_agent_tools(db_session)
     spending_tool = next(t for t in tools if t.name == "simulate_spending_reduction")
 
+    # Flexible category with real historical debits in database
     raw_output = spending_tool.invoke({
         "user_id": "user_01",
-        "category": "Dining Out",
+        "category": "utilities",
         "reduction_pct": 0.5,
     })
     data = json.loads(raw_output)
-    assert "allowed" in data
+    assert data["allowed"] is True
+    assert data["estimated_monthly_savings"] > 100.0
+    assert data["home_currency"] == "ZAR"
+
+    # Protected category should be rejected
+    protected_output = spending_tool.invoke({
+        "user_id": "user_01",
+        "category": "rent",
+        "reduction_pct": 0.5,
+    })
+    protected_data = json.loads(protected_output)
+    assert protected_data["allowed"] is False
+    assert "protected" in protected_data["reason"].lower()
 
 
 def test_request_spending_modification_approval_tool(db_session):

@@ -88,3 +88,12 @@ def get_event_service(
     """Dependency provider for EventService."""
     return EventService(db=db)
 
+
+from backend.app.agent.checkpointers.memory import get_memory_checkpointer
+from langgraph.checkpoint.memory import MemorySaver
+
+
+def get_checkpointer() -> MemorySaver:
+    """Dependency provider for shared conversational checkpointer."""
+    return get_memory_checkpointer()
+
