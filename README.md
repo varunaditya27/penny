@@ -5,10 +5,10 @@
 **Autonomous, Multi-Horizon Financial Decision & Simulation Engine**
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-149%20passed-success.svg)]()
+[![Tests](https://img.shields.io/badge/tests-175%20passed-success.svg)]()
 [![Backend](https://img.shields.io/badge/core%20engine-simulation%20pipeline-blueviolet.svg)]()
 [![API Layer](https://img.shields.io/badge/api%20layer-FastAPI-orange.svg)]()
-[![Frontend](https://img.shields.io/badge/frontend-React%20Native%20(planned)-61dafb.svg)]()
+[![Frontend](https://img.shields.io/badge/frontend-React%20Native%20(Expo%2052)-61dafb.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-informational.svg)]()
 
 [The Vision](#-the-vision) •
