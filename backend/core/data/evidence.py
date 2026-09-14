@@ -2,11 +2,17 @@ import csv
 import json
 import logging
 import os
+from pathlib import Path
 import re
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 from backend.core.models.domain import FinancialEvent
 
 logger = logging.getLogger("buy_or_wait.evidence")
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_IMAGE_CACHE_PATH = REPO_ROOT / "backend" / "core" / "cache" / "image_amounts.json"
+DEFAULT_MESSAGE_CACHE_PATH = REPO_ROOT / "backend" / "core" / "cache" / "message_mutations.json"
+DEFAULT_MESSAGES_CSV_PATH = REPO_ROOT / "dataset" / "messages.csv"
 
 
 class TokenTracker:
@@ -93,17 +99,28 @@ class EvidenceManager:
     """
     def __init__(
         self,
-        image_cache_path: Optional[str] = None,
-        message_cache_path: Optional[str] = None,
-        messages_csv_path: str = "dataset/messages.csv",
+        image_cache_path: Optional[Union[str, Path]] = None,
+        message_cache_path: Optional[Union[str, Path]] = None,
+        messages_csv_path: Optional[Union[str, Path]] = None,
     ):
-        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        default_img = os.path.join(base_dir, "cache", "image_amounts.json")
-        default_msg = os.path.join(base_dir, "cache", "message_mutations.json")
+        if image_cache_path is None:
+            self.image_cache_path = str(DEFAULT_IMAGE_CACHE_PATH)
+        else:
+            p = Path(image_cache_path)
+            self.image_cache_path = str(p if p.is_absolute() else (REPO_ROOT / p))
 
-        self.image_cache_path = image_cache_path or default_img
-        self.message_cache_path = message_cache_path or default_msg
-        self.messages_csv_path = messages_csv_path
+        if message_cache_path is None:
+            self.message_cache_path = str(DEFAULT_MESSAGE_CACHE_PATH)
+        else:
+            p = Path(message_cache_path)
+            self.message_cache_path = str(p if p.is_absolute() else (REPO_ROOT / p))
+
+        if messages_csv_path is None:
+            self.messages_csv_path = str(DEFAULT_MESSAGES_CSV_PATH)
+        else:
+            p = Path(messages_csv_path)
+            self.messages_csv_path = str(p if p.is_absolute() else (REPO_ROOT / p))
+
         self.image_amounts: Dict[str, Dict[str, Any]] = {}
         self.message_mutations: Dict[str, Dict[str, Any]] = {}
         self._load_caches()

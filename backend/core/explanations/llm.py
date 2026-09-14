@@ -261,8 +261,6 @@ class LLMExplanationGenerator:
                 ):
                     content = content[1:-1].strip()
 
-                # Small delay to respect token-per-minute limits
-                time.sleep(1.0)
                 return content
             except Exception as e:
                 if attempt == max_retries - 1:

@@ -15,6 +15,7 @@ from backend.core.models.results import AffordabilityStatus, CandidatePlan, Outp
 from backend.core.optimizer.candidates import CandidateGenerator, generate_schedule_dates
 from backend.core.optimizer.ranker import PlanRanker
 from backend.core.optimizer.spending import SpendingOptimizer
+from backend.core.simulation.builder import SimulationLedgerBuilder
 from backend.core.simulation.ledger import DailyLedger
 from backend.core.simulation.recurrence import RecurrenceDetector, RecurringStream
 from backend.core.simulation.safety import SafetyEngine
@@ -42,6 +43,25 @@ class DecisionPipeline:
         self.use_llm = use_llm
         self.income_classifier = IncomeStreamClassifier(use_llm=use_llm)
 
+    def _build_ledger(
+        self,
+        user: UserProfile,
+        events: List[FinancialEvent],
+        request_date: str,
+        days: int = 90,
+        candidate_payments: Optional[Any] = None,
+    ) -> DailyLedger:
+        return SimulationLedgerBuilder.build_ledger(
+            user=user,
+            events=events,
+            request_date=request_date,
+            days=days,
+            candidate_payments=candidate_payments,
+            converter=self.converter,
+            evidence_mgr=self.evidence_mgr,
+            income_classifier=self.income_classifier,
+        )
+
     def _extract_recurring_salary_stream(
         self,
         user: UserProfile,
@@ -57,112 +77,15 @@ class DecisionPipeline:
         - Stop salary if message says STOP_INCOME or description says 'final' / 'seasonal'.
         - Use mode of day-of-month across historical payroll events.
         """
-        stop_income = any(m.get("action") == "STOP_INCOME" for m in user_mutations)
-        if stop_income:
-            return None
-
-        # Check for future scheduled salary
-        sched_salaries = [
-            e
-            for e in future_events
-            if e.category == "salary" or "salary" in e.description.lower() or "payroll" in e.description.lower()
-        ]
-        # Check all historical salaries to verify if employment is still active
-        all_hist_salaries = [
-            e
-            for e in hist_events
-            if (e.category == "salary" or "salary" in e.description.lower() or "payroll" in e.description.lower())
-        ]
-        if all_hist_salaries:
-            latest_hist = sorted(all_hist_salaries, key=lambda x: x.event_date)[-1]
-            desc = latest_hist.description.lower()
-            if "final" in desc or "seasonal" in desc or "temporary" in desc:
-                # Terminated contract, seasonal work, or final payroll
-                return None
-
-        settled_salaries = [
-            e
-            for e in all_hist_salaries
-            if self.income_classifier.is_recurring_income(e.description)
-        ]
-
-        if sched_salaries:
-            sched = sorted(sched_salaries, key=lambda x: x.event_date)[-1]
-            dom = int(sched.event_date.split("-")[2])
-            sched_amt = float(sched.amount) if sched.amount is not None else 0.0
-            if sched.currency and sched.currency != user.home_currency:
-                sched_amt = round(self.converter.convert(sched_amt, sched.currency, user.home_currency, sched.event_date), 2)
-            return RecurringStream(
-                description=sched.description,
-                category="salary",
-                cadence_type="dom",
-                step_days=None,
-                day_of_month=dom,
-                baseline_amount=sched_amt,
-                latest_date=sched.event_date,
-                latest_event_id=sched.event_id,
-                direction="credit",
-            )
-
-        if settled_salaries:
-            latest_settled = sorted(settled_salaries, key=lambda x: x.event_date)[-1]
-
-            # Calculate statistical mode of day of month across salary history
-            doms = [int(e.event_date.split("-")[2]) for e in settled_salaries]
-            mode_dom = Counter(doms).most_common(1)[0][0]
-
-            # Check if payroll date was amended in messages (e.g. message_05)
-            for m in user_mutations:
-                if m.get("action") == "AMEND_PAYROLL_DATE" and m.get("effective_date"):
-                    eff = m["effective_date"]
-                    mode_dom = int(eff.split("-")[2])
-                    logger.info(f"Overrode salary DOM to {mode_dom} from payroll amendment message")
-
-            amt = latest_settled.amount
-            eff_date = None
-            post_eff_amt = None
-            for m in user_mutations:
-                if m.get("action") == "AMEND_SALARY" and m.get("amount"):
-                    m_eff = m.get("effective_date")
-                    if m_eff and m_eff > request_date:
-                        eff_date = m_eff
-                        post_eff_amt = float(m["amount"])
-                    else:
-                        amt = float(m["amount"])
-
-            return RecurringStream(
-                description=latest_settled.description,
-                category="salary",
-                cadence_type="dom",
-                step_days=None,
-                day_of_month=mode_dom,
-                baseline_amount=amt,
-                latest_date=latest_settled.event_date,
-                latest_event_id=latest_settled.event_id,
-                direction="credit",
-                effective_date=eff_date,
-                post_effective_amount=post_eff_amt,
-            )
-
-        # Check for new job announced in messages
-        for m in user_mutations:
-            if m.get("action") in ["NEW_JOB", "NEW_JOB_SALARY"] and m.get("amount"):
-                eff = m.get("effective_date", request_date)
-                dom = int(eff.split("-")[2]) if "-" in eff else 15
-                return RecurringStream(
-                    description="Confirmed new employment salary",
-                    category="salary",
-                    cadence_type="dom",
-                    step_days=None,
-                    day_of_month=dom,
-                    baseline_amount=float(m["amount"]),
-                    latest_date=eff,
-                    latest_event_id="msg_salary",
-                    direction="credit",
-                )
-
-        return None
-
+        return SimulationLedgerBuilder.extract_recurring_salary_stream(
+            user=user,
+            request_date=request_date,
+            hist_events=hist_events,
+            future_events=future_events,
+            user_mutations=user_mutations,
+            converter=self.converter,
+            income_classifier=self.income_classifier,
+        )
     def process_request(
         self,
         request: PurchaseRequest,
@@ -171,69 +94,15 @@ class DecisionPipeline:
         payment_options: List[PaymentOption],
     ) -> OutputRow:
         """Processes a single purchase request and returns a fully compliant OutputRow."""
-        # 1. Evidence reconciliation: apply image extractions and message mutations
-        augmented_events = self.evidence_mgr.apply_evidence_to_events(
+        # Build baseline simulation ledger via SimulationLedgerBuilder
+        baseline_ledger = self._build_ledger(
+            user=user,
             events=user_events,
-            user_id=user.user_id,
-            request_date=request.request_date,
-            home_currency=user.home_currency,
-        )
-
-        # 1a. Event linking and non-cash reconciliation
-        augmented_events = EventLinker.resolve_linked_events(augmented_events)
-
-        # 1b. Foreign currency conversion to user home currency
-        for ev in augmented_events:
-            if ev.amount is not None and ev.currency and ev.currency != user.home_currency:
-                ev_date = ev.settlement_date or ev.event_date
-                ev.amount = round(self.converter.convert(ev.amount, ev.currency, user.home_currency, ev_date), 2)
-                ev.currency = user.home_currency
-
-        # 2. Partition events into historical settled and future/pending
-        hist_events: List[FinancialEvent] = []
-        future_events: List[FinancialEvent] = []
-
-        for ev in augmented_events:
-            # Skip non-cash, failed, cancelled, or unrealized investments
-            if ev.is_non_cash or ev.status in ["failed", "cancelled", "unrealized"]:
-                continue
-            if ev.amount is None:
-                logger.error(
-                    f"Event {ev.event_id} has None amount after evidence processing; excluding from cash flow to avoid treating blank as zero."
-                )
-                continue
-
-            if ev.event_date <= request.request_date and ev.status == "settled":
-                hist_events.append(ev)
-            elif ev.status in ["pending", "scheduled"] or ev.event_date > request.request_date:
-                future_events.append(ev)
-
-        # 3. Detect recurring streams from historical settled events
-        streams = RecurrenceDetector.detect_streams(hist_events)
-
-        # Discard any credit streams detected automatically; auto-detection only keeps expense/debit streams
-        streams = [s for s in streams if not s.is_credit]
-
-        # 4. Integrate robust confirmed ongoing salary stream
-        user_mutations = self.evidence_mgr.get_user_mutations(user.user_id, request.request_date)
-        salary_stream = self._extract_recurring_salary_stream(
-            user=user,
-            request_date=request.request_date,
-            hist_events=hist_events,
-            future_events=future_events,
-            user_mutations=user_mutations,
-        )
-        if salary_stream is not None:
-            streams.append(salary_stream)
-
-        # 5. Baseline Simulation: compute safe amount & earliest full payment date
-        baseline_ledger = DailyLedger(
-            user=user,
             request_date=request.request_date,
             days=90,
-            recurring_streams=streams,
-            future_events=future_events,
         )
+        streams = baseline_ledger.recurring_streams
+        future_events = baseline_ledger.future_events
 
         earliest_full_date = SafetyEngine.find_earliest_full_payment_date(
             user=user,
@@ -243,6 +112,7 @@ class DecisionPipeline:
             requested_amount=request.requested_amount,
             days=90,
             desired_completion_date=request.desired_completion_date,
+            baseline_ledger=baseline_ledger,
         )
         amount_safe_to_pay = SafetyEngine.compute_safe_amount(baseline_ledger, request.requested_amount)
         if earliest_full_date == request.request_date and baseline_ledger.is_safe():

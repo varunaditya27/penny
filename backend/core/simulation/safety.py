@@ -44,6 +44,7 @@ class SafetyEngine:
         requested_amount: float,
         days: int = 90,
         desired_completion_date: Optional[str] = None,
+        baseline_ledger: Optional[DailyLedger] = None,
     ) -> str:
         """
         Scans each day d in [0, 90]. Tests if a single payment of requested_amount on date(request_date + d)
@@ -51,28 +52,38 @@ class SafetyEngine:
         Returns the first safe date in YYYY-MM-DD format.
         If no date is safe within the forecast period, returns empty string "".
         """
-        start_dt = datetime.strptime(request_date, "%Y-%m-%d")
-        req_amt = float(requested_amount)
-
-        for d in range(days + 1):
-            candidate_dt = start_dt + timedelta(days=d)
-            candidate_date_str = candidate_dt.strftime("%Y-%m-%d")
-
-            test_ledger = DailyLedger(
+        if baseline_ledger is None:
+            baseline_ledger = DailyLedger(
                 user=user,
                 request_date=request_date,
                 days=days,
                 recurring_streams=recurring_streams,
                 future_events=future_events,
-                candidate_payments=[(candidate_date_str, req_amt)],
             )
 
-            # The challenge requires safety at every point in the full 90-day forecast.
-            # Do not shorten this window to the requested completion date or invent an
-            # additional cushion: either changes the contract's definition of safe.
-            is_safe_candidate = test_ledger.is_safe()
+        balances = baseline_ledger.balances
+        dates = baseline_ledger.dates
+        n = len(balances)
+        if n == 0:
+            return ""
 
-            if is_safe_candidate:
+        min_bal = float(user.minimum_balance_to_keep)
+        req_amt = float(requested_amount)
+
+        # Suffix-minimum array: suffix_min[i] = min(balances[i:])
+        suffix_min = [0.0] * n
+        suffix_min[-1] = balances[-1]
+        for i in range(n - 2, -1, -1):
+            suffix_min[i] = min(balances[i], suffix_min[i + 1])
+
+        limit = min(days + 1, n)
+        for d in range(limit):
+            # If baseline balance on day d is already below min_bal,
+            # no subsequent day can ever be safe since day d was breached before candidate payment
+            if balances[d] < min_bal:
+                break
+            if round(suffix_min[d] - req_amt, 2) >= min_bal:
+                candidate_date_str = dates[d]
                 logger.debug(f"Found earliest safe full payment date: {candidate_date_str} (day {d})")
                 return candidate_date_str
 
@@ -95,6 +106,7 @@ def find_earliest_full_payment_date(
     requested_amount: float,
     days: int = 90,
     desired_completion_date: Optional[str] = None,
+    baseline_ledger: Optional[DailyLedger] = None,
 ) -> str:
     return SafetyEngine.find_earliest_full_payment_date(
         user=user,
@@ -104,4 +116,5 @@ def find_earliest_full_payment_date(
         requested_amount=requested_amount,
         days=days,
         desired_completion_date=desired_completion_date,
+        baseline_ledger=baseline_ledger,
     )

@@ -118,16 +118,16 @@ class TestResultModels(unittest.TestCase):
         self.assertEqual(
             csv_row,
             [
-                "request_id",
-                "amount_safe_to_pay",
-                "affordability_status",
-                "recommended_payment_method",
-                "payment_plan",
-                "earliest_date_for_full_payment",
-                "spending_changes_needed",
-                "decision_explanation",
+                "request_01",
+                "25256",
+                "affordable_now",
+                "full_payment",
+                "2024-03-03:25256",
+                "2024-03-03",
+                "none",
+                "Pay ZAR 25,256 today. This leaves at least ZAR 18,000 available over the next 90 days.",
             ],
-        ) if False else None  # checked below
+        )
         d = row.to_dict()
         self.assertEqual(d["request_id"], "request_01")
         self.assertEqual(d["amount_safe_to_pay"], 25256.0)

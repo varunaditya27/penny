@@ -1,3 +1,4 @@
+from backend.core.simulation.builder import SimulationLedgerBuilder
 from backend.core.simulation.recurrence import RecurringStream, RecurrenceDetector
 from backend.core.simulation.ledger import DailyLedger
 from backend.core.simulation.safety import (
@@ -7,6 +8,7 @@ from backend.core.simulation.safety import (
 )
 
 __all__ = [
+    "SimulationLedgerBuilder",
     "RecurringStream",
     "RecurrenceDetector",
     "DailyLedger",

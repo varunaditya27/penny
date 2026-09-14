@@ -1,11 +1,16 @@
+import bisect
 import csv
 import logging
 from collections import defaultdict, deque
-from typing import Dict, List, Optional, Set, Tuple
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 from backend.core.models.domain import CurrencyEnum
 
 logger = logging.getLogger(__name__)
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_CSV_PATH = REPO_ROOT / "dataset" / "exchange_rates.csv"
 
 
 class ExchangeRateConverter:
@@ -14,8 +19,12 @@ class ExchangeRateConverter:
     rate inversion for reverse pairs, and as-of date matching.
     """
 
-    def __init__(self, csv_path: str = "dataset/exchange_rates.csv") -> None:
-        self.csv_path = csv_path
+    def __init__(self, csv_path: Optional[Union[str, Path]] = None) -> None:
+        if csv_path is None:
+            self.csv_path = DEFAULT_CSV_PATH
+        else:
+            p = Path(csv_path)
+            self.csv_path = p if p.is_absolute() else (REPO_ROOT / p)
         # History per directional pair: (from_curr, to_curr) -> list of (rate_date, rate)
         self.pair_history: Dict[Tuple[str, str], List[Tuple[str, float]]] = defaultdict(list)
         self.all_dates: List[str] = []
@@ -49,13 +58,12 @@ class ExchangeRateConverter:
         If event_date predates all entries in the table, pick the earliest snapshot.
         """
         cleaned_date = event_date.strip()
-        if cleaned_date < self.all_dates[0]:
+        if not self.all_dates:
+            return cleaned_date
+        idx = bisect.bisect_right(self.all_dates, cleaned_date)
+        if idx == 0:
             return self.all_dates[0]
-
-        candidates = [d for d in self.all_dates if d <= cleaned_date]
-        if candidates:
-            return candidates[-1]
-        return self.all_dates[0]
+        return self.all_dates[idx - 1]
 
     def get_direct_rates(self, snapshot_date: str) -> Dict[str, Dict[str, float]]:
         """Return direct published rates available as of snapshot_date.

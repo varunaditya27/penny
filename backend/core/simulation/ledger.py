@@ -124,6 +124,13 @@ class DailyLedger:
             s_date = ev.settlement_date or ev.event_date
             events_by_date[s_date].append(ev)
 
+        # Precompute parsed datetime objects for recurring stream latest_date
+        stream_starts = {
+            s.latest_event_id: datetime.strptime(s.latest_date, "%Y-%m-%d")
+            for s in self.recurring_streams
+            if s.latest_date
+        }
+
         # When a confirmed salary arrives well after the request date, budget one
         # observed step-cadence expense in the pre-salary window if its established
         # cadence has no natural occurrence there. This protects essential variable
@@ -145,7 +152,7 @@ class DailyLedger:
             trough_date_str = (first_sal_dt - timedelta(days=2)).strftime("%Y-%m-%d")
             for stream in self.recurring_streams:
                 if stream.cadence_type == "step" and stream.step_days and not stream.is_credit:
-                    stream_start = datetime.strptime(stream.latest_date, "%Y-%m-%d")
+                    stream_start = stream_starts[stream.latest_event_id]
                     natural_fire = False
                     cur = start_dt
                     while cur < first_sal_dt:
@@ -200,7 +207,7 @@ class DailyLedger:
 
                 if stream.cadence_type == "step":
                     if stream.step_days and stream.step_days > 0:
-                        stream_start = datetime.strptime(stream.latest_date, "%Y-%m-%d")
+                        stream_start = stream_starts[stream.latest_event_id]
                         delta_days = (curr_dt - stream_start).days
                         if delta_days > 0 and delta_days % stream.step_days == 0:
                             fires = True
