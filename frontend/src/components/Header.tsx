@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
+import { PennyLogo } from "./PennyLogo";
 
 interface HeaderProps {
   title: string;
@@ -18,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
       <View>
         <View style={styles.brandRow}>
           <View style={styles.logoBadge}>
-            <Text style={styles.logoText}>🪙</Text>
+            <PennyLogo size={20} />
           </View>
           <Text style={styles.brandName}>PENNY</Text>
           <View style={styles.liveTag}>

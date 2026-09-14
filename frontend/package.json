@@ -21,7 +21,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "tsx --test src/__tests__/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:assets": "node scripts/generate-assets.mjs"
   },
   "private": true
 }
