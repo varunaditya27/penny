@@ -20,7 +20,6 @@ def test_security_headers(client):
 
 
 def test_cors_headers(client):
-    # Preflight OPTIONS request
     res = client.options(
         "/api/v1/users/user_01",
         headers={
@@ -48,12 +47,89 @@ def test_get_user_profile(client):
     assert data["risk_metrics"]["monthly_fixed_burn_rate"] >= 0.0
 
 
+def test_get_user_profile_not_found(client):
+    res = client.get("/api/v1/users/nonexistent_user_999")
+    assert res.status_code == 404
+    assert "not found" in res.json()["detail"].lower()
+
+
+def test_update_user_profile_not_found(client):
+    res = client.patch(
+        "/api/v1/users/nonexistent_user_999",
+        json={"minimum_balance_to_keep": 1000.0},
+    )
+    assert res.status_code == 404
+    assert "not found" in res.json()["detail"].lower()
+
+
 def test_get_user_events(client):
     res = client.get("/api/v1/users/user_01/events")
     assert res.status_code == 200
     events = res.json()
     assert isinstance(events, list)
     assert len(events) > 0
+
+
+def test_get_user_events_not_found(client):
+    res = client.get("/api/v1/users/nonexistent_user_999/events")
+    assert res.status_code == 404
+    assert "not found" in res.json()["detail"].lower()
+
+
+def test_pagination_on_list_user_events(client):
+    res_page_1 = client.get("/api/v1/users/user_01/events?limit=2&offset=0")
+    assert res_page_1.status_code == 200
+    data_1 = res_page_1.json()
+    assert len(data_1) == 2
+
+    res_page_2 = client.get("/api/v1/users/user_01/events?limit=2&offset=2")
+    assert res_page_2.status_code == 200
+    data_2 = res_page_2.json()
+    assert len(data_2) <= 2
+    # Ensure disjoint IDs across offsets
+    assert data_1[0]["event_id"] != data_2[0]["event_id"]
+
+
+def test_create_event_for_nonexistent_user(client):
+    payload = {
+        "event_type": "expense",
+        "description": "Test Grocery",
+        "category": "groceries",
+        "direction": "debit",
+        "amount": 25.0,
+        "currency": "EUR",
+        "event_date": "2026-01-15",
+    }
+    res = client.post("/api/v1/users/nonexistent_999/events", json=payload)
+    assert res.status_code == 404
+
+
+def test_create_event_invalid_currency_422(client):
+    payload = {
+        "event_type": "expense",
+        "description": "Test Grocery",
+        "category": "groceries",
+        "direction": "debit",
+        "amount": 25.0,
+        "currency": "INVALID_CURRENCY",
+        "event_date": "2026-01-15",
+    }
+    res = client.post("/api/v1/users/user_01/events", json=payload)
+    assert res.status_code == 422
+
+
+def test_create_event_invalid_date_422(client):
+    payload = {
+        "event_type": "expense",
+        "description": "Test Grocery",
+        "category": "groceries",
+        "direction": "debit",
+        "amount": 25.0,
+        "currency": "EUR",
+        "event_date": "not-a-valid-date",
+    }
+    res = client.post("/api/v1/users/user_01/events", json=payload)
+    assert res.status_code == 422
 
 
 def test_evaluate_affordability_endpoint(client):
@@ -69,9 +145,52 @@ def test_evaluate_affordability_endpoint(client):
     assert res.status_code == 200
     data = res.json()
     assert data["user_id"] == "user_01"
-    assert "amount_safe_to_pay" in data
-    assert "affordability_status" in data
-    assert "recommended_payment_method" in data
+    assert isinstance(data["amount_safe_to_pay"], (int, float))
+    assert data["amount_safe_to_pay"] >= 0.0
+    assert data["affordability_status"] in [
+        "affordable_now",
+        "affordable_with_plan",
+        "affordable_later",
+        "not_affordable",
+    ]
+    assert len(data["decision_explanation"]) > 10
+    assert len(data["payment_schedule"]) > 0
+
+
+def test_evaluate_affordability_not_found(client):
+    payload = {
+        "user_id": "unknown_user_999",
+        "requested_amount": 50.0,
+        "desired_completion_date": "2026-03-31",
+    }
+    res = client.post("/api/v1/affordability/evaluate", json=payload)
+    assert res.status_code == 404
+    assert "not found" in res.json()["detail"].lower()
+
+
+def test_evaluate_affordability_negative_amount_422(client):
+    payload = {
+        "user_id": "user_01",
+        "requested_amount": -100.0,
+        "desired_completion_date": "2026-03-31",
+    }
+    res = client.post("/api/v1/affordability/evaluate", json=payload)
+    assert res.status_code == 422
+
+
+def test_evaluate_affordability_unaffordable_scenario(client):
+    payload = {
+        "user_id": "user_01",
+        "requested_amount": 999999999.0,
+        "desired_completion_date": "2026-01-02",
+        "request_date": "2026-01-01",
+        "allows_partial_payment": False,
+    }
+    res = client.post("/api/v1/affordability/evaluate", json=payload)
+    assert res.status_code == 200
+    data = res.json()
+    assert data["affordability_status"] in ["not_affordable", "not_recommended"]
+    assert data["amount_safe_to_pay"] < 999999999.0
 
 
 def test_get_simulation_trajectory_endpoint(client):
@@ -84,6 +203,17 @@ def test_get_simulation_trajectory_endpoint(client):
     assert "lowest_balance_date" in data
     assert "buffer_margin" in data
     assert "is_safe" in data
+
+
+def test_get_simulation_trajectory_not_found(client):
+    res = client.get("/api/v1/simulation/trajectory/nonexistent_user_999")
+    assert res.status_code == 404
+    assert "not found" in res.json()["detail"].lower()
+
+
+def test_get_simulation_trajectory_invalid_days_422(client):
+    res = client.get("/api/v1/simulation/trajectory/user_01?days=500")
+    assert res.status_code == 422
 
 
 def test_evaluate_affordability_with_installment_options(client):
@@ -126,23 +256,18 @@ def test_update_user_profile_endpoint(client):
 
 
 def test_auth_scaffolding_dependencies():
-    # 1. get_current_user_id with Bearer token
     assert get_current_user_id(authorization="Bearer token_123") == "token_123"
     assert get_current_user_id(authorization="raw_token_xyz") == "raw_token_xyz"
     assert get_current_user_id(authorization=None) == DEFAULT_USER_ID
 
-    # 2. verify_user_access: authorized matching user
     assert verify_user_access(target_user_id="user_01", current_user_id="user_01") == "user_01"
 
-    # 3. verify_user_access: unauthorized mismatch
     with pytest.raises(HTTPException) as exc:
         verify_user_access(target_user_id="user_01", current_user_id="user_02")
     assert exc.value.status_code == 403
 
-    # 4. verify_user_access: dev bypass when header omitted (current_user_id == DEFAULT_USER_ID)
     assert verify_user_access(target_user_id="user_01", current_user_id=DEFAULT_USER_ID) == "user_01"
 
-    # 5. verify_user_access: production mode enforces auth
     original_env = settings.ENVIRONMENT
     try:
         settings.ENVIRONMENT = "production"
