@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Column, DateTime, Float, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import relationship
 from backend.app.db.session import Base
 
@@ -7,7 +7,7 @@ from backend.app.db.session import Base
 class UserDB(Base):
     __tablename__ = "users"
 
-    user_id = Column(String(64), primary_key=True, index=True)
+    user_id = Column(String(64), primary_key=True)
     home_currency = Column(String(8), nullable=False)
     current_available_balance = Column(Float, nullable=False)
     minimum_balance_to_keep = Column(Float, nullable=False)
@@ -25,8 +25,11 @@ class UserDB(Base):
 
 class FinancialEventDB(Base):
     __tablename__ = "financial_events"
+    __table_args__ = (
+        Index("ix_financial_events_user_date", "user_id", "event_date"),
+    )
 
-    event_id = Column(String(64), primary_key=True, index=True)
+    event_id = Column(String(64), primary_key=True)
     user_id = Column(String(64), ForeignKey("users.user_id"), nullable=False, index=True)
     event_type = Column(String(32), nullable=False)
     description = Column(String(255), nullable=False)
@@ -47,7 +50,7 @@ class FinancialEventDB(Base):
 class PaymentOptionDB(Base):
     __tablename__ = "payment_options"
 
-    payment_option_id = Column(String(64), primary_key=True, index=True)
+    payment_option_id = Column(String(64), primary_key=True)
     request_id = Column(String(64), index=True, nullable=False)
     payment_method = Column(String(32), nullable=False)
     payment_amount = Column(Float, nullable=False)
@@ -60,6 +63,9 @@ class PaymentOptionDB(Base):
 
 class DecisionRecordDB(Base):
     __tablename__ = "decision_records"
+    __table_args__ = (
+        Index("ix_decision_records_user_created", "user_id", "created_at"),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     request_id = Column(String(64), index=True, nullable=False)

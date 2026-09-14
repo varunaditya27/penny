@@ -33,3 +33,8 @@ def test_seed_database_from_dataset(db_session):
     re_counts = seed_database_from_dataset(db_session, dataset_dir="dataset", limit_users=5)
     total_users = db_session.query(UserDB).count()
     assert total_users == 5
+
+
+def test_seed_database_invalid_dir(db_session):
+    with pytest.raises(FileNotFoundError, match="Dataset directory not found"):
+        seed_database_from_dataset(db_session, dataset_dir="non_existent_directory_xyz")

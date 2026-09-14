@@ -12,6 +12,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(na
 logger = logging.getLogger("penny.db.seeder")
 
 
+BATCH_SIZE = 2000
+
+
 def seed_database_from_dataset(
     db: Session,
     dataset_dir: str = "dataset",
@@ -23,12 +26,13 @@ def seed_database_from_dataset(
     - dataset/financial_events.csv -> FinancialEventDB
     - dataset/request_payment_options.csv -> PaymentOptionDB
     """
-    profiles_path = os.path.join(dataset_dir, "financial_profiles.csv")
-    events_path = os.path.join(dataset_dir, "financial_events.csv")
-    options_path = os.path.join(dataset_dir, "request_payment_options.csv")
+    target_dir = os.path.abspath(dataset_dir)
+    if not os.path.isdir(target_dir):
+        raise FileNotFoundError(f"Dataset directory not found: {target_dir}")
 
-    user_count = 0
-    allowed_user_ids = set()
+    profiles_path = os.path.join(target_dir, "financial_profiles.csv")
+    events_path = os.path.join(target_dir, "financial_events.csv")
+    options_path = os.path.join(target_dir, "request_payment_options.csv")
 
     if not os.path.exists(profiles_path):
         raise FileNotFoundError(f"Profiles dataset not found at {profiles_path}")
@@ -37,6 +41,7 @@ def seed_database_from_dataset(
     user_count = 0
     new_users = 0
     allowed_user_ids = set()
+    batch_count = 0
 
     with open(profiles_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -64,9 +69,17 @@ def seed_database_from_dataset(
                 db.add(user)
                 existing_user_ids.add(uid)
                 new_users += 1
-    db.commit()
+                batch_count += 1
+                if batch_count >= BATCH_SIZE:
+                    db.commit()
+                    db.expunge_all()
+                    batch_count = 0
+    if batch_count > 0:
+        db.commit()
+        db.expunge_all()
 
     event_count = 0
+    batch_count = 0
     if os.path.exists(events_path):
         existing_event_ids = {e[0] for e in db.query(FinancialEventDB.event_id).all()}
         with open(events_path, "r", encoding="utf-8") as f:
@@ -99,9 +112,17 @@ def seed_database_from_dataset(
                     db.add(event)
                     existing_event_ids.add(ev_id)
                     event_count += 1
-        db.commit()
+                    batch_count += 1
+                    if batch_count >= BATCH_SIZE:
+                        db.commit()
+                        db.expunge_all()
+                        batch_count = 0
+        if batch_count > 0:
+            db.commit()
+            db.expunge_all()
 
     option_count = 0
+    batch_count = 0
     if os.path.exists(options_path):
         existing_option_ids = {o[0] for o in db.query(PaymentOptionDB.payment_option_id).all()}
         with open(options_path, "r", encoding="utf-8") as f:
@@ -125,7 +146,14 @@ def seed_database_from_dataset(
                     db.add(opt)
                     existing_option_ids.add(opt_id)
                     option_count += 1
-        db.commit()
+                    batch_count += 1
+                    if batch_count >= BATCH_SIZE:
+                        db.commit()
+                        db.expunge_all()
+                        batch_count = 0
+        if batch_count > 0:
+            db.commit()
+            db.expunge_all()
 
     logger.info(f"Seeded {new_users} new users ({user_count} total), {event_count} new events, {option_count} new options.")
     return {"users": user_count, "events": event_count, "options": option_count}
