@@ -8,4 +8,6 @@ evaluation/sample_output.csv
 evaluation/sample_usage_report.md
 *.db
 .worktrees/
+node_modules/
+.expo/
 
