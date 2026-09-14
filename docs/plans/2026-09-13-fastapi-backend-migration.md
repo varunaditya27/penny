@@ -67,12 +67,33 @@ penny/
 │   │   │   ├── finance_service.py         # Runs DecisionPipeline from DB records
 │   │   │   └── simulation_service.py      # Computes trajectory comparison points
 │   │   │
-│   │   ├── agent/                         # LangGraph stateful agent
+│   │   ├── agent/                         # Modular LangGraph stateful agent
 │   │   │   ├── __init__.py
 │   │   │   ├── state.py                   # AgentState schema
-│   │   │   ├── tools.py                   # Financial tools wrapping services
-│   │   │   ├── prompts.py                 # Financial assistant system prompts
-│   │   │   └── graph.py                   # StateGraph builder with HitL gate
+│   │   │   ├── supervisor.py              # LLM resolution & deterministic fallback model
+│   │   │   ├── prompts/                   # Modular prompt definitions
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── system.py              # Persona and invariant prompt
+│   │   │   │   └── templates.py           # Approval & explanation templates
+│   │   │   ├── tools/                     # Modular financial tools (single responsibility)
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── evaluation.py          # Purchase affordability evaluation tool
+│   │   │   │   ├── trajectory.py          # 90-day cashflow trajectory tool
+│   │   │   │   ├── profile.py             # User profile & risk metrics tool
+│   │   │   │   ├── spending.py            # Spending reduction & approval tools
+│   │   │   │   └── factory.py             # Tool bundle aggregator
+│   │   │   ├── nodes/                     # Modular execution nodes
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── agent.py               # Model invocation node with fallback
+│   │   │   │   ├── tools.py               # Tool execution & state capture node
+│   │   │   │   └── approval.py            # Human-in-the-loop gate node
+│   │   │   ├── edges/                     # Modular control flow edges
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── routing.py             # Conditional routing functions
+│   │   │   ├── checkpointers/             # Modular persistence adapters
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── memory.py              # MemorySaver checkpointer factory
+│   │   │   └── graph.py                   # StateGraph builder and compiler
 │   │   │
 │   │   └── api/v1/                        # FastAPI route controllers
 │   │       ├── __init__.py
@@ -81,7 +102,10 @@ penny/
 │   │       ├── simulation.py              # GET /simulation/trajectory/{user_id}
 │   │       ├── users.py                   # CRUD /users/{user_id}
 │   │       ├── events.py                  # CRUD /users/{user_id}/events
-│   │       └── chat.py                    # POST /chat/stream (SSE)
+│   │       └── chat/                      # Modular streaming & approval endpoints
+│   │           ├── __init__.py
+│   │           ├── events.py              # SSE event formatting & stream generator
+│   │           └── router.py              # POST /chat/stream & POST /chat/approve
 │   │
 │   └── tests/                             # Comprehensive test suite
 │       ├── test_core/                     # 85 core simulation tests
@@ -981,142 +1005,53 @@ git commit -m "feat(api): implement FastAPI REST endpoints for users, affordabil
 
 ## Phase D: LangGraph Agent & SSE Streaming
 
-### Task 10: Defining Agent State & Financial Tool Nodes
+### Task 10: Defining Modular Agent State, Prompts & Financial Tools
 
 **Files:**
 - Create: `backend/app/agent/__init__.py`
 - Create: `backend/app/agent/state.py`
-- Create: `backend/app/agent/prompts.py`
-- Create: `backend/app/agent/tools.py`
-- Test: `backend/tests/test_agent/test_tools.py`
+- Create: `backend/app/agent/prompts/system.py`, `templates.py`, `__init__.py`
+- Create: `backend/app/agent/tools/evaluation.py`, `trajectory.py`, `profile.py`, `spending.py`, `factory.py`, `__init__.py`
+- Test: `backend/tests/test_agent/test_state.py`, `test_prompts.py`, `test_tools.py`
 
 **Interfaces:**
 - Consumes: LangChain `@tool` decorator, `FinanceService`, `SimulationService`
-- Produces: Tool functions callable by the LangGraph agent (`evaluate_purchase`, `get_cashflow_trajectory`, `get_user_financial_profile`, `simulate_spending_reduction`, `request_spending_modification_approval`)
+- Produces: Decoupled tool modules callable by the LangGraph agent (`evaluate_purchase`, `get_cashflow_trajectory`, `get_user_financial_profile`, `simulate_spending_reduction`, `request_spending_modification_approval`)
 
-- [ ] **Step 1: Write tests for agent tools**
-
-```python
-# backend/tests/test_agent/test_tools.py
-from backend.app.db.session import Base, engine, SessionLocal
-from backend.app.db.seeder import seed_database_from_dataset
-from backend.app.agent.tools import create_agent_tools
-
-def setup_module():
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    seed_database_from_dataset(db, dataset_dir="dataset", limit_users=3)
-    db.close()
-
-def teardown_module():
-    Base.metadata.drop_all(bind=engine)
-
-def test_evaluate_purchase_tool():
-    db = SessionLocal()
-    try:
-        tools = create_agent_tools(db)
-        eval_tool = next(t for t in tools if t.name == "evaluate_purchase")
-        output = eval_tool.invoke({
-            "user_id": "user_01",
-            "requested_amount": 200.0,
-            "desired_completion_date": "2026-03-31",
-            "allows_partial": True
-        })
-        assert "affordability_status" in output
-    finally:
-        db.close()
-```
-
-- [ ] **Step 2: Implement `backend/app/agent/state.py` and `prompts.py`**
-
-Define `AgentState` containing message list, `user_id`, `pending_action`, and context.
-
-- [ ] **Step 3: Implement `backend/app/agent/tools.py`**
-
-Wrap services into LangChain tools returning structured JSON strings.
-
-- [ ] **Step 4: Run tool tests**
-
-Run: `PYTHONPATH=. pytest backend/tests/test_agent/test_tools.py -v`
-Expected: PASS.
-
-- [ ] **Step 5: Commit agent tools**
-
-```bash
-git add backend/app/agent/state.py backend/app/agent/prompts.py backend/app/agent/tools.py backend/tests/test_agent/test_tools.py
-git commit -m "feat(agent): implement LangChain financial agent tools and AgentState schema"
-```
+- [x] **Step 1: Write tests for agent tools, state, and prompts**
+- [x] **Step 2: Implement `backend/app/agent/state.py` and `prompts/`**
+- [x] **Step 3: Implement modular tools under `backend/app/agent/tools/`**
+- [x] **Step 4: Run tool tests** (`PYTHONPATH=. pytest backend/tests/test_agent/test_tools.py -v`)
+- [x] **Step 5: Commit modular agent tools**
 
 ---
 
-### Task 11: Constructing LangGraph StateGraph with Human-in-the-Loop
+### Task 11: Constructing Modular LangGraph StateGraph with Human-in-the-Loop
 
 **Files:**
+- Create: `backend/app/agent/nodes/agent.py`, `tools.py`, `approval.py`, `__init__.py`
+- Create: `backend/app/agent/edges/routing.py`, `__init__.py`
+- Create: `backend/app/agent/checkpointers/memory.py`, `__init__.py`
+- Create: `backend/app/agent/supervisor.py`
 - Create: `backend/app/agent/graph.py`
-- Test: `backend/tests/test_agent/test_graph.py`
+- Test: `backend/tests/test_agent/test_nodes.py`, `test_edges.py`, `test_graph.py`
 
 **Interfaces:**
-- Consumes: `AgentState`, agent tools, `langgraph.graph.StateGraph`
+- Consumes: `AgentState`, modular agent tools, `langgraph.graph.StateGraph`
 - Produces: `create_penny_agent(db: Session, checkpointer=None) -> CompiledGraph`
 
-- [ ] **Step 1: Write test for StateGraph flow**
-
-```python
-# backend/tests/test_agent/test_graph.py
-from backend.app.db.session import Base, engine, SessionLocal
-from backend.app.db.seeder import seed_database_from_dataset
-from backend.app.agent.graph import create_penny_agent
-from langchain_core.messages import HumanMessage
-
-def setup_module():
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    seed_database_from_dataset(db, dataset_dir="dataset", limit_users=3)
-    db.close()
-
-def teardown_module():
-    Base.metadata.drop_all(bind=engine)
-
-def test_agent_graph_execution():
-    db = SessionLocal()
-    try:
-        agent = create_penny_agent(db)
-        initial_state = {
-            "messages": [HumanMessage(content="Hello Penny, can I afford a $100 jacket today?")],
-            "user_id": "user_01"
-        }
-        res = agent.invoke(initial_state)
-        assert len(res["messages"]) > 1
-    finally:
-        db.close()
-```
-
-- [ ] **Step 2: Implement `backend/app/agent/graph.py`**
-
-Construct `StateGraph(AgentState)` with:
-- `agent` node: Calls model with bound tools
-- `tools` node: `ToolNode(tools)`
-- Conditional edge: Route to `tools` if tool calls present; else end or HitL interrupt if mutation tool called.
-- Compile graph with `MemorySaver()`.
-
-- [ ] **Step 3: Run graph tests**
-
-Run: `PYTHONPATH=. pytest backend/tests/test_agent/test_graph.py -v`
-Expected: PASS.
-
-- [ ] **Step 4: Commit LangGraph agent**
-
-```bash
-git add backend/app/agent/graph.py backend/tests/test_agent/test_graph.py
-git commit -m "feat(agent): construct LangGraph StateGraph with ReAct tool loop and memory checkpointer"
-```
+- [x] **Step 1: Write test for StateGraph flow, nodes, and routing edges**
+- [x] **Step 2: Implement modular nodes (`nodes/`), edges (`edges/`), checkpointer (`checkpointers/`), and `graph.py`**
+- [x] **Step 3: Run graph tests** (`PYTHONPATH=. pytest backend/tests/test_agent/test_graph.py -v`)
+- [x] **Step 4: Commit LangGraph agent**
 
 ---
 
-### Task 12: Implementing Server-Sent Events (SSE) Streaming Endpoint
+### Task 12: Implementing Modular Server-Sent Events (SSE) Streaming Endpoint
 
 **Files:**
-- Create: `backend/app/api/v1/chat.py`
+- Create: `backend/app/schemas/chat.py`
+- Create: `backend/app/api/v1/chat/events.py`, `router.py`, `__init__.py`
 - Modify: `backend/app/api/v1/api.py`
 - Test: `backend/tests/test_api/test_chat_stream.py`
 
@@ -1124,58 +1059,10 @@ git commit -m "feat(agent): construct LangGraph StateGraph with ReAct tool loop 
 - Consumes: `POST /api/v1/chat/stream`, `POST /api/v1/chat/approve`
 - Produces: `text/event-stream` delivering `status`, `tool_call`, `token`, `decision_card`, and `done` events
 
-- [ ] **Step 1: Write test for SSE streaming endpoint**
-
-```python
-# backend/tests/test_api/test_chat_stream.py
-from fastapi.testclient import TestClient
-from backend.app.main import app
-from backend.app.db.session import Base, engine, SessionLocal
-from backend.app.db.seeder import seed_database_from_dataset
-
-client = TestClient(app)
-
-def setup_module():
-    Base.metadata.create_all(bind=engine)
-    db = SessionLocal()
-    seed_database_from_dataset(db, dataset_dir="dataset", limit_users=3)
-    db.close()
-
-def teardown_module():
-    Base.metadata.drop_all(bind=engine)
-
-def test_chat_stream_endpoint():
-    payload = {
-        "user_id": "user_01",
-        "message": "Can I afford to buy a $150 dinner tonight?",
-        "session_id": "sess_test_123"
-    }
-    with client.stream("POST", "/api/v1/chat/stream", json=payload) as response:
-        assert response.status_code == 200
-        assert "text/event-stream" in response.headers["content-type"]
-        events = [line for line in response.iter_lines() if line.startswith("event:")]
-        assert len(events) > 0
-```
-
-- [ ] **Step 2: Implement `backend/app/api/v1/chat.py`**
-
-Implements async event generator using `agent.astream_events()` or token streaming:
-- Emits `event: status` when tools are invoked
-- Emits `event: token` as LLM tokens are generated
-- Emits `event: decision_card` if `evaluate_purchase` tool succeeds
-- Emits `event: done` on completion
-
-- [ ] **Step 3: Run SSE test**
-
-Run: `PYTHONPATH=. pytest backend/tests/test_api/test_chat_stream.py -v`
-Expected: PASS.
-
-- [ ] **Step 4: Commit chat streaming endpoint**
-
-```bash
-git add backend/app/api/v1/chat.py backend/app/api/v1/api.py backend/tests/test_api/test_chat_stream.py
-git commit -m "feat(api): implement SSE streaming chat endpoint with real-time tool notifications and decision cards"
-```
+- [x] **Step 1: Write test for SSE streaming and approval endpoints**
+- [x] **Step 2: Implement modular SSE events generator and FastAPI chat router**
+- [x] **Step 3: Run SSE test** (`PYTHONPATH=. pytest backend/tests/test_api/test_chat_stream.py -v`)
+- [x] **Step 4: Commit chat streaming endpoint**
 
 ---
 

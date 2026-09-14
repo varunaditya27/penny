@@ -7,6 +7,12 @@ from backend.app.schemas.affordability import (
     SpendingChangeItem,
 )
 from backend.app.schemas.simulation import TrajectoryResponse, TrajectoryPoint
+from backend.app.schemas.chat import (
+    ChatStreamRequest,
+    ChatApprovalRequest,
+    ChatApprovalResponse,
+    StreamEventType,
+)
 
 __all__ = [
     "UserProfileResponse",
@@ -19,4 +25,9 @@ __all__ = [
     "SpendingChangeItem",
     "TrajectoryResponse",
     "TrajectoryPoint",
+    "ChatStreamRequest",
+    "ChatApprovalRequest",
+    "ChatApprovalResponse",
+    "StreamEventType",
 ]
+

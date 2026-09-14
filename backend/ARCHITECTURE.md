@@ -18,6 +18,7 @@
 [8. Two-Tier Spending Modification Optimizer](#8-two-tier-spending-modification-optimizer) •
 [9. 6-Tier Lexicographic Plan Ranker](#9-6-tier-lexicographic-plan-ranker) •
 [10. Explanation Generation](#10-explanation-generation) •
+[11. Modular Agentic Architecture](#11-modular-agentic-architecture) •
 [← Return to README](README.md)
 
 </div>
@@ -395,6 +396,67 @@ The final recommendation is explained through concise, grounded natural language
 
 ---
 
+## 11. Modular Agentic Architecture
+
+The conversational financial assistant is engineered using **LangGraph** with a strict **single-responsibility modular architecture** to avoid file bloat. No single file contains multiple concerns:
+
+```mermaid
+graph TD
+    User["User Query / SSE Request"] --> Router["Chat Router<br/>(backend/app/api/v1/chat/router.py)"]
+    Router --> Events["SSE Event Stream<br/>(backend/app/api/v1/chat/events.py)"]
+    Events --> Graph["Compiled StateGraph<br/>(backend/app/agent/graph.py)"]
+
+    subgraph StateGraph["LangGraph State Workflow"]
+        AgentNode["Agent Node<br/>(nodes/agent.py)"]
+        ToolsNode["Tools Node<br/>(nodes/tools.py)"]
+        ApprovalNode["Approval Node (HitL)<br/>(nodes/approval.py)"]
+        Routing["Conditional Edges<br/>(edges/routing.py)"]
+        Checkpointer["Memory Checkpointer<br/>(checkpointers/memory.py)"]
+    end
+
+    Graph --> AgentNode
+    AgentNode --> Routing
+    Routing -->|Tool Call| ToolsNode
+    Routing -->|Mutation Needs Approval| ApprovalNode
+    Routing -->|Complete| Events
+    ToolsNode --> Routing
+    ApprovalNode --> Routing
+
+    subgraph ToolModules["Modular Financial Tools (Single Responsibility)"]
+        EvalTool["evaluation.py<br/>(evaluate_purchase)"]
+        TrajTool["trajectory.py<br/>(get_cashflow_trajectory)"]
+        ProfTool["profile.py<br/>(get_user_financial_profile)"]
+        SpendTool["spending.py<br/>(simulate_spending_reduction / approval)"]
+    end
+
+    ToolsNode --> ToolModules
+```
+
+### Module Responsibilities:
+1. **`state.py`**: Declares `AgentState` schema, message reducer, decision cards, and pending approval structures.
+2. **`prompts/`**:
+   - `system.py`: Penny assistant persona, 90-day simulation rules, safety floor enforcement.
+   - `templates.py`: Human-in-the-loop spending approval and decision summary templates.
+3. **`tools/`**:
+   - `evaluation.py`: Connects purchase evaluation to `FinanceService`.
+   - `trajectory.py`: Simulates 90-day trajectory with `SimulationService`.
+   - `profile.py`: Retrieves user preferences, budgets, and cash flow risk metrics.
+   - `spending.py`: Simulates category reductions and triggers approval requests.
+   - `factory.py`: Unified dependency-injected tool registry.
+4. **`nodes/`**:
+   - `agent.py`: Tool-bound model invocation with graceful deterministic fallback.
+   - `tools.py`: Executes tool calls and updates structured state (`decision_card`, `pending_action`).
+   - `approval.py`: Evaluates human approval responses for budget alterations.
+5. **`edges/`**:
+   - `routing.py`: Pure routing logic between agent, tools, approval gate, and END.
+6. **`checkpointers/`**:
+   - `memory.py`: In-memory multi-turn conversational checkpointing per session ID.
+7. **`api/v1/chat/`**:
+   - `events.py`: Formats W3C standard SSE lines and coordinates async event stream.
+   - `router.py`: FastAPI endpoints for `POST /api/v1/chat/stream` and `POST /api/v1/chat/approve`.
+
+---
+
 <div align="center">
 
 <hr />
@@ -403,3 +465,4 @@ The final recommendation is explained through concise, grounded natural language
 *Review developer commands, CLI flags, and test suite: [Developer Guide (README.md) ➔](README.md)*
 
 </div>
+
