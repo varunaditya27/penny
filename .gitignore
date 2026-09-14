@@ -1,8 +1,11 @@
 log.txt
 .env
+**/.env
 __pycache__/
 *.pyc
 .venv
 evaluation/sample_output.csv
 evaluation/sample_usage_report.md
 *.db
+.worktrees/
+
