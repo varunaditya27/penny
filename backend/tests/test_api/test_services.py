@@ -93,7 +93,7 @@ def test_mappers_helpers(db_session):
     user_db = db_session.query(UserDB).filter_by(user_id="user_01").first()
     domain_user = map_user_to_domain(user_db)
     assert domain_user.user_id == "user_01"
-    assert isinstance(domain_user.expense_categories_to_protect, list)
+    assert isinstance(domain_user.expense_categories_to_protect, (set, list))
 
     domain_events = map_events_to_domain(user_db.events)
     assert len(domain_events) == len(user_db.events)

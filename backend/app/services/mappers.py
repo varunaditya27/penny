@@ -14,10 +14,10 @@ def map_user_to_domain(user_db: UserDB) -> UserProfile:
         current_available_balance=user_db.current_available_balance,
         minimum_balance_to_keep=user_db.minimum_balance_to_keep,
         financial_priorities=user_db.financial_priorities.split("|") if user_db.financial_priorities else [],
-        expense_categories_to_protect=user_db.expense_categories_to_protect.split("|") if user_db.expense_categories_to_protect else [],
-        expense_categories_user_is_willing_to_reduce=user_db.expense_categories_to_reduce.split("|") if user_db.expense_categories_to_reduce else [],
-        expense_categories_user_is_willing_to_stop=user_db.expense_categories_to_stop.split("|") if user_db.expense_categories_to_stop else [],
-        payment_methods_user_will_consider=user_db.payment_methods_user_will_consider.split("|") if user_db.payment_methods_user_will_consider else [],
+        expense_categories_to_protect=set(user_db.expense_categories_to_protect.split("|")) if user_db.expense_categories_to_protect else set(),
+        expense_categories_user_is_willing_to_reduce=set(user_db.expense_categories_to_reduce.split("|")) if user_db.expense_categories_to_reduce else set(),
+        expense_categories_user_is_willing_to_stop=set(user_db.expense_categories_to_stop.split("|")) if user_db.expense_categories_to_stop else set(),
+        payment_methods_user_will_consider=set(user_db.payment_methods_user_will_consider.split("|")) if user_db.payment_methods_user_will_consider else set(),
         max_installment_months=user_db.max_installment_months,
     )
 

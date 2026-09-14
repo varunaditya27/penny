@@ -2,11 +2,11 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 from sqlalchemy.orm import Session
 
-from backend.app.db.models import UserDB
+from backend.app.db.models import FinancialEventDB, UserDB
+from backend.app.exceptions import UserNotFoundError
 from backend.app.schemas.simulation import TrajectoryPoint, TrajectoryResponse
 from backend.app.services.mappers import map_events_to_domain, map_user_to_domain
-from backend.core.simulation.ledger import DailyLedger
-from backend.core.simulation.recurrence import RecurrenceDetector
+from backend.core.simulation.builder import SimulationLedgerBuilder
 
 
 class SimulationService:
@@ -22,42 +22,47 @@ class SimulationService:
     ) -> TrajectoryResponse:
         user_db = self.db.query(UserDB).filter_by(user_id=user_id).first()
         if not user_db:
-            raise ValueError(f"User '{user_id}' not found.")
+            raise UserNotFoundError(f"User '{user_id}' not found.")
 
         domain_user = map_user_to_domain(user_db)
-        domain_events = map_events_to_domain(user_db.events)
-
         eval_date = start_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        dt_start = datetime.strptime(eval_date, "%Y-%m-%d")
 
-        hist_events = [e for e in domain_events if e.event_date <= eval_date]
-        future_events = [e for e in domain_events if e.event_date > eval_date]
+        # Push date filtering into SQL (lookback 180 days for recurrence detection, lookahead days + 30)
+        cutoff_past = (dt_start - timedelta(days=180)).strftime("%Y-%m-%d")
+        cutoff_future = (dt_start + timedelta(days=days + 30)).strftime("%Y-%m-%d")
 
-        detector = RecurrenceDetector()
-        recurring_streams = detector.detect_streams(hist_events)
+        events_db = (
+            self.db.query(FinancialEventDB)
+            .filter(
+                FinancialEventDB.user_id == user_id,
+                FinancialEventDB.event_date >= cutoff_past,
+                FinancialEventDB.event_date <= cutoff_future,
+            )
+            .all()
+        )
+        domain_events = map_events_to_domain(events_db)
 
-        # Baseline ledger
-        base_ledger = DailyLedger(
+        # Build baseline ledger using shared domain builder
+        base_ledger = SimulationLedgerBuilder.build_ledger(
             user=domain_user,
+            events=domain_events,
             request_date=eval_date,
             days=days,
-            recurring_streams=recurring_streams,
-            future_events=future_events,
         )
         baseline_balances = base_ledger.balances
 
         with_purchase_balances = None
         if prospective_amount and prospective_amount > 0:
-            purchase_ledger = DailyLedger(
+            purchase_ledger = SimulationLedgerBuilder.build_ledger(
                 user=domain_user,
+                events=domain_events,
                 request_date=eval_date,
                 days=days,
-                recurring_streams=recurring_streams,
-                future_events=future_events,
                 candidate_payments={eval_date: prospective_amount},
             )
             with_purchase_balances = purchase_ledger.balances
 
-        dt_start = datetime.strptime(eval_date, "%Y-%m-%d")
         points = []
         lowest_balance = float("inf")
         lowest_balance_date = eval_date

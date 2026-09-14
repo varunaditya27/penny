@@ -1,10 +1,11 @@
 import logging
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from sqlalchemy.orm import Session
 
-from backend.app.db.models import DecisionRecordDB, PaymentOptionDB, UserDB
+from backend.app.db.models import DecisionRecordDB, FinancialEventDB, PaymentOptionDB, UserDB
+from backend.app.exceptions import UserNotFoundError
 from backend.app.schemas.affordability import AffordabilityRequest, AffordabilityResponse
 from backend.app.schemas.profile import CashFlowRiskMetrics, UserProfileResponse, UserProfileUpdate
 from backend.app.services.mappers import (
@@ -28,12 +29,29 @@ class FinanceService:
     affordability evaluation against the forward simulation engine.
     """
 
-    def __init__(self, db: Session):
+    def __init__(self, db: Session, pipeline: Optional[DecisionPipeline] = None):
         self.db = db
-        self.pipeline = DecisionPipeline(use_llm=False)
+        self.pipeline = pipeline or DecisionPipeline(use_llm=False)
 
     def get_user(self, user_id: str) -> Optional[UserDB]:
         return self.db.query(UserDB).filter_by(user_id=user_id).first()
+
+    def get_user_profile(
+        self, user_id: str, include_risk_metrics: bool = True
+    ) -> Optional[UserProfileResponse]:
+        """
+        Retrieves a user's financial profile and optionally enriches with computed cash-flow risk metrics.
+        Returns a clean presentation DTO to prevent ORM models from leaking into controllers.
+        """
+        user_db = self.get_user(user_id)
+        if not user_db:
+            return None
+
+        risk_metrics = None
+        if include_risk_metrics:
+            risk_metrics = self.compute_user_risk_metrics(user_db)
+
+        return map_user_to_response(user_db, risk_metrics)
 
     def update_user(self, user: UserDB, update_in: UserProfileUpdate) -> UserDB:
         if update_in.minimum_balance_to_keep is not None:
@@ -61,9 +79,13 @@ class FinanceService:
         return map_user_to_response(user, risk_metrics)
 
     def compute_user_risk_metrics(self, user_db: UserDB) -> CashFlowRiskMetrics:
-        return CashFlowRiskService.compute_risk_metrics(user_db)
+        domain_events = map_events_to_domain(user_db.events)
+        return CashFlowRiskService.compute_risk_metrics(
+            events=domain_events,
+            home_currency=user_db.home_currency,
+        )
 
-    # Static compatibility aliases for callers and existing tests
+    # Static compatibility aliases for callers and existing unit tests
     map_user_to_domain = staticmethod(map_user_to_domain)
     _map_user = staticmethod(map_user_to_domain)
     map_events_to_domain = staticmethod(map_events_to_domain)
@@ -78,13 +100,28 @@ class FinanceService:
     ) -> AffordabilityResponse:
         user_db = self.get_user(request_in.user_id)
         if not user_db:
-            raise ValueError(f"User '{request_in.user_id}' not found.")
+            raise UserNotFoundError(f"User '{request_in.user_id}' not found.")
 
         req_id = request_in.request_id or f"req_{uuid.uuid4().hex[:8]}"
         req_date = request_in.request_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        dt_req = datetime.strptime(req_date, "%Y-%m-%d")
 
         domain_user = map_user_to_domain(user_db)
-        domain_events = map_events_to_domain(user_db.events)
+
+        # Query events bounded by time window in SQL instead of loading lifetime history
+        cutoff_past = (dt_req - timedelta(days=180)).strftime("%Y-%m-%d")
+        cutoff_future = (dt_req + timedelta(days=120)).strftime("%Y-%m-%d")
+
+        events_db = (
+            self.db.query(FinancialEventDB)
+            .filter(
+                FinancialEventDB.user_id == request_in.user_id,
+                FinancialEventDB.event_date >= cutoff_past,
+                FinancialEventDB.event_date <= cutoff_future,
+            )
+            .all()
+        )
+        domain_events = map_events_to_domain(events_db)
 
         domain_options: List[PaymentOption] = []
         if request_in.payment_options:
