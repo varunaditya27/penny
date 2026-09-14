@@ -7,6 +7,8 @@ __pycache__/
 evaluation/sample_output.csv
 evaluation/sample_usage_report.md
 *.db
+*.db-shm
+*.db-wal
 .worktrees/
 node_modules/
 .expo/

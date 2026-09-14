@@ -17,6 +17,10 @@
   },
   "scripts": {
     "start": "expo start",
+    "start:mobile": "node scripts/sync-ip.mjs && expo start",
+    "start:tunnel": "expo start --tunnel",
+    "start:clear": "expo start --clear",
+    "sync-ip": "node scripts/sync-ip.mjs",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
