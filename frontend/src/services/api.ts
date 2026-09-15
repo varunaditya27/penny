@@ -19,7 +19,7 @@ export class PennyApiClient {
 
   async fetchUserProfile(userId: string = "user_01"): Promise<UserProfile> {
     try {
-      const res = await fetch(`${this.baseUrl}/users/${userId}/profile`);
+      const res = await fetch(`${this.baseUrl}/users/${userId}`);
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
@@ -50,7 +50,7 @@ export class PennyApiClient {
 
   async fetchUserEvents(userId: string = "user_01"): Promise<FinancialEvent[]> {
     try {
-      const res = await fetch(`${this.baseUrl}/events/${userId}?limit=20`);
+      const res = await fetch(`${this.baseUrl}/users/${userId}/events?limit=20`);
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       return data.items || data;
@@ -168,7 +168,7 @@ export class PennyApiClient {
       query.set("days", days.toString());
 
       const res = await fetch(
-        `${this.baseUrl}/simulation/${userId}/trajectory?${query.toString()}`
+        `${this.baseUrl}/simulation/trajectory/${userId}?${query.toString()}`
       );
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();

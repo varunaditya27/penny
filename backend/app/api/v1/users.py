@@ -10,6 +10,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/{user_id}", response_model=UserProfileResponse)
+@router.get("/{user_id}/profile", response_model=UserProfileResponse)
 def get_user_profile(
     user_id: str,
     include_risk_metrics: bool = Query(True, description="Whether to calculate cashflow risk metrics"),

@@ -13,6 +13,7 @@ router = APIRouter(prefix="/simulation", tags=["Simulation"])
 
 
 @router.get("/trajectory/{user_id}", response_model=TrajectoryResponse)
+@router.get("/{user_id}/trajectory", response_model=TrajectoryResponse)
 def get_cashflow_trajectory(
     user_id: str,
     prospective_amount: Optional[float] = Query(

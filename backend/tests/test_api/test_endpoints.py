@@ -276,3 +276,21 @@ def test_auth_scaffolding_dependencies():
         assert exc_prod.value.status_code == 403
     finally:
         settings.ENVIRONMENT = original_env
+
+
+def test_alias_endpoints_compatibility(client):
+    # Test /users/{user_id}/profile alias
+    res_prof = client.get("/api/v1/users/user_01/profile")
+    assert res_prof.status_code == 200
+    assert res_prof.json()["user_id"] == "user_01"
+
+    # Test /events/{user_id} compatibility endpoint
+    res_evts = client.get("/api/v1/events/user_01?limit=10")
+    assert res_evts.status_code == 200
+    assert isinstance(res_evts.json(), list)
+
+    # Test /simulation/{user_id}/trajectory alias
+    res_traj = client.get("/api/v1/simulation/user_01/trajectory?days=30")
+    assert res_traj.status_code == 200
+    assert "points" in res_traj.json()
+

@@ -55,3 +55,19 @@ def create_financial_event(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while creating the financial event.",
         )
+
+
+events_compat_router = APIRouter(prefix="/events", tags=["Financial Events"])
+
+
+@events_compat_router.get("/{user_id}", response_model=List[FinancialEventResponse])
+def list_user_events_compat(
+    user_id: str,
+    limit: int = Query(50, ge=1, le=100, description="Max records to return"),
+    offset: int = Query(0, ge=0, description="Records offset for pagination"),
+    service: EventService = Depends(get_event_service),
+    _authorized_user: str = Depends(verify_user_access),
+):
+    return list_user_events(
+        user_id=user_id, limit=limit, offset=offset, service=service, _authorized_user=_authorized_user
+    )
