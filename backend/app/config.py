@@ -9,7 +9,7 @@ class AppSettings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     DATABASE_URL: str = "sqlite:///./penny.db"
     GROQ_API_KEY: str = ""
-    LLM_MODEL: str = "llama-3.1-8b-instant"
+    LLM_MODEL: str = "openai/gpt-oss-120b"
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8081"]
 
     model_config = SettingsConfigDict(
