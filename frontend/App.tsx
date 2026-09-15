@@ -1,12 +1,12 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "./src/components/Header";
 import { DashboardScreen } from "./src/screens/DashboardScreen";
 import { TrajectoryScreen } from "./src/screens/TrajectoryScreen";
@@ -59,7 +59,8 @@ export default function App() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safeArea}>
       <StatusBar style="light" />
       <Header
         title={navHeader.title}
@@ -126,7 +127,8 @@ export default function App() {
           </Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 

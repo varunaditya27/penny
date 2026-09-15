@@ -29,10 +29,10 @@ export const PennyLogo: React.FC<PennyLogoProps> = ({
           y2="90"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#FDE68A" />
-          <stop offset="30%" stopColor="#F59E0B" />
-          <stop offset="70%" stopColor="#D97706" />
-          <stop offset="100%" stopColor="#78350F" />
+          <Stop offset="0%" stopColor="#FDE68A" />
+          <Stop offset="30%" stopColor="#F59E0B" />
+          <Stop offset="70%" stopColor="#D97706" />
+          <Stop offset="100%" stopColor="#78350F" />
         </LinearGradient>
 
         <LinearGradient
@@ -43,10 +43,10 @@ export const PennyLogo: React.FC<PennyLogoProps> = ({
           y2="15"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0%" stopColor="#D97706" stopOpacity={0.4} />
-          <stop offset="50%" stopColor="#F59E0B" />
-          <stop offset="85%" stopColor="#FDE68A" />
-          <stop offset="100%" stopColor="#FFFFFF" />
+          <Stop offset="0%" stopColor="#D97706" stopOpacity={0.4} />
+          <Stop offset="50%" stopColor="#F59E0B" />
+          <Stop offset="85%" stopColor="#FDE68A" />
+          <Stop offset="100%" stopColor="#FFFFFF" />
         </LinearGradient>
       </Defs>
 
