@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { AffordabilityResponse, AffordabilityStatus } from "../types";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import {
   Calendar,
   CheckCircle,
@@ -201,6 +202,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   badgeText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 0.8,
@@ -226,6 +228,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceBorder,
   },
   metricLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "700",
     color: colors.textMuted,
@@ -234,6 +237,7 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   metricValue: {
+    ...fontSans,
     fontSize: 15,
     fontWeight: "800",
     color: colors.textPrimary,
@@ -259,6 +263,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionHeading: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 0.8,
@@ -297,16 +302,19 @@ const styles = StyleSheet.create({
     paddingLeft: 6,
   },
   scheduleIndex: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     color: colors.textPrimary,
   },
   scheduleDate: {
+    ...fontSans,
     fontSize: 11,
     color: colors.textMuted,
     marginTop: 1,
   },
   scheduleAmount: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "800",
     color: colors.textPrimary,
@@ -340,17 +348,20 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gold,
   },
   spendingAction: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     color: colors.gold,
   },
   spendingEvent: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "600",
     color: colors.textPrimary,
     flex: 1,
   },
   spendingAmount: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "800",
     color: colors.gold,
@@ -362,6 +373,7 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   explanationText: {
+    ...fontSans,
     fontSize: 13,
     lineHeight: 20,
     color: colors.textSecondary,

@@ -1,25 +1,25 @@
 export const colors = {
-  // Deep OLED Obsidian Canvas
-  background: "#05080E",
-  backgroundAlt: "#0A0E18",
+  // Pure OLED Pitch-Black Obsidian Canvas (Zero blue tint)
+  background: "#000000",
+  backgroundAlt: "#080808",
   
-  // Obsidian Slate Glass Surfaces
-  surface: "#0E1420",
-  surfaceLight: "#151D2C",
-  surfaceCard: "rgba(14, 20, 32, 0.85)",
-  surfaceGlass: "rgba(21, 29, 44, 0.75)",
+  // Pure Obsidian Neutral Surfaces & Cards
+  surface: "#101010",
+  surfaceLight: "#181818",
+  surfaceCard: "rgba(18, 18, 18, 0.96)",
+  surfaceGlass: "rgba(24, 24, 24, 0.88)",
   
-  // Translucent Borders
+  // Translucent Neutral Platinum & Accent Borders
   surfaceBorder: "rgba(255, 255, 255, 0.08)",
-  surfaceBorderLight: "rgba(255, 255, 255, 0.14)",
-  surfaceBorderActive: "rgba(245, 158, 11, 0.35)",
-  surfaceBorderEmerald: "rgba(16, 185, 129, 0.35)",
+  surfaceBorderLight: "rgba(255, 255, 255, 0.15)",
+  surfaceBorderActive: "rgba(245, 158, 11, 0.38)",
+  surfaceBorderEmerald: "rgba(16, 185, 129, 0.38)",
   
-  // Editorial Typography
-  textPrimary: "#F8FAFC",
-  textSecondary: "#94A3B8",
-  textMuted: "#64748B",
-  textDim: "#475569",
+  // Editorial High-Contrast Typography (Neutral Zinc, zero slate blue)
+  textPrimary: "#FFFFFF",
+  textSecondary: "#A1A1AA",
+  textMuted: "#71717A",
+  textDim: "#52525B",
   
   // Warm Burnished Copper & Gold (Money & Brand)
   gold: "#F59E0B",

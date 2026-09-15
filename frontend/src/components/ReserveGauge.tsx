@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Defs, LinearGradient, Stop } from "react-native-svg";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { ShieldCheckIcon } from "./icons";
 
 interface ReserveGaugeProps {
@@ -131,12 +132,14 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   percentText: {
+    ...fontSans,
     fontSize: 18,
     fontWeight: "800",
     letterSpacing: -0.5,
     fontVariant: ["tabular-nums"],
   },
   statusText: {
+    ...fontSans,
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 0.8,

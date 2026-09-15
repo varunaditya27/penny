@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { PennyLogo } from "./PennyLogo";
 import { SparkleIcon } from "./icons";
 
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderLight,
   },
   brandName: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "900",
     letterSpacing: 2,
@@ -98,18 +100,21 @@ const styles = StyleSheet.create({
     backgroundColor: colors.emerald,
   },
   liveText: {
+    ...fontSans,
     fontSize: 9,
     fontWeight: "800",
     color: colors.emerald,
     letterSpacing: 0.6,
   },
   title: {
+    ...fontSans,
     fontSize: 21,
     fontWeight: "800",
     color: colors.textPrimary,
     letterSpacing: -0.3,
   },
   subtitle: {
+    ...fontSans,
     fontSize: 12,
     color: colors.textSecondary,
     marginTop: 2,
@@ -134,6 +139,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gold,
   },
   userText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.textSecondary,

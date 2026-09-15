@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { CheckCircle, ShieldCheck, TrendUp, XCircle } from "./icons";
 
 interface ApprovalModalProps {
@@ -100,7 +101,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(5, 8, 14, 0.85)",
+    backgroundColor: "rgba(0, 0, 0, 0.88)",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -150,12 +151,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gold,
   },
   badgeText: {
+    ...fontSans,
     fontSize: 9,
     fontWeight: "800",
     color: colors.gold,
     letterSpacing: 0.8,
   },
   title: {
+    ...fontSans,
     fontSize: 16,
     fontWeight: "800",
     color: colors.textPrimary,
@@ -165,6 +168,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   description: {
+    ...fontSans,
     fontSize: 13,
     lineHeight: 19,
     color: colors.textSecondary,
@@ -185,12 +189,14 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   savingsLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 0.8,
     color: colors.emerald,
   },
   savingsValue: {
+    ...fontSans,
     fontSize: 20,
     fontWeight: "800",
     color: colors.emerald,
@@ -206,6 +212,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   sectionHeading: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     letterSpacing: 0.8,
@@ -219,6 +226,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   changeText: {
+    ...fontSans,
     fontSize: 12,
     lineHeight: 17,
     color: colors.textPrimary,
@@ -241,6 +249,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderLight,
   },
   rejectText: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "700",
     color: colors.textSecondary,
@@ -254,6 +263,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   approveText: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "800",
     color: colors.black,

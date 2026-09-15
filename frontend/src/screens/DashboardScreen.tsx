@@ -11,6 +11,7 @@ import {
 import { FinancialEvent, UserProfile } from "../types";
 import { api } from "../services/api";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { MetricCard } from "../components/MetricCard";
 import { ReserveGauge } from "../components/ReserveGauge";
 import {
@@ -380,6 +381,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loadingText: {
+    ...fontSans,
     marginTop: 12,
     color: colors.textSecondary,
     fontSize: 13,
@@ -417,12 +419,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   heroLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     color: colors.textSecondary,
     letterSpacing: 0.8,
   },
   heroBalance: {
+    ...fontSans,
     fontSize: 28,
     fontWeight: "900",
     color: colors.textPrimary,
@@ -437,6 +441,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   headroomText: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.3,
@@ -458,6 +463,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   flowText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "600",
     color: colors.textMuted,
@@ -490,12 +496,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroSubLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "600",
     color: colors.textMuted,
     marginBottom: 3,
   },
   heroSubValue: {
+    ...fontSans,
     fontSize: 14,
     fontWeight: "800",
     color: colors.textPrimary,
@@ -528,6 +536,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(139, 92, 246, 0.08)",
   },
   actionText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.textPrimary,
@@ -536,6 +545,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1,
@@ -564,6 +574,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   policyTagLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     color: colors.emerald,
@@ -583,6 +594,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderEmerald,
   },
   protectedTagText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.emerald,
@@ -596,6 +608,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderActive,
   },
   flexibleTagText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.gold,
@@ -625,11 +638,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   eventCategory: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "700",
     color: colors.textPrimary,
   },
   eventDesc: {
+    ...fontSans,
     fontSize: 11,
     color: colors.textSecondary,
     marginTop: 1,
@@ -641,6 +656,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   eventDate: {
+    ...fontSans,
     fontSize: 10,
     color: colors.textMuted,
   },
@@ -648,6 +664,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   eventAmount: {
+    ...fontSans,
     fontSize: 14,
     fontWeight: "800",
     fontVariant: ["tabular-nums"],
@@ -660,6 +677,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   recurringTag: {
+    ...fontSans,
     fontSize: 9,
     fontWeight: "700",
     color: colors.textSecondary,

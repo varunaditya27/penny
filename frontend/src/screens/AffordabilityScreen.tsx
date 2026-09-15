@@ -12,6 +12,7 @@ import {
 import { AffordabilityResponse } from "../types";
 import { api } from "../services/api";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { DecisionCardView } from "../components/DecisionCardView";
 import {
   Calendar,
@@ -243,12 +244,14 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   formTitle: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     color: colors.gold,
     letterSpacing: 0.8,
   },
   fieldLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     color: colors.textMuted,
@@ -256,6 +259,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   textInput: {
+    ...fontSans,
     backgroundColor: colors.surfaceLight,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
@@ -275,12 +279,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
   },
   currencyPrefix: {
+    ...fontSans,
     fontSize: 22,
     fontWeight: "800",
     color: colors.gold,
     marginRight: 6,
   },
   amountInput: {
+    ...fontSans,
     flex: 1,
     fontSize: 22,
     fontWeight: "800",
@@ -307,6 +313,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderActive,
   },
   chipText: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     color: colors.textSecondary,
@@ -326,6 +333,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   dateInput: {
+    ...fontSans,
     flex: 1,
     fontSize: 14,
     color: colors.textPrimary,
@@ -351,11 +359,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   toggleLabel: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "700",
     color: colors.textPrimary,
   },
   toggleSubtext: {
+    ...fontSans,
     fontSize: 11,
     color: colors.textMuted,
     marginTop: 3,
@@ -379,6 +389,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   evaluateButtonText: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "900",
     color: colors.black,
@@ -388,6 +399,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   resultHeading: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 1,
@@ -412,6 +424,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chatActionBtnText: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     color: colors.violet,
@@ -429,6 +442,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   trajActionBtnText: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     color: colors.emerald,

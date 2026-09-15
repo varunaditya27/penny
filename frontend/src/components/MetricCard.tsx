@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 
 export interface MetricCardProps {
   label: string;
@@ -129,6 +130,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   label: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.textSecondary,
@@ -147,11 +149,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeText: {
+    ...fontSans,
     fontSize: 9,
     fontWeight: "800",
     letterSpacing: 0.5,
   },
   value: {
+    ...fontSans,
     fontSize: 22,
     fontWeight: "800",
     color: colors.textPrimary,
@@ -159,6 +163,7 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   subValue: {
+    ...fontSans,
     fontSize: 12,
     color: colors.textMuted,
     marginTop: 4,

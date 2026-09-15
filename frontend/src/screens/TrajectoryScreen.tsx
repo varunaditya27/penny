@@ -11,6 +11,7 @@ import {
 import { TrajectoryResponse } from "../types";
 import { api } from "../services/api";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { TrajectoryChart } from "../components/TrajectoryChart";
 import { MetricCard } from "../components/MetricCard";
 import {
@@ -275,6 +276,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   tabText: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     color: colors.textSecondary,
@@ -302,6 +304,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   simHeading: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     color: colors.gold,
@@ -322,12 +325,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   currencyPrefix: {
+    ...fontSans,
     fontSize: 18,
     fontWeight: "800",
     color: colors.gold,
     marginRight: 6,
   },
   input: {
+    ...fontSans,
     flex: 1,
     fontSize: 18,
     fontWeight: "800",
@@ -343,6 +348,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   applyButtonText: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "800",
     color: colors.black,
@@ -367,6 +373,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderActive,
   },
   chipText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.textSecondary,
@@ -381,6 +388,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loadingText: {
+    ...fontSans,
     marginTop: 12,
     fontSize: 12,
     color: colors.textSecondary,
@@ -412,11 +420,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   guidanceTitle: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     letterSpacing: 0.8,
   },
   guidanceText: {
+    ...fontSans,
     fontSize: 12,
     lineHeight: 18,
     color: colors.textSecondary,

@@ -54,7 +54,7 @@ export const PennyLogo: React.FC<PennyLogoProps> = ({
       <Circle cx="50" cy="50" r="38" fill="url(#pennyLogoCoin)" />
 
       {/* Inner Dark Face */}
-      <Circle cx="50" cy="50" r="34" fill="#121622" />
+      <Circle cx="50" cy="50" r="34" fill="#101010" />
 
       {/* Inner Accent Ring */}
       <Circle
@@ -75,7 +75,7 @@ export const PennyLogo: React.FC<PennyLogoProps> = ({
       />
       <Path
         d="M47 38 H54 C59 38 63 41 63 47 C63 53 59 56 54 56 H47 V38 Z"
-        fill="#121622"
+        fill="#101010"
       />
 
       {/* Coin Notch Ticks */}

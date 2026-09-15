@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 import { WarningCircle } from "./icons";
 
 interface Props {
@@ -102,6 +103,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorderActive,
   },
   title: {
+    ...fontSans,
     fontSize: 17,
     fontWeight: "800",
     color: colors.textPrimary,
@@ -109,6 +111,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   message: {
+    ...fontSans,
     fontSize: 13,
     lineHeight: 19,
     color: colors.textSecondary,
@@ -123,6 +126,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   retryButtonText: {
+    ...fontSans,
     fontSize: 13,
     fontWeight: "800",
     color: colors.black,

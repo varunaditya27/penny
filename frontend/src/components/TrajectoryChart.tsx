@@ -20,6 +20,7 @@ import Svg, {
 } from "react-native-svg";
 import { TrajectoryPoint } from "../types";
 import { colors } from "../theme/colors";
+import { fontSans } from "../theme/typography";
 
 interface TrajectoryChartProps {
   points: TrajectoryPoint[];
@@ -187,6 +188,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
                   y={y + 4}
                   fill={colors.textMuted}
                   fontSize="10"
+                  fontFamily="sans-serif"
                   textAnchor="end"
                 >
                   ${Math.round(val)}
@@ -211,6 +213,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
             fill={colors.danger}
             fontSize="9"
             fontWeight="bold"
+            fontFamily="sans-serif"
             textAnchor="end"
           >
             Reserve Buffer (${minimumReserve})
@@ -277,6 +280,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
             y={height - 8}
             fill={colors.textMuted}
             fontSize="10"
+            fontFamily="sans-serif"
             textAnchor="start"
           >
             Day 0 ({points[0]?.date.slice(5)})
@@ -286,6 +290,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
             y={height - 8}
             fill={colors.textMuted}
             fontSize="10"
+            fontFamily="sans-serif"
             textAnchor="middle"
           >
             Day 45
@@ -295,6 +300,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
             y={height - 8}
             fill={colors.textMuted}
             fontSize="10"
+            fontFamily="sans-serif"
             textAnchor="end"
           >
             Day 90 ({points[points.length - 1]?.date.slice(5)})
@@ -334,6 +340,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   emptyText: {
+    ...fontSans,
     color: colors.textMuted,
     textAlign: "center",
     marginTop: 40,
@@ -350,6 +357,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   tooltipDate: {
+    ...fontSans,
     fontSize: 11,
     color: colors.textSecondary,
     fontWeight: "600",
@@ -360,10 +368,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   tooltipLabel: {
+    ...fontSans,
     fontSize: 11,
     color: colors.textMuted,
   },
   tooltipValue: {
+    ...fontSans,
     fontSize: 12,
     fontWeight: "700",
     color: colors.textPrimary,
@@ -386,6 +396,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   legendText: {
+    ...fontSans,
     fontSize: 11,
     color: colors.textSecondary,
     fontWeight: "500",

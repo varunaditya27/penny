@@ -13,6 +13,7 @@ import {
 import { AffordabilityResponse, ChatMessage, SSEEvent } from "../types";
 import { api } from "../services/api";
 import { colors } from "../theme/colors";
+import { fontSans, fontSansMedium } from "../theme/typography";
 import { DecisionCardView } from "../components/DecisionCardView";
 import { ApprovalModal } from "../components/ApprovalModal";
 import { PennyLogo } from "../components/PennyLogo";
@@ -513,22 +514,26 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   asstTagText: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     color: colors.gold,
     letterSpacing: 1,
   },
   timestampText: {
+    ...fontSans,
     fontSize: 10,
     color: colors.textMuted,
   },
   userTimestamp: {
+    ...fontSans,
     fontSize: 10,
     color: colors.textMuted,
     textAlign: "right",
     marginTop: 4,
   },
   messageContent: {
+    ...fontSans,
     fontSize: 13,
     lineHeight: 20,
     color: colors.textPrimary,
@@ -540,6 +545,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   reasoningPlaceholder: {
+    ...fontSans,
     fontSize: 12,
     fontStyle: "italic",
     color: colors.violet,
@@ -562,12 +568,14 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   actionGateTitle: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "800",
     color: colors.gold,
     letterSpacing: 0.8,
   },
   actionGateDesc: {
+    ...fontSans,
     fontSize: 12,
     lineHeight: 17,
     color: colors.textPrimary,
@@ -587,6 +595,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   gateRejectText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.textSecondary,
@@ -599,6 +608,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   gateApproveText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "800",
     color: colors.black,
@@ -617,6 +627,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   agentStatusText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "700",
     color: colors.violet,
@@ -636,6 +647,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   suggestionText: {
+    ...fontSans,
     fontSize: 11,
     fontWeight: "600",
     color: colors.textSecondary,
@@ -651,6 +663,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   textInput: {
+    ...fontSans,
     flex: 1,
     backgroundColor: colors.surfaceLight,
     borderWidth: 1,

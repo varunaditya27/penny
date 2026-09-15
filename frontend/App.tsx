@@ -15,6 +15,7 @@ import {
   Wallet,
 } from "./src/components/icons";
 import { colors } from "./src/theme/colors";
+import { fontSans } from "./src/theme/typography";
 
 type NavigationTab = "dashboard" | "trajectory" | "affordability" | "chat";
 
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
   },
   dockContainer: {
     flexDirection: "row",
-    backgroundColor: "rgba(14, 20, 32, 0.94)",
+    backgroundColor: "rgba(18, 18, 18, 0.96)",
     borderRadius: 28,
     paddingVertical: 8,
     paddingHorizontal: 12,
@@ -270,6 +271,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   dockLabel: {
+    ...fontSans,
     fontSize: 10,
     fontWeight: "600",
     color: colors.textSecondary,
@@ -311,11 +313,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(10, 14, 24, 0.85)",
+    backgroundColor: "#161616",
     alignItems: "center",
     justifyContent: "center",
   },
   centerLabel: {
+    ...fontSans,
     marginTop: 2,
     fontSize: 10,
   },
