@@ -1,7 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { ErrorBoundary } from "./src/components/ErrorBoundary";
 import { Header } from "./src/components/Header";
 import { DashboardScreen } from "./src/screens/DashboardScreen";
 import { TrajectoryScreen } from "./src/screens/TrajectoryScreen";
@@ -17,7 +18,8 @@ import { colors } from "./src/theme/colors";
 
 type NavigationTab = "dashboard" | "trajectory" | "affordability" | "chat";
 
-export default function App() {
+function MainApp() {
+  const insets = useSafeAreaInsets();
   const [currentTab, setCurrentTab] = useState<NavigationTab>("dashboard");
   const [chatInitialQuery, setChatInitialQuery] = useState<string | undefined>();
 
@@ -72,8 +74,7 @@ export default function App() {
   };
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
         <StatusBar style="light" />
         <Header
           title={navHeader.title}
@@ -81,10 +82,24 @@ export default function App() {
           userId="user_01"
         />
 
-        <View style={styles.contentContainer}>{renderActiveScreen()}</View>
+        <View style={styles.contentContainer}>
+          <ErrorBoundary
+            key={currentTab}
+            fallbackTitle="Screen Unavailable"
+            fallbackMessage="An unexpected error occurred while displaying this screen. Tap below to return to your dashboard."
+            onReset={() => setCurrentTab("dashboard")}
+          >
+            {renderActiveScreen()}
+          </ErrorBoundary>
+        </View>
 
         {/* Floating Frosted Glass Dock */}
-        <View style={styles.dockWrapper}>
+        <View
+          style={[
+            styles.dockWrapper,
+            { paddingBottom: Math.max(16, insets.bottom) },
+          ]}
+        >
           <View style={styles.dockContainer}>
             {/* Tab 1: Dashboard / Liquidity */}
             <TouchableOpacity
@@ -202,6 +217,18 @@ export default function App() {
           </View>
         </View>
       </SafeAreaView>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <ErrorBoundary
+        fallbackTitle="Penny Encountered an Issue"
+        fallbackMessage="An unexpected error occurred. Tap below to reload Penny safely."
+      >
+        <MainApp />
+      </ErrorBoundary>
     </SafeAreaProvider>
   );
 }

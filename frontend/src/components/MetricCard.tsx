@@ -11,7 +11,7 @@ export interface MetricCardProps {
   variant?: "default" | "success" | "warning" | "danger" | "accent" | "gold";
 }
 
-export const MetricCard: React.FC<MetricCardProps> = ({
+const MetricCardComponent: React.FC<MetricCardProps> = ({
   label,
   value,
   subValue,
@@ -165,3 +165,6 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
 });
+
+export const MetricCard = React.memo(MetricCardComponent);
+

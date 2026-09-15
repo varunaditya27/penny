@@ -46,7 +46,26 @@ export const TrajectoryScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchTrajectoryData(parseFloat(simAmount) || 0, days);
+    let isMounted = true;
+    setLoading(true);
+    (async () => {
+      try {
+        const amt = parseFloat(simAmount) || 0;
+        const data = await api.fetchCashflowTrajectory(
+          "user_01",
+          amt > 0 ? amt : undefined,
+          days
+        );
+        if (isMounted) setTrajectory(data);
+      } catch (err) {
+        console.error("Error loading trajectory", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
   }, [days]);
 
   const handleApplySimulation = () => {

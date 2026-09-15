@@ -10,7 +10,7 @@ interface HeaderProps {
   userId?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+const HeaderComponent: React.FC<HeaderProps> = ({
   title,
   subtitle,
   userId = "user_01",
@@ -140,3 +140,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 });
+
+export const Header = React.memo(HeaderComponent);
+

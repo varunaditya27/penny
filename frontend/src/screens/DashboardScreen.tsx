@@ -54,7 +54,29 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
   };
 
   useEffect(() => {
-    loadData();
+    let isMounted = true;
+    (async () => {
+      try {
+        const [profData, evtsData] = await Promise.all([
+          api.fetchUserProfile("user_01"),
+          api.fetchUserEvents("user_01"),
+        ]);
+        if (isMounted) {
+          setProfile(profData);
+          setEvents(evtsData);
+        }
+      } catch (err) {
+        console.error("Failed to load dashboard data", err);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      }
+    })();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const onRefresh = () => {

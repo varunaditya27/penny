@@ -27,7 +27,7 @@ interface TrajectoryChartProps {
   height?: number;
 }
 
-export const TrajectoryChart: React.FC<TrajectoryChartProps> = ({
+const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
   points,
   minimumReserve,
   height = 220,
@@ -391,3 +391,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
+
+export const TrajectoryChart = React.memo(TrajectoryChartComponent);
+

@@ -11,7 +11,7 @@ interface ReserveGaugeProps {
   strokeWidth?: number;
 }
 
-export const ReserveGauge: React.FC<ReserveGaugeProps> = ({
+const ReserveGaugeComponent: React.FC<ReserveGaugeProps> = ({
   availableBalance,
   minimumReserve,
   size = 130,
@@ -143,3 +143,6 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
 });
+
+export const ReserveGauge = React.memo(ReserveGaugeComponent);
+

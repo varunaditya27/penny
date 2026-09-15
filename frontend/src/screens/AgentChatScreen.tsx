@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -23,6 +23,103 @@ import {
   ShieldCheck,
   Sparkle,
 } from "../components/icons";
+
+interface ChatMessageItemProps {
+  item: ChatMessage;
+  isStreaming: boolean;
+  agentStatus: string | null;
+  onApproveAction: () => void;
+  onRejectAction: () => void;
+}
+
+const ChatMessageItemComponent: React.FC<ChatMessageItemProps> = ({
+  item,
+  isStreaming,
+  agentStatus,
+  onApproveAction,
+  onRejectAction,
+}) => {
+  const isUser = item.role === "human";
+  return (
+    <View
+      style={[
+        styles.messageRow,
+        isUser ? styles.messageRowUser : styles.messageRowAsst,
+      ]}
+    >
+      <View
+        style={[
+          styles.messageBubble,
+          isUser ? styles.bubbleUser : styles.bubbleAsst,
+        ]}
+      >
+        {/* Assistant Header Tag */}
+        {!isUser ? (
+          <View style={styles.asstTagRow}>
+            <View style={styles.asstBrandTag}>
+              <PennyLogo size={15} showTrajectory={false} />
+              <Text style={styles.asstTagText}>PENNY</Text>
+            </View>
+            <Text style={styles.timestampText}>{item.timestamp}</Text>
+          </View>
+        ) : null}
+
+        {item.content ? (
+          <Text style={styles.messageContent}>{item.content}</Text>
+        ) : isStreaming ? (
+          <View style={styles.reasoningRow}>
+            <ActivityIndicator size="small" color={colors.violet} />
+            <Text style={styles.reasoningPlaceholder}>
+              {agentStatus || "Checking your numbers..."}
+            </Text>
+          </View>
+        ) : null}
+
+        {/* Embedded Structured Decision Card */}
+        {item.decisionCard ? (
+          <View style={styles.embeddedCard}>
+            <DecisionCardView decision={item.decisionCard} />
+          </View>
+        ) : null}
+
+        {/* Inline Action Gate */}
+        {item.pendingApproval ? (
+          <View style={styles.inlineActionGate}>
+            <View style={styles.gateHeader}>
+              <ShieldCheck size={16} color={colors.gold} weight="duotone" />
+              <Text style={styles.actionGateTitle}>
+                APPROVAL NEEDED
+              </Text>
+            </View>
+            <Text style={styles.actionGateDesc}>
+              {item.pendingApproval.action_description}
+            </Text>
+            <View style={styles.actionGateButtons}>
+              <TouchableOpacity
+                style={styles.gateRejectBtn}
+                onPress={onRejectAction}
+              >
+                <Text style={styles.gateRejectText}>Keep As Is</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.gateApproveBtn}
+                onPress={onApproveAction}
+              >
+                <Text style={styles.gateApproveText}>Apply Changes</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
+        {isUser ? (
+          <Text style={styles.userTimestamp}>{item.timestamp}</Text>
+        ) : null}
+      </View>
+    </View>
+  );
+};
+
+const ChatMessageItem = React.memo(ChatMessageItemComponent);
 
 interface AgentChatScreenProps {
   initialQuery?: string;
@@ -197,8 +294,9 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
     }
   }, [initialQuery]);
 
-  const handleApproveAction = async () => {
+  const handleApproveAction = useCallback(async () => {
     if (!pendingApproval) return;
+    const approvalToCommit = pendingApproval;
     setPendingApproval(null);
 
     try {
@@ -222,9 +320,9 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
     } catch (err) {
       console.error("Approval error", err);
     }
-  };
+  }, [pendingApproval]);
 
-  const handleRejectAction = async () => {
+  const handleRejectAction = useCallback(async () => {
     if (!pendingApproval) return;
     setPendingApproval(null);
 
@@ -249,101 +347,41 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
     } catch (err) {
       console.error("Rejection error", err);
     }
-  };
+  }, [pendingApproval]);
 
-  const renderMessageItem = ({ item }: { item: ChatMessage }) => {
-    const isUser = item.role === "human";
-    return (
-      <View
-        style={[
-          styles.messageRow,
-          isUser ? styles.messageRowUser : styles.messageRowAsst,
-        ]}
-      >
-        <View
-          style={[
-            styles.messageBubble,
-            isUser ? styles.bubbleUser : styles.bubbleAsst,
-          ]}
-        >
-          {/* Assistant Header Tag */}
-          {!isUser ? (
-            <View style={styles.asstTagRow}>
-              <View style={styles.asstBrandTag}>
-                <PennyLogo size={15} showTrajectory={false} />
-                <Text style={styles.asstTagText}>PENNY</Text>
-              </View>
-              <Text style={styles.timestampText}>{item.timestamp}</Text>
-            </View>
-          ) : null}
+  const renderMessageItem = useCallback(
+    ({ item }: { item: ChatMessage }) => {
+      return (
+        <ChatMessageItem
+          item={item}
+          isStreaming={isStreaming}
+          agentStatus={agentStatus}
+          onApproveAction={handleApproveAction}
+          onRejectAction={handleRejectAction}
+        />
+      );
+    },
+    [isStreaming, agentStatus, handleApproveAction, handleRejectAction]
+  );
 
-          {item.content ? (
-            <Text style={styles.messageContent}>{item.content}</Text>
-          ) : isStreaming ? (
-            <View style={styles.reasoningRow}>
-              <ActivityIndicator size="small" color={colors.violet} />
-              <Text style={styles.reasoningPlaceholder}>
-                {agentStatus || "Checking your numbers..."}
-              </Text>
-            </View>
-          ) : null}
-
-          {/* Embedded Structured Decision Card */}
-          {item.decisionCard ? (
-            <View style={styles.embeddedCard}>
-              <DecisionCardView decision={item.decisionCard} />
-            </View>
-          ) : null}
-
-          {/* Inline Action Gate */}
-          {item.pendingApproval ? (
-            <View style={styles.inlineActionGate}>
-              <View style={styles.gateHeader}>
-                <ShieldCheck size={16} color={colors.gold} weight="duotone" />
-                <Text style={styles.actionGateTitle}>
-                  APPROVAL NEEDED
-                </Text>
-              </View>
-              <Text style={styles.actionGateDesc}>
-                {item.pendingApproval.action_description}
-              </Text>
-              <View style={styles.actionGateButtons}>
-                <TouchableOpacity
-                  style={styles.gateRejectBtn}
-                  onPress={handleRejectAction}
-                >
-                  <Text style={styles.gateRejectText}>Keep As Is</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.gateApproveBtn}
-                  onPress={handleApproveAction}
-                >
-                  <Text style={styles.gateApproveText}>Apply Changes</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-
-          {isUser ? (
-            <Text style={styles.userTimestamp}>{item.timestamp}</Text>
-          ) : null}
-        </View>
-      </View>
-    );
-  };
+  const keyExtractor = useCallback((item: ChatMessage) => item.id, []);
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={80}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <FlatList
         ref={flatListRef}
         data={messages}
         renderItem={renderMessageItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={keyExtractor}
         contentContainerStyle={styles.messagesList}
+        removeClippedSubviews={Platform.OS === "android"}
+        maxToRenderPerBatch={10}
+        windowSize={7}
+        initialNumToRender={8}
         onContentSizeChange={() =>
           flatListRef.current?.scrollToEnd({ animated: true })
         }

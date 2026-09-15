@@ -16,7 +16,7 @@ interface DecisionCardViewProps {
   decision: AffordabilityResponse;
 }
 
-export const DecisionCardView: React.FC<DecisionCardViewProps> = ({ decision }) => {
+const DecisionCardViewComponent: React.FC<DecisionCardViewProps> = ({ decision }) => {
   const getStatusConfig = (status: AffordabilityStatus) => {
     switch (status) {
       case "affordable_now":
@@ -367,3 +367,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
 });
+
+export const DecisionCardView = React.memo(DecisionCardViewComponent);
+
