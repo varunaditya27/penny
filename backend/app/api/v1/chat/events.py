@@ -54,9 +54,16 @@ async def generate_chat_stream(
                                     )
                             # Check text tokens
                             if msg.content:
+                                text_content = (
+                                    msg.content
+                                    if isinstance(msg.content, str)
+                                    else "".join(
+                                        [b.get("text", "") if isinstance(b, dict) else str(b) for b in msg.content]
+                                    )
+                                )
                                 yield format_sse(
                                     StreamEventType.TOKEN,
-                                    {"content": msg.content},
+                                    {"content": text_content, "delta": text_content},
                                 )
 
                 elif node_name == "tools":
@@ -76,9 +83,16 @@ async def generate_chat_stream(
                     messages = updates.get("messages", [])
                     for msg in messages:
                         if isinstance(msg, AIMessage) and msg.content:
+                            text_content = (
+                                msg.content
+                                if isinstance(msg.content, str)
+                                else "".join(
+                                    [b.get("text", "") if isinstance(b, dict) else str(b) for b in msg.content]
+                                )
+                            )
                             yield format_sse(
                                 StreamEventType.TOKEN,
-                                {"content": msg.content},
+                                {"content": text_content, "delta": text_content},
                             )
 
         yield format_sse(

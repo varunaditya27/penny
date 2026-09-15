@@ -104,6 +104,6 @@ export interface ChatMessage {
 }
 
 export interface SSEEvent {
-  event: 'status' | 'token' | 'decision_card' | 'trajectory_preview' | 'action_required' | 'done' | 'error';
+  event: 'status' | 'token' | 'decision_card' | 'trajectory_preview' | 'action_required' | 'approval_required' | 'done' | 'error';
   data: any;
 }

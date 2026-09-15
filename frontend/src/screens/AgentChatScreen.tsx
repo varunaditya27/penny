@@ -72,28 +72,35 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           if (event.event === "status") {
             setAgentStatus(event.data?.message || "Reasoning...");
           } else if (event.event === "token") {
-            accumulatedContent += event.data?.delta || "";
-            setMessages((prev) => {
-              const existingIdx = prev.findIndex((m) => m.id === assistantMsgId);
-              if (existingIdx >= 0) {
-                const updated = [...prev];
-                updated[existingIdx] = {
-                  ...updated[existingIdx],
-                  content: accumulatedContent,
-                };
-                return updated;
-              } else {
-                return [
-                  ...prev,
-                  {
-                    id: assistantMsgId,
-                    role: "assistant",
+            const chunk =
+              event.data?.content ||
+              event.data?.delta ||
+              event.data?.text ||
+              (typeof event.data === "string" ? event.data : "");
+            if (chunk) {
+              accumulatedContent += chunk;
+              setMessages((prev) => {
+                const existingIdx = prev.findIndex((m) => m.id === assistantMsgId);
+                if (existingIdx >= 0) {
+                  const updated = [...prev];
+                  updated[existingIdx] = {
+                    ...updated[existingIdx],
                     content: accumulatedContent,
-                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-                  },
-                ];
-              }
-            });
+                  };
+                  return updated;
+                } else {
+                  return [
+                    ...prev,
+                    {
+                      id: assistantMsgId,
+                      role: "assistant",
+                      content: accumulatedContent,
+                      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                    },
+                  ];
+                }
+              });
+            }
           } else if (event.event === "decision_card") {
             accumulatedDecisionCard = event.data;
             setMessages((prev) => {
@@ -118,8 +125,12 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
                 ];
               }
             });
-          } else if (event.event === "action_required") {
-            accumulatedApproval = event.data?.interrupt?.payload;
+          } else if (
+            event.event === "action_required" ||
+            event.event === "approval_required"
+          ) {
+            accumulatedApproval =
+              event.data?.interrupt?.payload || event.data;
             setPendingApproval(accumulatedApproval);
             setMessages((prev) => {
               const existingIdx = prev.findIndex((m) => m.id === assistantMsgId);
@@ -234,7 +245,13 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
             </View>
           ) : null}
 
-          <Text style={styles.messageContent}>{item.content}</Text>
+          {item.content ? (
+            <Text style={styles.messageContent}>{item.content}</Text>
+          ) : isStreaming ? (
+            <Text style={[styles.messageContent, { fontStyle: "italic", color: colors.textMuted }]}>
+              {agentStatus || "Reasoning..."}
+            </Text>
+          ) : null}
 
           {/* Embedded Structured Decision Card */}
           {item.decisionCard ? (
