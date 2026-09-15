@@ -75,14 +75,14 @@ export const DecisionCardView: React.FC<DecisionCardViewProps> = ({ decision }) 
       {/* Primary Key Figures Grid */}
       <View style={styles.metricsRow}>
         <View style={styles.metricItem}>
-          <Text style={styles.metricLabel}>Safe Spend</Text>
+          <Text style={styles.metricLabel}>Safe Upfront</Text>
           <Text style={styles.metricValue}>
             ${decision.amount_safe_to_pay.toFixed(2)}
           </Text>
         </View>
         <View style={styles.metricDivider} />
         <View style={styles.metricItem}>
-          <Text style={styles.metricLabel}>Structure</Text>
+          <Text style={styles.metricLabel}>How to Pay</Text>
           <Text style={[styles.metricValue, { textTransform: "capitalize" }]}>
             {decision.recommended_payment_method.replace("_", " ")}
           </Text>
@@ -91,7 +91,7 @@ export const DecisionCardView: React.FC<DecisionCardViewProps> = ({ decision }) 
           <>
             <View style={styles.metricDivider} />
             <View style={styles.metricItem}>
-              <Text style={styles.metricLabel}>Earliest Date</Text>
+              <Text style={styles.metricLabel}>Safe Date</Text>
               <View style={styles.dateRow}>
                 <Calendar size={12} color={colors.textSecondary} weight="duotone" />
                 <Text style={styles.metricValue}>
@@ -108,7 +108,7 @@ export const DecisionCardView: React.FC<DecisionCardViewProps> = ({ decision }) 
         <View style={styles.scheduleSection}>
           <View style={styles.sectionHeaderRow}>
             <Receipt size={14} color={colors.textSecondary} weight="duotone" />
-            <Text style={styles.sectionHeading}>RECOMMENDED PAYMENT SCHEDULE</Text>
+            <Text style={styles.sectionHeading}>PAYMENT SCHEDULE</Text>
           </View>
           <View style={styles.timelineContainer}>
             {decision.payment_schedule.map((item, idx) => (
@@ -145,7 +145,7 @@ export const DecisionCardView: React.FC<DecisionCardViewProps> = ({ decision }) 
           <View style={styles.sectionHeaderRow}>
             <Sliders size={14} color={colors.gold} weight="duotone" />
             <Text style={[styles.sectionHeading, { color: colors.gold }]}>
-              REQUIRED SPENDING ADJUSTMENTS
+              BUDGET CUTS NEEDED
             </Text>
           </View>
           {decision.spending_changes.map((item, idx) => (

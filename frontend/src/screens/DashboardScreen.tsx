@@ -66,7 +66,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color={colors.emerald} />
-        <Text style={styles.loadingText}>Synchronizing Liquidity Ledger...</Text>
+        <Text style={styles.loadingText}>Loading accounts and balances...</Text>
       </View>
     );
   }
@@ -94,13 +94,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
         />
       }
     >
-      {/* Mercury-Grade Liquidity Command Center Hero Card */}
+      {/* Financial Command Center Hero Card */}
       <View style={styles.heroCard}>
         <View style={styles.heroTopRow}>
           <View style={styles.heroMainInfo}>
             <View style={styles.labelRow}>
               <Wallet size={15} color={colors.gold} weight="duotone" />
-              <Text style={styles.heroLabel}>AVAILABLE LIQUIDITY</Text>
+              <Text style={styles.heroLabel}>AVAILABLE CASH</Text>
             </View>
             <Text style={styles.heroBalance}>
               ${availableBal.toLocaleString("en-US", {
@@ -123,7 +123,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
                 {isBufferSafe ? "+" : ""}${reserveHeadroom.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                 })}{" "}
-                Safety Headroom
+                Above Reserve Target
               </Text>
             </View>
           </View>
@@ -145,11 +145,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             <View style={styles.flowLabels}>
               <View style={styles.flowLabelItem}>
                 <ArrowUpRight size={12} color={colors.emerald} weight="bold" />
-                <Text style={styles.flowText}>Inflow: ${monthlyIncome.toLocaleString()}</Text>
+                <Text style={styles.flowText}>Monthly Income: ${monthlyIncome.toLocaleString()}</Text>
               </View>
               <View style={styles.flowLabelItem}>
                 <ArrowDownLeft size={12} color={colors.gold} weight="bold" />
-                <Text style={styles.flowText}>Outflow: ${monthlyBurn.toLocaleString()}</Text>
+                <Text style={styles.flowText}>Fixed Expenses: ${monthlyBurn.toLocaleString()}</Text>
               </View>
             </View>
             <View style={styles.flowBarTrack}>
@@ -171,21 +171,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
 
         <View style={styles.heroFooter}>
           <View style={styles.heroSubItem}>
-            <Text style={styles.heroSubLabel}>Emergency Reserve Floor</Text>
+            <Text style={styles.heroSubLabel}>Emergency Fund Target</Text>
             <Text style={styles.heroSubValue}>
               ${reserveMin.toLocaleString()}
             </Text>
           </View>
           <View style={styles.heroSubDivider} />
           <View style={styles.heroSubItem}>
-            <Text style={styles.heroSubLabel}>Safe Reserve Status</Text>
+            <Text style={styles.heroSubLabel}>Savings Status</Text>
             <Text
               style={[
                 styles.heroSubValue,
                 { color: isBufferSafe ? colors.emerald : colors.danger },
               ]}
             >
-              {isBufferSafe ? "PROTECTED" : "BUFFER DEFICIT"}
+              {isBufferSafe ? "HEALTHY" : "BELOW TARGET"}
             </Text>
           </View>
         </View>
@@ -218,7 +218,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
         >
           <Sparkle size={18} color={colors.violet} weight="fill" />
           <Text style={[styles.actionText, { color: colors.violet }]}>
-            Penny AI
+            Ask Penny
           </Text>
         </TouchableOpacity>
       </View>
@@ -226,7 +226,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
       {/* 30-Day Cash Flow Bento Grid */}
       {profile?.risk_metrics ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>30-DAY CASH FLOW METRICS</Text>
+          <Text style={styles.sectionTitle}>MONTHLY CASH FLOW</Text>
           <View style={styles.gridRow}>
             <View style={styles.gridCol}>
               <MetricCard
@@ -238,7 +238,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             </View>
             <View style={styles.gridCol}>
               <MetricCard
-                label="Fixed Burn Rate"
+                label="Fixed Bills"
                 value={`$${profile.risk_metrics.monthly_fixed_burn_rate.toLocaleString()}`}
                 icon={<Flame size={16} color={colors.gold} weight="duotone" />}
                 variant="warning"
@@ -246,9 +246,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             </View>
           </View>
           <MetricCard
-            label="Discretionary Surplus"
+            label="Free Cash Flow"
             value={`$${profile.risk_metrics.discretionary_cashflow.toLocaleString()}`}
-            subValue={`Fixed cost ratio: ${(profile.risk_metrics.fixed_cost_ratio * 100).toFixed(0)}% of confirmed income`}
+            subValue={`Fixed expenses take ${(profile.risk_metrics.fixed_cost_ratio * 100).toFixed(0)}% of income`}
             icon={<Wallet size={16} color={colors.sky} weight="duotone" />}
             variant="default"
           />
@@ -257,7 +257,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
 
       {/* Spending Policies Card */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>SPENDING POLICIES</Text>
+        <Text style={styles.sectionTitle}>BUDGET PRIORITIES</Text>
         <View style={styles.policyCard}>
           <View style={styles.policyRow}>
             <View style={styles.policyHeaderRow}>
@@ -279,7 +279,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             <View style={styles.policyHeaderRow}>
               <Scissors size={14} color={colors.gold} weight="duotone" />
               <Text style={[styles.policyTagLabel, { color: colors.gold }]}>
-                FLEXIBLE FOR CUTBACKS
+                FLEXIBLE EXPENSES
               </Text>
             </View>
             <View style={styles.tagWrap}>
@@ -297,7 +297,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
 
       {/* Upcoming Financial Commitments */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>UPCOMING FINANCIAL COMMITMENTS</Text>
+        <Text style={styles.sectionTitle}>UPCOMING BILLS & PAYDAYS</Text>
         {events.slice(0, 5).map((evt) => {
           const isIncome = evt.amount > 0;
           return (

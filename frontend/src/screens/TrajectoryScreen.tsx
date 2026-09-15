@@ -75,7 +75,7 @@ export const TrajectoryScreen: React.FC = () => {
                 weight={days === d ? "duotone" : "regular"}
               />
               <Text style={[styles.tabText, days === d && styles.tabTextActive]}>
-                {d}d Horizon
+                {d} Days
               </Text>
             </View>
           </TouchableOpacity>
@@ -86,7 +86,7 @@ export const TrajectoryScreen: React.FC = () => {
       <View style={styles.simCard}>
         <View style={styles.simHeader}>
           <Sparkle size={14} color={colors.sky} weight="fill" />
-          <Text style={styles.simHeading}>SIMULATE PROSPECTIVE OUTFLOW</Text>
+          <Text style={styles.simHeading}>TEST A PURCHASE AMOUNT</Text>
         </View>
         <View style={styles.simInputRow}>
           <View style={styles.inputWrap}>
@@ -105,7 +105,7 @@ export const TrajectoryScreen: React.FC = () => {
             onPress={handleApplySimulation}
             activeOpacity={0.8}
           >
-            <Text style={styles.applyButtonText}>Simulate Dip</Text>
+            <Text style={styles.applyButtonText}>Preview Impact</Text>
           </TouchableOpacity>
         </View>
 
@@ -141,7 +141,7 @@ export const TrajectoryScreen: React.FC = () => {
       {loading ? (
         <View style={styles.loadingBox}>
           <ActivityIndicator size="large" color={colors.sky} />
-          <Text style={styles.loadingText}>Computing {days}-Day Forward Ledger...</Text>
+          <Text style={styles.loadingText}>Forecasting {days}-day cash flow...</Text>
         </View>
       ) : trajectory ? (
         <>
@@ -155,7 +155,7 @@ export const TrajectoryScreen: React.FC = () => {
           <View style={styles.metricsGrid}>
             <View style={styles.gridCol}>
               <MetricCard
-                label="Lowest Dip Point"
+                label="Lowest Projected Balance"
                 value={`$${trajectory.lowest_projected_balance.toFixed(2)}`}
                 subValue={`Occurs on: ${trajectory.lowest_balance_date}`}
                 variant={isSafe ? "success" : "danger"}
@@ -170,8 +170,8 @@ export const TrajectoryScreen: React.FC = () => {
             </View>
             <View style={styles.gridCol}>
               <MetricCard
-                label="Safety Buffer Status"
-                value={isSafe ? "PROTECTED" : "BREACH RISK"}
+                label="Emergency Fund"
+                value={isSafe ? "HEALTHY" : "BELOW TARGET"}
                 subValue={`Margin: +$${trajectory.buffer_margin.toFixed(2)}`}
                 variant={isSafe ? "success" : "danger"}
                 icon={
@@ -205,14 +205,14 @@ export const TrajectoryScreen: React.FC = () => {
                 ]}
               >
                 {isSafe
-                  ? `${days}-DAY INVARIANT VERIFIED`
-                  : "RESERVE BUFFER BREACH ALERT"}
+                  ? `${days}-DAY FORECAST: HEALTHY`
+                  : "POTENTIAL LOW BALANCE ALERT"}
               </Text>
             </View>
             <Text style={styles.guidanceText}>
               {isSafe
-                ? `Penny's simulation engine verified that even with your recurring fixed expenses and scheduled debits, your projected balance remains safely above your $${trajectory.minimum_balance_to_keep.toLocaleString()} emergency reserve threshold.`
-                : `This simulated expense causes your forward balance to dip into your emergency reserve buffer on ${trajectory.lowest_balance_date}. Consider structuring this purchase into installments or delaying until your subsequent income settlement.`}
+                ? `Your projected balance stays safely above your $${trajectory.minimum_balance_to_keep.toLocaleString()} emergency fund target across all upcoming scheduled bills and living expenses.`
+                : `This purchase causes your balance to dip below your $${trajectory.minimum_balance_to_keep.toLocaleString()} emergency fund target on ${trajectory.lowest_balance_date}. Consider splitting this into installments or waiting until after your next payday.`}
             </Text>
           </View>
         </>

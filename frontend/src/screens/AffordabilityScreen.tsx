@@ -69,11 +69,11 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
       <View style={styles.formCard}>
         <View style={styles.formHeaderRow}>
           <CreditCard size={16} color={colors.gold} weight="duotone" />
-          <Text style={styles.formTitle}>PURCHASE AFFORDABILITY SIMULATOR</Text>
+          <Text style={styles.formTitle}>PURCHASE CHECK</Text>
         </View>
 
         {/* Item Description */}
-        <Text style={styles.fieldLabel}>ITEM OR EXPENSE DESCRIPTION</Text>
+        <Text style={styles.fieldLabel}>WHAT ARE YOU BUYING?</Text>
         <TextInput
           style={styles.textInput}
           value={description}
@@ -83,7 +83,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
         />
 
         {/* Amount Input */}
-        <Text style={[styles.fieldLabel, { marginTop: 14 }]}>REQUESTED AMOUNT</Text>
+        <Text style={[styles.fieldLabel, { marginTop: 14 }]}>PRICE / AMOUNT</Text>
         <View style={styles.amountInputRow}>
           <Text style={styles.currencyPrefix}>$</Text>
           <TextInput
@@ -122,7 +122,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
 
         {/* Target Completion Date */}
         <Text style={[styles.fieldLabel, { marginTop: 14 }]}>
-          TARGET COMPLETION DATE
+          PURCHASE DATE
         </Text>
         <View style={styles.dateInputContainer}>
           <Calendar size={16} color={colors.textMuted} weight="duotone" />
@@ -140,10 +140,10 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
           <View style={styles.toggleTextContainer}>
             <View style={styles.toggleTitleRow}>
               <Receipt size={14} color={colors.sky} weight="duotone" />
-              <Text style={styles.toggleLabel}>Allow Installment Plans</Text>
+              <Text style={styles.toggleLabel}>Consider Installment Plans</Text>
             </View>
             <Text style={styles.toggleSubtext}>
-              Optimize split payments if upfront charge breaches minimum reserve
+              Check if paying in parts keeps your emergency savings safe
             </Text>
           </View>
           <Switch
@@ -167,7 +167,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
             <View style={styles.btnContentRow}>
               <Sparkle size={16} color={colors.black} weight="fill" />
               <Text style={styles.evaluateButtonText}>
-                Simulate Affordability Invariant
+                Check If I Can Afford This
               </Text>
             </View>
           )}
@@ -177,7 +177,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
       {/* Decision Output Card */}
       {decision ? (
         <View style={styles.resultSection}>
-          <Text style={styles.resultHeading}>AFFORDABILITY VERDICT</Text>
+          <Text style={styles.resultHeading}>VERDICT & RECOMMENDATION</Text>
           <DecisionCardView decision={decision} />
 
           {/* Action Row */}
@@ -186,14 +186,14 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
               style={styles.chatActionBtn}
               onPress={() =>
                 onNavigateToChat(
-                  `Penny, evaluate why buying ${description} for $${amount} is ${decision.affordability_status}.`
+                  `Penny, can you explain why buying ${description} for $${amount} is ${decision.affordability_status.replace(/_/g, " ")}?`
                 )
               }
               activeOpacity={0.8}
             >
               <ChatCircle size={16} color={colors.violet} weight="duotone" />
               <Text style={styles.chatActionBtnText}>
-                Discuss with Penny AI
+                Ask Penny About This
               </Text>
             </TouchableOpacity>
 
@@ -204,7 +204,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
             >
               <TrendUp size={16} color={colors.sky} weight="duotone" />
               <Text style={styles.trajActionBtnText}>
-                View Trajectory Dip
+                View 90-Day Forecast
               </Text>
             </TouchableOpacity>
           </View>

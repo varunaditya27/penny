@@ -36,7 +36,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
       id: "welcome_msg",
       role: "assistant",
       content:
-        "Hello! I am Penny, your agentic financial copilot.\n\nI run forward cash flow simulations and apply strict mathematical safety invariants before approving discretionary outlays. What would you like to evaluate today?",
+        "Hi, I'm Penny, your personal financial assistant.\n\nI check your upcoming bills, income, and emergency fund before you spend, so you never get caught short on cash. What would you like to check today?",
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -71,7 +71,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
 
     setMessages((prev) => [...prev, userMessage]);
     setIsStreaming(true);
-    setAgentStatus("Supervisor analyzing query...");
+    setAgentStatus("Reviewing your cash flow...");
 
     let accumulatedContent = "";
     let accumulatedDecisionCard: AffordabilityResponse | null = null;
@@ -84,7 +84,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
         sessionIdRef.current,
         (event: SSEEvent) => {
           if (event.event === "status") {
-            setAgentStatus(event.data?.message || "Reasoning...");
+            setAgentStatus(event.data?.message || "Thinking...");
           } else if (event.event === "token") {
             const chunk =
               event.data?.content ||
@@ -178,7 +178,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           id: `err_${Date.now()}`,
           role: "assistant",
           content:
-            "I encountered a temporary disruption communicating with the reasoning cluster. Deterministic fallback engaged.",
+            "I couldn't reach the server right now, but your local account figures are loaded. What would you like to check?",
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -212,7 +212,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
         {
           id: `appr_${Date.now()}`,
           role: "assistant",
-          content: `Authorized: ${res.response_message || "Adjustments applied to your spending policy."}`,
+          content: `Changes Applied: ${res.response_message || "Adjustments applied to your budget plan."}`,
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -239,7 +239,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
         {
           id: `rej_${Date.now()}`,
           role: "assistant",
-          content: `Declined: ${res.response_message || "No modifications were enacted."}`,
+          content: `Kept As Is: ${res.response_message || "No budget changes were applied."}`,
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -271,7 +271,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
             <View style={styles.asstTagRow}>
               <View style={styles.asstBrandTag}>
                 <PennyLogo size={15} showTrajectory={false} />
-                <Text style={styles.asstTagText}>PENNY AI</Text>
+                <Text style={styles.asstTagText}>PENNY</Text>
               </View>
               <Text style={styles.timestampText}>{item.timestamp}</Text>
             </View>
@@ -283,7 +283,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
             <View style={styles.reasoningRow}>
               <ActivityIndicator size="small" color={colors.violet} />
               <Text style={styles.reasoningPlaceholder}>
-                {agentStatus || "Synthesizing cash flow invariant..."}
+                {agentStatus || "Checking your numbers..."}
               </Text>
             </View>
           ) : null}
@@ -301,7 +301,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
               <View style={styles.gateHeader}>
                 <ShieldCheck size={16} color={colors.gold} weight="duotone" />
                 <Text style={styles.actionGateTitle}>
-                  AUTHORIZATION REQUIRED
+                  APPROVAL NEEDED
                 </Text>
               </View>
               <Text style={styles.actionGateDesc}>
@@ -312,13 +312,13 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
                   style={styles.gateRejectBtn}
                   onPress={handleRejectAction}
                 >
-                  <Text style={styles.gateRejectText}>Decline</Text>
+                  <Text style={styles.gateRejectText}>Keep As Is</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.gateApproveBtn}
                   onPress={handleApproveAction}
                 >
-                  <Text style={styles.gateApproveText}>Approve</Text>
+                  <Text style={styles.gateApproveText}>Apply Changes</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -360,9 +360,9 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
       {/* Suggested Quick Prompts */}
       <View style={styles.suggestionsRow}>
         {[
-          "Can I afford a $350 tablet?",
+          "Can I afford a $350 purchase?",
           "Show 90-day cash forecast",
-          "Cut flexible expenses by $200",
+          "How can I save $200 this month?",
         ].map((prompt, i) => (
           <TouchableOpacity
             key={i}
@@ -382,7 +382,7 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           style={styles.textInput}
           value={inputText}
           onChangeText={setInputText}
-          placeholder="Ask Penny about liquidity, forecast, or affordability..."
+          placeholder="Ask Penny about your budget, bills, or purchases..."
           placeholderTextColor={colors.textMuted}
           multiline
         />

@@ -276,12 +276,12 @@ export class PennyApiClient {
       // Simulated SSE stream for offline / dev preview
       onEvent({
         event: "status",
-        data: { step: "routed", intent: "affordability_evaluation", message: "Supervisor analyzed intent..." },
+        data: { step: "routed", intent: "affordability_evaluation", message: "Reviewing your accounts..." },
       });
       await new Promise((r) => setTimeout(r, 400));
       onEvent({
         event: "status",
-        data: { step: "simulated", message: "Affordability specialist evaluating 90-day trajectory..." },
+        data: { step: "simulated", message: "Forecasting 90-day cash flow..." },
       });
       await new Promise((r) => setTimeout(r, 400));
 
@@ -301,14 +301,14 @@ export class PennyApiClient {
             ],
             spending_changes: [{ action: "reduce_to", event_id: "Dining Out", amount: 120.0 }],
             decision_explanation:
-              "An upfront lump sum dips below your $1,500 reserve cushion on March 28th. A 2-installment schedule keeps your cash flow buffer intact.",
+              "Paying all at once drops your balance below your $1,500 emergency fund on March 28th. Splitting into 2 payments keeps your savings safe.",
           },
         });
         onEvent({
           event: "token",
           data: {
             delta:
-              "### AFFORDABLE WITH PAYMENT PLAN\n\n- **Safe to Spend Upfront**: $500.00\n- **Recommended Plan**: 2 Installments of $400.00\n- **Lowest Projected Buffer**: $1,620.00 (Reserve: $1,500.00)\n\nPaying in installments avoids a liquidity dip on March 28th before your next payday.",
+              "### AFFORDABLE WITH PAYMENT PLAN\n\n- **Safe to Spend Upfront**: $500.00\n- **Recommended Plan**: 2 Installments of $400.00\n- **Lowest Projected Balance**: $1,620.00 (Emergency Fund: $1,500.00)\n\nPaying in installments protects your savings before your next payday on March 28th.",
           },
         });
       } else {
@@ -323,14 +323,14 @@ export class PennyApiClient {
             payment_schedule: [{ date: "2026-03-05", amount: 150.0 }],
             spending_changes: [],
             decision_explanation:
-              "Full payment is completely safe. Your forward balance stays at least $1,200 above your emergency reserve.",
+              "Full payment is completely safe. Your forward balance stays at least $1,200 above your emergency fund target.",
           },
         });
         onEvent({
           event: "token",
           data: {
             delta:
-              "### AFFORDABLE NOW\n\n- **Safe to Spend**: $150.00\n- **Recommended Method**: `full_payment`\n- **Lowest 90-Day Balance**: $2,720.00 (Safety Buffer: $1,500.00)\n\nYou can make this purchase immediately without jeopardizing any scheduled bills or your emergency cushion.",
+              "### AFFORDABLE NOW\n\n- **Safe to Spend**: $150.00\n- **Recommended Method**: `full_payment`\n- **Lowest 90-Day Balance**: $2,720.00 (Emergency Fund: $1,500.00)\n\nYou can make this purchase right away without falling behind on upcoming bills or dipping into your emergency fund.",
           },
         });
       }

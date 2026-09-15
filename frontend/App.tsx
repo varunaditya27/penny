@@ -25,23 +25,23 @@ export default function App() {
     switch (currentTab) {
       case "dashboard":
         return {
-          title: "Liquidity Overview",
-          subtitle: "Real-time cash headroom and reserve protection",
+          title: "Financial Overview",
+          subtitle: "Available cash, upcoming bills, and emergency savings",
         };
       case "trajectory":
         return {
-          title: "90-Day Trajectory",
-          subtitle: "Dynamic cash flow simulation and reserve floor dip",
+          title: "90-Day Forecast",
+          subtitle: "Projected daily balance and upcoming bill schedule",
         };
       case "affordability":
         return {
-          title: "Affordability Studio",
-          subtitle: "Purchase evaluation and payment plan optimizer",
+          title: "Can I Afford It?",
+          subtitle: "Check if a purchase fits your budget and future bills",
         };
       case "chat":
         return {
-          title: "Penny Multi-Agent",
-          subtitle: "Reasoning engine with human-in-the-loop decision gating",
+          title: "Ask Penny",
+          subtitle: "Personal guidance for spending and budget decisions",
         };
     }
   };
@@ -107,7 +107,7 @@ export default function App() {
                   currentTab === "dashboard" && styles.dockLabelActive,
                 ]}
               >
-                Liquidity
+                Overview
               </Text>
             </TouchableOpacity>
 
@@ -168,7 +168,7 @@ export default function App() {
                   currentTab === "chat" && { color: colors.gold, fontWeight: "800" },
                 ]}
               >
-                Penny AI
+                Penny
               </Text>
             </TouchableOpacity>
 

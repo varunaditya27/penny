@@ -38,9 +38,9 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
             <View style={styles.headerTitles}>
               <View style={styles.badgeRow}>
                 <View style={styles.liveDot} />
-                <Text style={styles.badgeText}>HUMAN-IN-THE-LOOP GATE</Text>
+                <Text style={styles.badgeText}>CONFIRMATION REQUIRED</Text>
               </View>
-              <Text style={styles.title}>Confirm Financial Mutation</Text>
+              <Text style={styles.title}>Update Spending Plan</Text>
             </View>
             <TouchableOpacity
               onPress={onClose}
@@ -57,7 +57,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
             <View style={styles.savingsBox}>
               <View style={styles.savingsHeader}>
                 <TrendUp size={14} color={colors.emerald} weight="bold" />
-                <Text style={styles.savingsLabel}>UNLOCKED MONTHLY HEADROOM</Text>
+                <Text style={styles.savingsLabel}>ESTIMATED MONTHLY SAVINGS</Text>
               </View>
               <Text style={styles.savingsValue}>
                 +${estimatedSavings.toFixed(2)}/mo
@@ -66,7 +66,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
           ) : null}
 
           <View style={styles.changesSection}>
-            <Text style={styles.sectionHeading}>PROPOSED ADJUSTMENTS</Text>
+            <Text style={styles.sectionHeading}>RECOMMENDED CHANGES</Text>
             {proposedChanges.map((change, idx) => (
               <View key={idx} style={styles.changeRow}>
                 <CheckCircle size={14} color={colors.emerald} weight="duotone" />
@@ -81,14 +81,14 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
               onPress={onReject}
               activeOpacity={0.8}
             >
-              <Text style={styles.rejectText}>Decline</Text>
+              <Text style={styles.rejectText}>Keep As Is</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.button, styles.approveButton]}
               onPress={onApprove}
               activeOpacity={0.8}
             >
-              <Text style={styles.approveText}>Authorize Changes</Text>
+              <Text style={styles.approveText}>Apply Changes</Text>
             </TouchableOpacity>
           </View>
         </View>

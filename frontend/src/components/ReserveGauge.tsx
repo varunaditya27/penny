@@ -109,7 +109,7 @@ export const ReserveGauge: React.FC<ReserveGaugeProps> = ({
           {coveragePercent}%
         </Text>
         <Text style={[styles.statusText, { color: activeColor }]}>
-          {isSafe ? "COVERED" : "DEFICIT"}
+          {isSafe ? "HEALTHY" : "LOW"}
         </Text>
       </View>
     </View>

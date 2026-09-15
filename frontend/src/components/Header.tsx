@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
           <View style={styles.liveTag}>
             <View style={styles.liveDot} />
             <SparkleIcon size={10} color={colors.emerald} />
-            <Text style={styles.liveText}>MULTI-AGENT</Text>
+            <Text style={styles.liveText}>ACTIVE</Text>
           </View>
         </View>
         <Text style={styles.title}>{title}</Text>
