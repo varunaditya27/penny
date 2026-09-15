@@ -13,6 +13,15 @@ import { api } from "../services/api";
 import { colors } from "../theme/colors";
 import { TrajectoryChart } from "../components/TrajectoryChart";
 import { MetricCard } from "../components/MetricCard";
+import {
+  Calendar,
+  CheckCircle,
+  Info,
+  ShieldCheck,
+  Sparkle,
+  TrendUp,
+  WarningCircle,
+} from "../components/icons";
 
 export const TrajectoryScreen: React.FC = () => {
   const [trajectory, setTrajectory] = useState<TrajectoryResponse | null>(null);
@@ -46,10 +55,11 @@ export const TrajectoryScreen: React.FC = () => {
   };
 
   const isSafe = trajectory?.is_safe ?? true;
+  const quickChips = [250, 500, 1000, 2500];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Horizon Days Selector */}
+      {/* Horizon Glass Pill Selector */}
       <View style={styles.tabRow}>
         {[30, 60, 90].map((d) => (
           <TouchableOpacity
@@ -58,16 +68,26 @@ export const TrajectoryScreen: React.FC = () => {
             onPress={() => setDays(d)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.tabText, days === d && styles.tabTextActive]}>
-              {d} Days Forecast
-            </Text>
+            <View style={styles.tabContentRow}>
+              <Calendar
+                size={13}
+                color={days === d ? colors.sky : colors.textMuted}
+                weight={days === d ? "duotone" : "regular"}
+              />
+              <Text style={[styles.tabText, days === d && styles.tabTextActive]}>
+                {d}d Horizon
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
       </View>
 
       {/* Prospective Purchase Simulator Strip */}
       <View style={styles.simCard}>
-        <Text style={styles.simHeading}>SIMULATE PROSPECTIVE OUTFLOW</Text>
+        <View style={styles.simHeader}>
+          <Sparkle size={14} color={colors.sky} weight="fill" />
+          <Text style={styles.simHeading}>SIMULATE PROSPECTIVE OUTFLOW</Text>
+        </View>
         <View style={styles.simInputRow}>
           <View style={styles.inputWrap}>
             <Text style={styles.currencyPrefix}>$</Text>
@@ -91,7 +111,7 @@ export const TrajectoryScreen: React.FC = () => {
 
         {/* Quick Amount Chips */}
         <View style={styles.chipRow}>
-          {[100, 300, 500, 1200].map((chip) => (
+          {quickChips.map((chip) => (
             <TouchableOpacity
               key={chip}
               style={[
@@ -102,6 +122,7 @@ export const TrajectoryScreen: React.FC = () => {
                 setSimAmount(chip.toString());
                 fetchTrajectoryData(chip, days);
               }}
+              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -109,7 +130,7 @@ export const TrajectoryScreen: React.FC = () => {
                   simAmount === chip.toString() && styles.chipTextActive,
                 ]}
               >
-                ${chip}
+                ${chip.toLocaleString()}
               </Text>
             </TouchableOpacity>
           ))}
@@ -119,8 +140,8 @@ export const TrajectoryScreen: React.FC = () => {
       {/* Trajectory Interactive Chart */}
       {loading ? (
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Computing 90-Day Simulation Ledger...</Text>
+          <ActivityIndicator size="large" color={colors.sky} />
+          <Text style={styles.loadingText}>Computing {days}-Day Forward Ledger...</Text>
         </View>
       ) : trajectory ? (
         <>
@@ -130,7 +151,7 @@ export const TrajectoryScreen: React.FC = () => {
             height={240}
           />
 
-          {/* Core Trajectory Metrics */}
+          {/* Core Trajectory Bento Metrics */}
           <View style={styles.metricsGrid}>
             <View style={styles.gridCol}>
               <MetricCard
@@ -138,7 +159,13 @@ export const TrajectoryScreen: React.FC = () => {
                 value={`$${trajectory.lowest_projected_balance.toFixed(2)}`}
                 subValue={`Occurs on: ${trajectory.lowest_balance_date}`}
                 variant={isSafe ? "success" : "danger"}
-                icon="📉"
+                icon={
+                  <TrendUp
+                    size={16}
+                    color={isSafe ? colors.emerald : colors.danger}
+                    weight="bold"
+                  />
+                }
               />
             </View>
             <View style={styles.gridCol}>
@@ -147,18 +174,45 @@ export const TrajectoryScreen: React.FC = () => {
                 value={isSafe ? "PROTECTED" : "BREACH RISK"}
                 subValue={`Margin: +$${trajectory.buffer_margin.toFixed(2)}`}
                 variant={isSafe ? "success" : "danger"}
-                icon="🛡️"
+                icon={
+                  <ShieldCheck
+                    size={16}
+                    color={isSafe ? colors.emerald : colors.danger}
+                    weight="duotone"
+                  />
+                }
               />
             </View>
           </View>
 
           {/* Liquidity Risk Guidance */}
-          <View style={styles.guidanceCard}>
-            <Text style={styles.guidanceTitle}>90-DAY FORECAST ANALYSIS</Text>
+          <View
+            style={[
+              styles.guidanceCard,
+              !isSafe && styles.guidanceCardAlert,
+            ]}
+          >
+            <View style={styles.guidanceHeader}>
+              {isSafe ? (
+                <CheckCircle size={16} color={colors.emerald} weight="duotone" />
+              ) : (
+                <WarningCircle size={16} color={colors.danger} weight="duotone" />
+              )}
+              <Text
+                style={[
+                  styles.guidanceTitle,
+                  { color: isSafe ? colors.emerald : colors.danger },
+                ]}
+              >
+                {isSafe
+                  ? `${days}-DAY INVARIANT VERIFIED`
+                  : "RESERVE BUFFER BREACH ALERT"}
+              </Text>
+            </View>
             <Text style={styles.guidanceText}>
               {isSafe
-                ? `Penny's mathematical simulator verified that even with your recurring living expenses and scheduled bills, your daily balance remains safely above your $${trajectory.minimum_balance_to_keep.toLocaleString()} emergency reserve threshold.`
-                : `⚠️ WARNING: This simulated expense causes your forward balance to drop into your emergency reserve buffer on ${trajectory.lowest_balance_date}. Consider spreading the expense into installments or delaying until your subsequent payday.`}
+                ? `Penny's simulation engine verified that even with your recurring fixed expenses and scheduled debits, your projected balance remains safely above your $${trajectory.minimum_balance_to_keep.toLocaleString()} emergency reserve threshold.`
+                : `This simulated expense causes your forward balance to dip into your emergency reserve buffer on ${trajectory.lowest_balance_date}. Consider structuring this purchase into installments or delaying until your subsequent income settlement.`}
             </Text>
           </View>
         </>
@@ -178,8 +232,8 @@ const styles = StyleSheet.create({
   },
   tabRow: {
     flexDirection: "row",
-    backgroundColor: colors.surface,
-    borderRadius: 12,
+    backgroundColor: colors.surfaceCard,
+    borderRadius: 14,
     padding: 4,
     marginBottom: 16,
     borderWidth: 1,
@@ -187,138 +241,165 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: "center",
-    borderRadius: 8,
+    borderRadius: 10,
   },
   tabActive: {
     backgroundColor: colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderLight,
+  },
+  tabContentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   tabText: {
     fontSize: 12,
-    fontWeight: "600",
+    fontWeight: "700",
     color: colors.textSecondary,
   },
   tabTextActive: {
-    color: colors.primary,
-    fontWeight: "700",
+    color: colors.sky,
   },
   simCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
+    backgroundColor: colors.surfaceCard,
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1.5,
     borderColor: colors.surfaceBorder,
     marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  simHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 12,
   },
   simHeading: {
     fontSize: 10,
     fontWeight: "800",
-    color: colors.textSecondary,
+    color: colors.sky,
     letterSpacing: 0.8,
-    marginBottom: 10,
   },
   simInputRow: {
     flexDirection: "row",
     gap: 10,
-    marginBottom: 10,
   },
   inputWrap: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surfaceLight,
-    borderRadius: 10,
-    paddingHorizontal: 12,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    paddingHorizontal: 12,
   },
   currencyPrefix: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.textSecondary,
-    marginRight: 4,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.sky,
+    marginRight: 6,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 18,
+    fontWeight: "800",
     color: colors.textPrimary,
     paddingVertical: 10,
+    fontVariant: ["tabular-nums"],
   },
   applyButton: {
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
+    backgroundColor: colors.sky,
+    borderRadius: 12,
+    paddingHorizontal: 18,
     justifyContent: "center",
-    borderRadius: 10,
+    alignItems: "center",
   },
   applyButtonText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: colors.background,
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.black,
+    letterSpacing: 0.3,
   },
   chipRow: {
     flexDirection: "row",
     gap: 8,
+    marginTop: 10,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    flex: 1,
+    paddingVertical: 7,
     backgroundColor: colors.surfaceLight,
+    borderRadius: 8,
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
   },
   chipActive: {
-    borderColor: colors.primary,
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+    backgroundColor: colors.skyLight,
+    borderColor: colors.skyGlow,
   },
   chipText: {
     fontSize: 11,
     fontWeight: "700",
     color: colors.textSecondary,
+    fontVariant: ["tabular-nums"],
   },
   chipTextActive: {
-    color: colors.primary,
+    color: colors.sky,
   },
   loadingBox: {
     height: 240,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    marginBottom: 16,
   },
   loadingText: {
     marginTop: 12,
-    color: colors.textSecondary,
     fontSize: 12,
+    color: colors.textSecondary,
   },
   metricsGrid: {
     flexDirection: "row",
     gap: 10,
+    marginTop: 16,
   },
   gridCol: {
     flex: 1,
   },
   guidanceCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
+    backgroundColor: colors.surfaceCard,
+    borderRadius: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
-    marginTop: 10,
+    borderColor: colors.surfaceBorderEmerald,
+    marginTop: 12,
+  },
+  guidanceCardAlert: {
+    borderColor: colors.dangerLight,
+    backgroundColor: "rgba(239, 68, 68, 0.06)",
+  },
+  guidanceHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
   },
   guidanceTitle: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "800",
-    color: colors.textSecondary,
     letterSpacing: 0.8,
-    marginBottom: 6,
   },
   guidanceText: {
-    fontSize: 13,
-    lineHeight: 19,
-    color: colors.textPrimary,
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.textSecondary,
   },
 });

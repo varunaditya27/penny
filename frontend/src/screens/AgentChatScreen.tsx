@@ -15,6 +15,14 @@ import { api } from "../services/api";
 import { colors } from "../theme/colors";
 import { DecisionCardView } from "../components/DecisionCardView";
 import { ApprovalModal } from "../components/ApprovalModal";
+import { PennyLogo } from "../components/PennyLogo";
+import {
+  CheckCircle,
+  Info,
+  PaperPlaneRight,
+  ShieldCheck,
+  Sparkle,
+} from "../components/icons";
 
 interface AgentChatScreenProps {
   initialQuery?: string;
@@ -28,8 +36,11 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
       id: "welcome_msg",
       role: "assistant",
       content:
-        "Hello! I am **Penny**, your agentic financial assistant.\n\nI combine 90-day forward cash flow simulation, mathematical safety invariants, and human-in-the-loop decision gating to give you honest affordability verdicts.\n\nHow can I help you today?",
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        "Hello! I am Penny, your agentic financial copilot.\n\nI run forward cash flow simulations and apply strict mathematical safety invariants before approving discretionary outlays. What would you like to evaluate today?",
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     },
   ]);
   const [inputText, setInputText] = useState<string>("");
@@ -52,7 +63,10 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
       id: userMsgId,
       role: "human",
       content: trimmed,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -95,7 +109,10 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
                       id: assistantMsgId,
                       role: "assistant",
                       content: accumulatedContent,
-                      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                      timestamp: new Date().toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }),
                     },
                   ];
                 }
@@ -120,7 +137,10 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
                     role: "assistant",
                     content: accumulatedContent,
                     decisionCard: accumulatedDecisionCard,
-                    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+                    timestamp: new Date().toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }),
                   },
                 ];
               }
@@ -157,8 +177,12 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
         {
           id: `err_${Date.now()}`,
           role: "assistant",
-          content: "Sorry, I encountered an error communicating with the financial reasoning graph.",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          content:
+            "I encountered a temporary disruption communicating with the reasoning cluster. Deterministic fallback engaged.",
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         },
       ]);
     } finally {
@@ -175,7 +199,6 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
 
   const handleApproveAction = async () => {
     if (!pendingApproval) return;
-    const approval = pendingApproval;
     setPendingApproval(null);
 
     try {
@@ -189,8 +212,11 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
         {
           id: `appr_${Date.now()}`,
           role: "assistant",
-          content: `✅ **Confirmed**: ${res.response_message || "Adjustments applied to your profile."}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          content: `Authorized: ${res.response_message || "Adjustments applied to your spending policy."}`,
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         },
       ]);
     } catch (err) {
@@ -213,8 +239,11 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
         {
           id: `rej_${Date.now()}`,
           role: "assistant",
-          content: `ℹ️ **Declined**: ${res.response_message || "No changes were applied."}`,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          content: `Declined: ${res.response_message || "No modifications were enacted."}`,
+          timestamp: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
         },
       ]);
     } catch (err) {
@@ -240,7 +269,10 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           {/* Assistant Header Tag */}
           {!isUser ? (
             <View style={styles.asstTagRow}>
-              <Text style={styles.asstTagText}>🪙 PENNY REASONING</Text>
+              <View style={styles.asstBrandTag}>
+                <PennyLogo size={15} showTrajectory={false} />
+                <Text style={styles.asstTagText}>PENNY AI</Text>
+              </View>
               <Text style={styles.timestampText}>{item.timestamp}</Text>
             </View>
           ) : null}
@@ -248,9 +280,12 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           {item.content ? (
             <Text style={styles.messageContent}>{item.content}</Text>
           ) : isStreaming ? (
-            <Text style={[styles.messageContent, { fontStyle: "italic", color: colors.textMuted }]}>
-              {agentStatus || "Reasoning..."}
-            </Text>
+            <View style={styles.reasoningRow}>
+              <ActivityIndicator size="small" color={colors.violet} />
+              <Text style={styles.reasoningPlaceholder}>
+                {agentStatus || "Synthesizing cash flow invariant..."}
+              </Text>
+            </View>
           ) : null}
 
           {/* Embedded Structured Decision Card */}
@@ -263,9 +298,12 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           {/* Inline Action Gate */}
           {item.pendingApproval ? (
             <View style={styles.inlineActionGate}>
-              <Text style={styles.actionGateTitle}>
-                ⚠️ CONFIRMATION REQUIRED
-              </Text>
+              <View style={styles.gateHeader}>
+                <ShieldCheck size={16} color={colors.gold} weight="duotone" />
+                <Text style={styles.actionGateTitle}>
+                  AUTHORIZATION REQUIRED
+                </Text>
+              </View>
               <Text style={styles.actionGateDesc}>
                 {item.pendingApproval.action_description}
               </Text>
@@ -314,36 +352,37 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
       {/* Streaming Agent Status Bar */}
       {agentStatus ? (
         <View style={styles.agentStatusBar}>
-          <ActivityIndicator size="small" color={colors.accent} />
+          <Sparkle size={12} color={colors.violet} weight="fill" />
           <Text style={styles.agentStatusText}>{agentStatus}</Text>
         </View>
       ) : null}
 
-      {/* Suggested Prompts */}
+      {/* Suggested Quick Prompts */}
       <View style={styles.suggestionsRow}>
         {[
           "Can I afford a $350 tablet?",
-          "Show 90-day cash flow forecast",
-          "How can I cut expenses to save $200?",
+          "Show 90-day cash forecast",
+          "Cut flexible expenses by $200",
         ].map((prompt, i) => (
           <TouchableOpacity
             key={i}
             style={styles.suggestionChip}
             onPress={() => sendMessage(prompt)}
             disabled={isStreaming}
+            activeOpacity={0.8}
           >
             <Text style={styles.suggestionText}>{prompt}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Input Bar */}
+      {/* Luxury Input Bar */}
       <View style={styles.inputBar}>
         <TextInput
           style={styles.textInput}
           value={inputText}
           onChangeText={setInputText}
-          placeholder="Ask Penny about affordability, forecast, or budget..."
+          placeholder="Ask Penny about liquidity, forecast, or affordability..."
           placeholderTextColor={colors.textMuted}
           multiline
         />
@@ -354,8 +393,13 @@ export const AgentChatScreen: React.FC<AgentChatScreenProps> = ({
           ]}
           onPress={() => sendMessage(inputText)}
           disabled={!inputText.trim() || isStreaming}
+          activeOpacity={0.8}
         >
-          <Text style={styles.sendIcon}>➤</Text>
+          <PaperPlaneRight
+            size={16}
+            color={!inputText.trim() || isStreaming ? colors.textMuted : colors.black}
+            weight="fill"
+          />
         </TouchableOpacity>
       </View>
 
@@ -396,18 +440,25 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     maxWidth: "88%",
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 14,
   },
   bubbleUser: {
-    backgroundColor: colors.primaryDark,
+    backgroundColor: colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderLight,
     borderBottomRightRadius: 4,
   },
   bubbleAsst: {
-    backgroundColor: colors.surface,
-    borderBottomLeftRadius: 4,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    borderBottomLeftRadius: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
   },
   asstTagRow: {
     flexDirection: "row",
@@ -416,13 +467,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceBorder,
-    paddingBottom: 4,
+    paddingBottom: 6,
+  },
+  asstBrandTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   asstTagText: {
-    fontSize: 9,
+    fontSize: 10,
     fontWeight: "800",
-    color: colors.primary,
-    letterSpacing: 0.8,
+    color: colors.gold,
+    letterSpacing: 1,
   },
   timestampText: {
     fontSize: 10,
@@ -430,37 +486,53 @@ const styles = StyleSheet.create({
   },
   userTimestamp: {
     fontSize: 10,
-    color: "rgba(255, 255, 255, 0.6)",
+    color: colors.textMuted,
     textAlign: "right",
     marginTop: 4,
   },
   messageContent: {
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: 13,
+    lineHeight: 20,
     color: colors.textPrimary,
+  },
+  reasoningRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 4,
+  },
+  reasoningPlaceholder: {
+    fontSize: 12,
+    fontStyle: "italic",
+    color: colors.violet,
   },
   embeddedCard: {
     marginTop: 12,
   },
   inlineActionGate: {
     backgroundColor: colors.surfaceLight,
-    borderRadius: 12,
-    padding: 12,
-    marginTop: 10,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.warning,
+    borderRadius: 14,
+    padding: 14,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderActive,
+  },
+  gateHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 6,
   },
   actionGateTitle: {
     fontSize: 10,
     fontWeight: "800",
-    color: colors.warning,
+    color: colors.gold,
     letterSpacing: 0.8,
-    marginBottom: 4,
   },
   actionGateDesc: {
     fontSize: 12,
-    color: colors.textPrimary,
     lineHeight: 17,
+    color: colors.textPrimary,
     marginBottom: 10,
   },
   actionGateButtons: {
@@ -469,9 +541,9 @@ const styles = StyleSheet.create({
   },
   gateRejectBtn: {
     flex: 1,
-    backgroundColor: colors.surface,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 8,
+    backgroundColor: colors.surface,
     alignItems: "center",
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
@@ -483,85 +555,89 @@ const styles = StyleSheet.create({
   },
   gateApproveBtn: {
     flex: 1,
-    backgroundColor: colors.warning,
     paddingVertical: 8,
-    borderRadius: 6,
+    borderRadius: 8,
+    backgroundColor: colors.gold,
     alignItems: "center",
   },
   gateApproveText: {
     fontSize: 11,
     fontWeight: "800",
-    color: colors.background,
+    color: colors.black,
   },
   agentStatusBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surfaceLight,
-    paddingHorizontal: 16,
+    backgroundColor: colors.violetLight,
+    paddingHorizontal: 14,
     paddingVertical: 6,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceBorder,
+    marginHorizontal: 16,
+    marginBottom: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.violetGlow,
+    gap: 6,
   },
   agentStatusText: {
     fontSize: 11,
-    fontWeight: "600",
-    color: colors.accent,
-    marginLeft: 8,
+    fontWeight: "700",
+    color: colors.violet,
   },
   suggestionsRow: {
     flexDirection: "row",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: colors.background,
-    gap: 8,
+    paddingHorizontal: 16,
+    gap: 6,
+    marginBottom: 8,
   },
   suggestionChip: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    backgroundColor: colors.surfaceCard,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
   suggestionText: {
     fontSize: 11,
+    fontWeight: "600",
     color: colors.textSecondary,
   },
   inputBar: {
     flexDirection: "row",
-    padding: 10,
-    paddingHorizontal: 14,
-    backgroundColor: colors.surface,
+    alignItems: "center",
+    backgroundColor: colors.surfaceCard,
     borderTopWidth: 1,
     borderTopColor: colors.surfaceBorder,
-    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    gap: 10,
   },
   textInput: {
     flex: 1,
     backgroundColor: colors.surfaceLight,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
     borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    fontSize: 13,
     color: colors.textPrimary,
-    fontSize: 14,
     maxHeight: 90,
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: colors.gold,
     justifyContent: "center",
     alignItems: "center",
-    marginLeft: 10,
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   sendButtonDisabled: {
     backgroundColor: colors.surfaceLight,
-    opacity: 0.5,
-  },
-  sendIcon: {
-    fontSize: 16,
-    color: colors.background,
-    fontWeight: "800",
+    shadowOpacity: 0,
   },
 });

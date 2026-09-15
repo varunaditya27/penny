@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 import { PennyLogo } from "./PennyLogo";
+import { SparkleIcon } from "./icons";
 
 interface HeaderProps {
   title: string;
@@ -16,21 +17,24 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <View style={styles.container}>
-      <View>
+      <View style={styles.leftCol}>
         <View style={styles.brandRow}>
           <View style={styles.logoBadge}>
-            <PennyLogo size={20} />
+            <PennyLogo size={22} showTrajectory={false} />
           </View>
           <Text style={styles.brandName}>PENNY</Text>
           <View style={styles.liveTag}>
             <View style={styles.liveDot} />
-            <Text style={styles.liveText}>AI ACTIVE</Text>
+            <SparkleIcon size={10} color={colors.emerald} />
+            <Text style={styles.liveText}>MULTI-AGENT</Text>
           </View>
         </View>
         <Text style={styles.title}>{title}</Text>
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
+
       <View style={styles.userBadge}>
+        <View style={styles.userDot} />
         <Text style={styles.userText}>{userId.toUpperCase()}</Text>
       </View>
     </View>
@@ -40,14 +44,18 @@ export const Header: React.FC<HeaderProps> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 12,
+    paddingTop: 14,
+    paddingBottom: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     backgroundColor: colors.background,
     borderBottomWidth: 1,
-    borderBottomColor: colors.divider,
+    borderBottomColor: colors.surfaceBorder,
+  },
+  leftCol: {
+    flex: 1,
+    paddingRight: 12,
   },
   brandRow: {
     flexDirection: "row",
@@ -55,70 +63,80 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   logoBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
+    width: 26,
+    height: 26,
+    borderRadius: 7,
     backgroundColor: colors.surfaceLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 8,
-  },
-  logoText: {
-    fontSize: 14,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderLight,
   },
   brandName: {
     fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 1.5,
-    color: colors.primary,
+    fontWeight: "900",
+    letterSpacing: 2,
+    color: colors.gold,
     marginRight: 10,
   },
   liveTag: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(16, 185, 129, 0.12)",
+    backgroundColor: colors.emeraldLight,
     paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
+    paddingVertical: 3,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderColor: colors.surfaceBorderEmerald,
+    gap: 4,
   },
   liveDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: colors.success,
-    marginRight: 5,
+    backgroundColor: colors.emerald,
   },
   liveText: {
     fontSize: 9,
-    fontWeight: "700",
-    color: colors.success,
-    letterSpacing: 0.5,
+    fontWeight: "800",
+    color: colors.emerald,
+    letterSpacing: 0.6,
   },
   title: {
-    fontSize: 22,
-    fontWeight: "700",
+    fontSize: 21,
+    fontWeight: "800",
     color: colors.textPrimary,
+    letterSpacing: -0.3,
   },
   subtitle: {
-    fontSize: 13,
+    fontSize: 12,
     color: colors.textSecondary,
     marginTop: 2,
+    lineHeight: 16,
   },
   userBadge: {
-    backgroundColor: colors.surfaceLight,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surfaceCard,
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingVertical: 5,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
     marginTop: 4,
+    gap: 6,
+  },
+  userDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.gold,
   },
   userText: {
     fontSize: 11,
     fontWeight: "700",
     color: colors.textSecondary,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
   },
 });

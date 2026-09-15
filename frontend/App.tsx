@@ -1,17 +1,18 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "./src/components/Header";
 import { DashboardScreen } from "./src/screens/DashboardScreen";
 import { TrajectoryScreen } from "./src/screens/TrajectoryScreen";
 import { AffordabilityScreen } from "./src/screens/AffordabilityScreen";
 import { AgentChatScreen } from "./src/screens/AgentChatScreen";
+import {
+  CreditCard,
+  Sparkle,
+  TrendUp,
+  Wallet,
+} from "./src/components/icons";
 import { colors } from "./src/theme/colors";
 
 type NavigationTab = "dashboard" | "trajectory" | "affordability" | "chat";
@@ -23,13 +24,25 @@ export default function App() {
   const getScreenTitle = () => {
     switch (currentTab) {
       case "dashboard":
-        return { title: "Financial Overview", subtitle: "Real-time liquidity and reserve buffer" };
+        return {
+          title: "Liquidity Overview",
+          subtitle: "Real-time cash headroom and reserve protection",
+        };
       case "trajectory":
-        return { title: "90-Day Trajectory", subtitle: "Dynamic balance simulation and dip analysis" };
+        return {
+          title: "90-Day Trajectory",
+          subtitle: "Dynamic cash flow simulation and reserve floor dip",
+        };
       case "affordability":
-        return { title: "Affordability Engine", subtitle: "Invariants check & payment plan optimizer" };
+        return {
+          title: "Affordability Studio",
+          subtitle: "Purchase evaluation and payment plan optimizer",
+        };
       case "chat":
-        return { title: "Penny AI Assistant", subtitle: "Multi-agent financial reasoning brain" };
+        return {
+          title: "Penny Multi-Agent",
+          subtitle: "Reasoning engine with human-in-the-loop decision gating",
+        };
     }
   };
 
@@ -60,73 +73,134 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
-      <Header
-        title={navHeader.title}
-        subtitle={navHeader.subtitle}
-        userId="user_01"
-      />
+      <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+        <StatusBar style="light" />
+        <Header
+          title={navHeader.title}
+          subtitle={navHeader.subtitle}
+          userId="user_01"
+        />
 
-      <View style={styles.contentContainer}>{renderActiveScreen()}</View>
+        <View style={styles.contentContainer}>{renderActiveScreen()}</View>
 
-      {/* Bottom Navigation Bar */}
-      <View style={styles.navBar}>
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab("dashboard")}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.navIcon, currentTab === "dashboard" && styles.navIconActive]}>
-            📊
-          </Text>
-          <Text style={[styles.navLabel, currentTab === "dashboard" && styles.navLabelActive]}>
-            Dashboard
-          </Text>
-        </TouchableOpacity>
+        {/* Floating Frosted Glass Dock */}
+        <View style={styles.dockWrapper}>
+          <View style={styles.dockContainer}>
+            {/* Tab 1: Dashboard / Liquidity */}
+            <TouchableOpacity
+              style={styles.dockItem}
+              onPress={() => setCurrentTab("dashboard")}
+              activeOpacity={0.7}
+            >
+              <Wallet
+                size={22}
+                color={
+                  currentTab === "dashboard"
+                    ? colors.emerald
+                    : colors.textSecondary
+                }
+                weight={currentTab === "dashboard" ? "duotone" : "regular"}
+              />
+              <Text
+                style={[
+                  styles.dockLabel,
+                  currentTab === "dashboard" && styles.dockLabelActive,
+                ]}
+              >
+                Liquidity
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab("trajectory")}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.navIcon, currentTab === "trajectory" && styles.navIconActive]}>
-            📈
-          </Text>
-          <Text style={[styles.navLabel, currentTab === "trajectory" && styles.navLabelActive]}>
-            Trajectory
-          </Text>
-        </TouchableOpacity>
+            {/* Tab 2: Trajectory / Forecast */}
+            <TouchableOpacity
+              style={styles.dockItem}
+              onPress={() => setCurrentTab("trajectory")}
+              activeOpacity={0.7}
+            >
+              <TrendUp
+                size={22}
+                color={
+                  currentTab === "trajectory"
+                    ? colors.sky
+                    : colors.textSecondary
+                }
+                weight={currentTab === "trajectory" ? "duotone" : "regular"}
+              />
+              <Text
+                style={[
+                  styles.dockLabel,
+                  currentTab === "trajectory" && [
+                    styles.dockLabelActive,
+                    { color: colors.sky },
+                  ],
+                ]}
+              >
+                Forecast
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab("affordability")}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.navIcon, currentTab === "affordability" && styles.navIconActive]}>
-            💳
-          </Text>
-          <Text style={[styles.navLabel, currentTab === "affordability" && styles.navLabelActive]}>
-            Afford
-          </Text>
-        </TouchableOpacity>
+            {/* Elevated Centerpiece Tab: Penny AI */}
+            <TouchableOpacity
+              style={styles.centerDockItem}
+              onPress={() => setCurrentTab("chat")}
+              activeOpacity={0.8}
+            >
+              <View
+                style={[
+                  styles.centerGlowRing,
+                  currentTab === "chat" && styles.centerGlowRingActive,
+                ]}
+              >
+                <View style={styles.centerButton}>
+                  <Sparkle
+                    size={24}
+                    color={
+                      currentTab === "chat" ? colors.black : colors.gold
+                    }
+                    weight="fill"
+                  />
+                </View>
+              </View>
+              <Text
+                style={[
+                  styles.dockLabel,
+                  styles.centerLabel,
+                  currentTab === "chat" && { color: colors.gold, fontWeight: "800" },
+                ]}
+              >
+                Penny AI
+              </Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.navItem}
-          onPress={() => setCurrentTab("chat")}
-          activeOpacity={0.7}
-        >
-          <View style={styles.chatIconWrap}>
-            <Text style={[styles.navIcon, currentTab === "chat" && styles.navIconActive]}>
-              💬
-            </Text>
-            <View style={styles.aiBadgeDot} />
+            {/* Tab 4: Affordability */}
+            <TouchableOpacity
+              style={styles.dockItem}
+              onPress={() => setCurrentTab("affordability")}
+              activeOpacity={0.7}
+            >
+              <CreditCard
+                size={22}
+                color={
+                  currentTab === "affordability"
+                    ? colors.gold
+                    : colors.textSecondary
+                }
+                weight={currentTab === "affordability" ? "duotone" : "regular"}
+              />
+              <Text
+                style={[
+                  styles.dockLabel,
+                  currentTab === "affordability" && [
+                    styles.dockLabelActive,
+                    { color: colors.gold },
+                  ],
+                ]}
+              >
+                Afford
+              </Text>
+            </TouchableOpacity>
           </View>
-          <Text style={[styles.navLabel, currentTab === "chat" && styles.navLabelActive]}>
-            Penny AI
-          </Text>
-        </TouchableOpacity>
-      </View>
+        </View>
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -140,48 +214,82 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  navBar: {
+  dockWrapper: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+    paddingTop: 8,
+    backgroundColor: "transparent",
+  },
+  dockContainer: {
     flexDirection: "row",
-    backgroundColor: colors.surface,
-    borderTopWidth: 1,
-    borderTopColor: colors.surfaceBorder,
-    paddingVertical: 10,
-    paddingBottom: 14,
+    backgroundColor: "rgba(14, 20, 32, 0.94)",
+    borderRadius: 28,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderLight,
     justifyContent: "space-around",
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 8,
   },
-  navItem: {
+  dockItem: {
     alignItems: "center",
+    justifyContent: "center",
     flex: 1,
+    paddingVertical: 4,
   },
-  navIcon: {
-    fontSize: 20,
-    marginBottom: 3,
-    opacity: 0.6,
-  },
-  navIconActive: {
-    opacity: 1,
-    transform: [{ scale: 1.1 }],
-  },
-  navLabel: {
-    fontSize: 11,
+  dockLabel: {
+    fontSize: 10,
     fontWeight: "600",
     color: colors.textSecondary,
+    marginTop: 4,
+    letterSpacing: 0.2,
   },
-  navLabelActive: {
-    color: colors.primary,
+  dockLabelActive: {
+    color: colors.emerald,
     fontWeight: "700",
   },
-  chatIconWrap: {
-    position: "relative",
+  centerDockItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1.2,
+    marginTop: -16,
   },
-  aiBadgeDot: {
-    position: "absolute",
-    top: -2,
-    right: -4,
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: colors.accent,
+  centerGlowRing: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: colors.surfaceLight,
+    borderWidth: 1.5,
+    borderColor: colors.surfaceBorderActive,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  centerGlowRingActive: {
+    backgroundColor: colors.gold,
+    borderColor: colors.white,
+    shadowOpacity: 0.7,
+    shadowRadius: 14,
+  },
+  centerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(10, 14, 24, 0.85)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  centerLabel: {
+    marginTop: 2,
+    fontSize: 10,
   },
 });

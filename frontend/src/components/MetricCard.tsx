@@ -2,13 +2,13 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../theme/colors";
 
-interface MetricCardProps {
+export interface MetricCardProps {
   label: string;
   value: string;
   subValue?: string;
-  icon?: string;
+  icon?: React.ReactNode;
   badgeText?: string;
-  variant?: "default" | "success" | "warning" | "danger" | "accent";
+  variant?: "default" | "success" | "warning" | "danger" | "accent" | "gold";
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -19,113 +19,149 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   badgeText,
   variant = "default",
 }) => {
-  const getBorderColor = () => {
+  const getVariantStyles = () => {
     switch (variant) {
       case "success":
-        return colors.success;
+        return {
+          badgeBg: colors.emeraldLight,
+          badgeColor: colors.emerald,
+          dotColor: colors.emerald,
+          borderColor: colors.surfaceBorderEmerald,
+        };
       case "warning":
-        return colors.warning;
+      case "gold":
+        return {
+          badgeBg: colors.goldLight,
+          badgeColor: colors.gold,
+          dotColor: colors.gold,
+          borderColor: colors.surfaceBorderActive,
+        };
       case "danger":
-        return colors.danger;
+        return {
+          badgeBg: colors.dangerLight,
+          badgeColor: colors.danger,
+          dotColor: colors.danger,
+          borderColor: colors.dangerLight,
+        };
       case "accent":
-        return colors.accent;
+        return {
+          badgeBg: colors.violetLight,
+          badgeColor: colors.violet,
+          dotColor: colors.violet,
+          borderColor: colors.violetLight,
+        };
       default:
-        return colors.surfaceBorder;
+        return {
+          badgeBg: colors.surfaceLight,
+          badgeColor: colors.textSecondary,
+          dotColor: colors.textDim,
+          borderColor: colors.surfaceBorder,
+        };
     }
   };
 
-  const getBadgeStyle = () => {
-    switch (variant) {
-      case "success":
-        return { backgroundColor: colors.successLight, color: colors.success };
-      case "warning":
-        return { backgroundColor: colors.warningLight, color: colors.warning };
-      case "danger":
-        return { backgroundColor: colors.dangerLight, color: colors.danger };
-      case "accent":
-        return { backgroundColor: colors.accentLight, color: colors.accent };
-      default:
-        return { backgroundColor: colors.surfaceLight, color: colors.textSecondary };
-    }
-  };
-
-  const badgeTheme = getBadgeStyle();
+  const vStyles = getVariantStyles();
 
   return (
-    <View style={[styles.card, { borderLeftColor: getBorderColor(), borderLeftWidth: 4 }]}>
+    <View style={[styles.card, { borderColor: vStyles.borderColor }]}>
       <View style={styles.topRow}>
         <View style={styles.labelContainer}>
-          {icon ? <Text style={styles.icon}>{icon}</Text> : null}
-          <Text style={styles.label}>{label}</Text>
+          {icon ? <View style={styles.iconContainer}>{icon}</View> : null}
+          <Text style={styles.label} numberOfLines={1}>
+            {label}
+          </Text>
         </View>
         {badgeText ? (
-          <View style={[styles.badge, { backgroundColor: badgeTheme.backgroundColor }]}>
-            <Text style={[styles.badgeText, { color: badgeTheme.color }]}>
+          <View style={[styles.badge, { backgroundColor: vStyles.badgeBg }]}>
+            <Text style={[styles.badgeText, { color: vStyles.badgeColor }]}>
               {badgeText}
             </Text>
           </View>
-        ) : null}
+        ) : (
+          <View style={[styles.statusDot, { backgroundColor: vStyles.dotColor }]} />
+        )}
       </View>
-      <Text style={styles.value}>{value}</Text>
-      {subValue ? <Text style={styles.subValue}>{subValue}</Text> : null}
+      <Text style={styles.value} numberOfLines={1}>
+        {value}
+      </Text>
+      {subValue ? (
+        <Text style={styles.subValue} numberOfLines={2}>
+          {subValue}
+        </Text>
+      ) : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceCard,
     borderRadius: 14,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 3,
   },
   topRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   labelContainer: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
-  icon: {
-    fontSize: 14,
-    marginRight: 6,
+  iconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: colors.surfaceLight,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   label: {
-    fontSize: 12,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "700",
     color: colors.textSecondary,
     textTransform: "uppercase",
     letterSpacing: 0.8,
+    flex: 1,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   badgeText: {
-    fontSize: 10,
-    fontWeight: "700",
+    fontSize: 9,
+    fontWeight: "800",
     letterSpacing: 0.5,
   },
   value: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: "800",
     color: colors.textPrimary,
-    letterSpacing: 0.5,
+    letterSpacing: -0.5,
+    fontVariant: ["tabular-nums"],
   },
   subValue: {
     fontSize: 12,
     color: colors.textMuted,
     marginTop: 4,
+    lineHeight: 16,
   },
 });

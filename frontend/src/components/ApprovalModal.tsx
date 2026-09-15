@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../theme/colors";
+import { CheckCircle, ShieldCheck, TrendUp, XCircle } from "./icons";
 
 interface ApprovalModalProps {
   visible: boolean;
@@ -32,19 +33,32 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
         <View style={styles.card}>
           <View style={styles.headerRow}>
             <View style={styles.iconCircle}>
-              <Text style={styles.iconText}>🛡️</Text>
+              <ShieldCheck size={24} color={colors.gold} weight="duotone" />
             </View>
             <View style={styles.headerTitles}>
-              <Text style={styles.badgeText}>HUMAN-IN-THE-LOOP APPROVAL</Text>
+              <View style={styles.badgeRow}>
+                <View style={styles.liveDot} />
+                <Text style={styles.badgeText}>HUMAN-IN-THE-LOOP GATE</Text>
+              </View>
               <Text style={styles.title}>Confirm Financial Mutation</Text>
             </View>
+            <TouchableOpacity
+              onPress={onClose}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              style={styles.closeBtn}
+            >
+              <XCircle size={20} color={colors.textMuted} weight="regular" />
+            </TouchableOpacity>
           </View>
 
           <Text style={styles.description}>{actionDescription}</Text>
 
           {estimatedSavings ? (
             <View style={styles.savingsBox}>
-              <Text style={styles.savingsLabel}>UNLOCKED MONTHLY HEADROOM</Text>
+              <View style={styles.savingsHeader}>
+                <TrendUp size={14} color={colors.emerald} weight="bold" />
+                <Text style={styles.savingsLabel}>UNLOCKED MONTHLY HEADROOM</Text>
+              </View>
               <Text style={styles.savingsValue}>
                 +${estimatedSavings.toFixed(2)}/mo
               </Text>
@@ -52,10 +66,10 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
           ) : null}
 
           <View style={styles.changesSection}>
-            <Text style={styles.sectionHeading}>PROPOSED ADJUSTMENTS:</Text>
+            <Text style={styles.sectionHeading}>PROPOSED ADJUSTMENTS</Text>
             {proposedChanges.map((change, idx) => (
               <View key={idx} style={styles.changeRow}>
-                <Text style={styles.changeBullet}>•</Text>
+                <CheckCircle size={14} color={colors.emerald} weight="duotone" />
                 <Text style={styles.changeText}>{change}</Text>
               </View>
             ))}
@@ -74,7 +88,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
               onPress={onApprove}
               activeOpacity={0.8}
             >
-              <Text style={styles.approveText}>Approve Changes</Text>
+              <Text style={styles.approveText}>Authorize Changes</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -86,7 +100,7 @@ export const ApprovalModal: React.FC<ApprovalModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(3, 7, 16, 0.8)",
+    backgroundColor: "rgba(5, 8, 14, 0.85)",
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -94,16 +108,16 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: 20,
-    padding: 20,
+    padding: 22,
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 420,
     borderWidth: 1.5,
-    borderColor: colors.warning,
+    borderColor: colors.surfaceBorderActive,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
   },
   headerRow: {
     flexDirection: "row",
@@ -113,100 +127,118 @@ const styles = StyleSheet.create({
   iconCircle: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.warningLight,
+    borderRadius: 12,
+    backgroundColor: colors.goldLight,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
-  },
-  iconText: {
-    fontSize: 20,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderActive,
   },
   headerTitles: {
     flex: 1,
   },
+  badgeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  liveDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: colors.gold,
+  },
   badgeText: {
     fontSize: 9,
     fontWeight: "800",
-    color: colors.warning,
+    color: colors.gold,
     letterSpacing: 0.8,
   },
   title: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "800",
     color: colors.textPrimary,
     marginTop: 2,
+  },
+  closeBtn: {
+    padding: 4,
   },
   description: {
     fontSize: 13,
     lineHeight: 19,
     color: colors.textSecondary,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   savingsBox: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: colors.emeraldLight,
+    borderRadius: 12,
     padding: 12,
-    borderRadius: 10,
-    marginBottom: 14,
-    borderLeftWidth: 3,
-    borderLeftColor: colors.success,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorderEmerald,
+    marginBottom: 16,
+  },
+  savingsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 2,
   },
   savingsLabel: {
     fontSize: 10,
-    fontWeight: "700",
-    color: colors.textMuted,
-    letterSpacing: 0.5,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    color: colors.emerald,
   },
   savingsValue: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "800",
-    color: colors.success,
+    color: colors.emerald,
     marginTop: 2,
+    fontVariant: ["tabular-nums"],
   },
   changesSection: {
     backgroundColor: colors.surfaceLight,
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 18,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   sectionHeading: {
     fontSize: 10,
-    fontWeight: "700",
-    color: colors.textMuted,
-    letterSpacing: 0.5,
-    marginBottom: 6,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    color: colors.textSecondary,
+    marginBottom: 10,
   },
   changeRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 4,
-  },
-  changeBullet: {
-    color: colors.primary,
-    fontSize: 14,
-    marginRight: 6,
-    lineHeight: 18,
+    marginBottom: 8,
+    gap: 8,
   },
   changeText: {
-    flex: 1,
     fontSize: 12,
-    color: colors.textPrimary,
     lineHeight: 17,
+    color: colors.textPrimary,
+    flex: 1,
   },
   actionsRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
   button: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingVertical: 13,
+    borderRadius: 12,
     alignItems: "center",
+    justifyContent: "center",
   },
   rejectButton: {
     backgroundColor: colors.surfaceLight,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: colors.surfaceBorderLight,
   },
   rejectText: {
     fontSize: 13,
@@ -214,11 +246,17 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   approveButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.gold,
+    shadowColor: colors.gold,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 3,
   },
   approveText: {
     fontSize: 13,
-    fontWeight: "700",
-    color: colors.background,
+    fontWeight: "800",
+    color: colors.black,
+    letterSpacing: 0.2,
   },
 });

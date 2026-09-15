@@ -308,7 +308,7 @@ export class PennyApiClient {
           event: "token",
           data: {
             delta:
-              "### ⚠️ AFFORDABLE WITH PAYMENT PLAN\n\n- **Safe to Spend Upfront**: $500.00\n- **Recommended Plan**: 2 Installments of $400.00\n- **Lowest Projected Buffer**: $1,620.00 (Reserve: $1,500.00)\n\nPaying in installments avoids a liquidity dip on March 28th before your next payday.",
+              "### AFFORDABLE WITH PAYMENT PLAN\n\n- **Safe to Spend Upfront**: $500.00\n- **Recommended Plan**: 2 Installments of $400.00\n- **Lowest Projected Buffer**: $1,620.00 (Reserve: $1,500.00)\n\nPaying in installments avoids a liquidity dip on March 28th before your next payday.",
           },
         });
       } else {
@@ -330,7 +330,7 @@ export class PennyApiClient {
           event: "token",
           data: {
             delta:
-              "### ✅ AFFORDABLE NOW\n\n- **Safe to Spend**: $150.00\n- **Recommended Method**: `full_payment`\n- **Lowest 90-Day Balance**: $2,720.00 (Safety Buffer: $1,500.00)\n\nYou can make this purchase immediately without jeopardizing any scheduled bills or your emergency cushion.",
+              "### AFFORDABLE NOW\n\n- **Safe to Spend**: $150.00\n- **Recommended Method**: `full_payment`\n- **Lowest 90-Day Balance**: $2,720.00 (Safety Buffer: $1,500.00)\n\nYou can make this purchase immediately without jeopardizing any scheduled bills or your emergency cushion.",
           },
         });
       }

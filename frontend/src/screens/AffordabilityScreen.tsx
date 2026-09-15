@@ -13,6 +13,14 @@ import { AffordabilityResponse } from "../types";
 import { api } from "../services/api";
 import { colors } from "../theme/colors";
 import { DecisionCardView } from "../components/DecisionCardView";
+import {
+  Calendar,
+  ChatCircle,
+  CreditCard,
+  Receipt,
+  Sparkle,
+  TrendUp,
+} from "../components/icons";
 
 interface AffordabilityScreenProps {
   onNavigateToChat: (initialQuery?: string) => void;
@@ -26,7 +34,9 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
   const [amount, setAmount] = useState<string>("250");
   const [targetDate, setTargetDate] = useState<string>("2026-03-31");
   const [allowsPartial, setAllowsPartial] = useState<boolean>(true);
-  const [description, setDescription] = useState<string>("Bose Noise Cancelling Headphones");
+  const [description, setDescription] = useState<string>(
+    "Bose Noise Cancelling Headphones"
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [decision, setDecision] = useState<AffordabilityResponse | null>(null);
 
@@ -51,11 +61,16 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
     }
   };
 
+  const quickPresets = [250, 750, 1500, 3000];
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Input Form Card */}
+      {/* Input Form Glass Studio */}
       <View style={styles.formCard}>
-        <Text style={styles.formTitle}>PURCHASE AFFORDABILITY SIMULATOR</Text>
+        <View style={styles.formHeaderRow}>
+          <CreditCard size={16} color={colors.gold} weight="duotone" />
+          <Text style={styles.formTitle}>PURCHASE AFFORDABILITY SIMULATOR</Text>
+        </View>
 
         {/* Item Description */}
         <Text style={styles.fieldLabel}>ITEM OR EXPENSE DESCRIPTION</Text>
@@ -81,9 +96,9 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
           />
         </View>
 
-        {/* Preset Chips */}
+        {/* Tactile Quick Amount Chips */}
         <View style={styles.chipRow}>
-          {[75, 250, 600, 1200].map((preset) => (
+          {quickPresets.map((preset) => (
             <TouchableOpacity
               key={preset}
               style={[
@@ -91,6 +106,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
                 amount === preset.toString() && styles.chipActive,
               ]}
               onPress={() => setAmount(preset.toString())}
+              activeOpacity={0.8}
             >
               <Text
                 style={[
@@ -98,7 +114,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
                   amount === preset.toString() && styles.chipTextActive,
                 ]}
               >
-                ${preset}
+                ${preset.toLocaleString()}
               </Text>
             </TouchableOpacity>
           ))}
@@ -106,28 +122,34 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
 
         {/* Target Completion Date */}
         <Text style={[styles.fieldLabel, { marginTop: 14 }]}>
-          TARGET COMPLETION DATE (YYYY-MM-DD)
+          TARGET COMPLETION DATE
         </Text>
-        <TextInput
-          style={styles.textInput}
-          value={targetDate}
-          onChangeText={setTargetDate}
-          placeholder="2026-03-31"
-          placeholderTextColor={colors.textMuted}
-        />
+        <View style={styles.dateInputContainer}>
+          <Calendar size={16} color={colors.textMuted} weight="duotone" />
+          <TextInput
+            style={styles.dateInput}
+            value={targetDate}
+            onChangeText={setTargetDate}
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
 
         {/* Allow Partial / Installments Toggle */}
         <View style={styles.toggleRow}>
           <View style={styles.toggleTextContainer}>
-            <Text style={styles.toggleLabel}>Allow Installment Plans</Text>
+            <View style={styles.toggleTitleRow}>
+              <Receipt size={14} color={colors.sky} weight="duotone" />
+              <Text style={styles.toggleLabel}>Allow Installment Plans</Text>
+            </View>
             <Text style={styles.toggleSubtext}>
-              Evaluate split payments if full upfront payment breaches reserve
+              Optimize split payments if upfront charge breaches minimum reserve
             </Text>
           </View>
           <Switch
             value={allowsPartial}
             onValueChange={setAllowsPartial}
-            trackColor={{ false: colors.surfaceBorder, true: colors.primary }}
+            trackColor={{ false: colors.surfaceLight, true: colors.gold }}
             thumbColor={colors.white}
           />
         </View>
@@ -140,16 +162,19 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator size="small" color={colors.background} />
+            <ActivityIndicator size="small" color={colors.black} />
           ) : (
-            <Text style={styles.evaluateButtonText}>
-              Evaluate Affordability Invariant
-            </Text>
+            <View style={styles.btnContentRow}>
+              <Sparkle size={16} color={colors.black} weight="fill" />
+              <Text style={styles.evaluateButtonText}>
+                Simulate Affordability Invariant
+              </Text>
+            </View>
           )}
         </TouchableOpacity>
       </View>
 
-      {/* Decision Card Output */}
+      {/* Decision Output Card */}
       {decision ? (
         <View style={styles.resultSection}>
           <Text style={styles.resultHeading}>AFFORDABILITY VERDICT</Text>
@@ -161,13 +186,14 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
               style={styles.chatActionBtn}
               onPress={() =>
                 onNavigateToChat(
-                  `Penny, explain why buying ${description} for $${amount} is ${decision.affordability_status}.`
+                  `Penny, evaluate why buying ${description} for $${amount} is ${decision.affordability_status}.`
                 )
               }
               activeOpacity={0.8}
             >
+              <ChatCircle size={16} color={colors.violet} weight="duotone" />
               <Text style={styles.chatActionBtnText}>
-                🤖 Discuss Strategy with Penny
+                Discuss with Penny AI
               </Text>
             </TouchableOpacity>
 
@@ -176,8 +202,9 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
               onPress={onNavigateToTrajectory}
               activeOpacity={0.8}
             >
+              <TrendUp size={16} color={colors.sky} weight="duotone" />
               <Text style={styles.trajActionBtnText}>
-                📈 View Trajectory Dip
+                View Trajectory Dip
               </Text>
             </TouchableOpacity>
           </View>
@@ -197,59 +224,69 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   formCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 18,
-    borderWidth: 1,
+    backgroundColor: colors.surfaceCard,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1.5,
     borderColor: colors.surfaceBorder,
     marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  formHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 14,
   },
   formTitle: {
     fontSize: 11,
     fontWeight: "800",
-    color: colors.textSecondary,
+    color: colors.gold,
     letterSpacing: 0.8,
-    marginBottom: 14,
   },
   fieldLabel: {
     fontSize: 10,
-    fontWeight: "700",
+    fontWeight: "800",
     color: colors.textMuted,
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
     marginBottom: 6,
   },
   textInput: {
     backgroundColor: colors.surfaceLight,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: "600",
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: colors.textPrimary,
   },
   amountInputRow: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surfaceLight,
-    borderRadius: 10,
-    paddingHorizontal: 14,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
+    paddingHorizontal: 14,
   },
   currencyPrefix: {
     fontSize: 22,
     fontWeight: "800",
-    color: colors.textSecondary,
+    color: colors.gold,
     marginRight: 6,
   },
   amountInput: {
     flex: 1,
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
     color: colors.textPrimary,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    fontVariant: ["tabular-nums"],
   },
   chipRow: {
     flexDirection: "row",
@@ -257,37 +294,61 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 8,
+    flex: 1,
+    paddingVertical: 8,
     backgroundColor: colors.surfaceLight,
+    borderRadius: 10,
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.surfaceBorder,
   },
   chipActive: {
-    borderColor: colors.primary,
-    backgroundColor: "rgba(56, 189, 248, 0.15)",
+    backgroundColor: colors.goldLight,
+    borderColor: colors.surfaceBorderActive,
   },
   chipText: {
     fontSize: 12,
     fontWeight: "700",
     color: colors.textSecondary,
+    fontVariant: ["tabular-nums"],
   },
   chipTextActive: {
-    color: colors.primary,
+    color: colors.gold,
+  },
+  dateInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.surfaceLight,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.surfaceBorder,
+    paddingHorizontal: 14,
+    gap: 8,
+  },
+  dateInput: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.textPrimary,
+    paddingVertical: 12,
   },
   toggleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 16,
-    paddingVertical: 8,
+    marginVertical: 16,
+    paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: colors.surfaceBorder,
+    borderBottomWidth: 1,
+    borderColor: colors.surfaceBorder,
   },
   toggleTextContainer: {
     flex: 1,
-    marginRight: 10,
+    paddingRight: 12,
+  },
+  toggleTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
   },
   toggleLabel: {
     fontSize: 13,
@@ -297,25 +358,31 @@ const styles = StyleSheet.create({
   toggleSubtext: {
     fontSize: 11,
     color: colors.textMuted,
-    marginTop: 2,
+    marginTop: 3,
+    lineHeight: 15,
   },
   evaluateButton: {
-    backgroundColor: colors.primary,
+    backgroundColor: colors.gold,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
-    marginTop: 18,
-    shadowColor: colors.primary,
+    justifyContent: "center",
+    shadowColor: colors.gold,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.35,
     shadowRadius: 8,
     elevation: 4,
   },
+  btnContentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   evaluateButtonText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: colors.background,
-    letterSpacing: 0.5,
+    fontSize: 13,
+    fontWeight: "900",
+    color: colors.black,
+    letterSpacing: 0.4,
   },
   resultSection: {
     marginTop: 8,
@@ -323,41 +390,47 @@ const styles = StyleSheet.create({
   resultHeading: {
     fontSize: 11,
     fontWeight: "800",
+    letterSpacing: 1,
     color: colors.textSecondary,
-    letterSpacing: 0.8,
     marginBottom: 10,
   },
   actionRow: {
     flexDirection: "row",
     gap: 10,
-    marginTop: 6,
+    marginTop: 4,
   },
   chatActionBtn: {
     flex: 1,
-    backgroundColor: colors.surface,
-    paddingVertical: 12,
-    borderRadius: 10,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.violetLight,
     borderWidth: 1,
-    borderColor: colors.accent,
+    borderColor: colors.violetGlow,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 6,
   },
   chatActionBtnText: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.accent,
+    color: colors.violet,
   },
   trajActionBtn: {
     flex: 1,
-    backgroundColor: colors.surface,
-    paddingVertical: 12,
-    borderRadius: 10,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.skyLight,
     borderWidth: 1,
-    borderColor: colors.surfaceBorder,
+    borderColor: colors.skyGlow,
+    paddingVertical: 12,
+    borderRadius: 12,
+    gap: 6,
   },
   trajActionBtnText: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.textSecondary,
+    color: colors.sky,
   },
 });
