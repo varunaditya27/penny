@@ -7,8 +7,8 @@ test("Theme color palette preserves Obsidian Luxe design system tokens", () => {
   assert.equal(colors.surface, "#0E1420");
   assert.equal(colors.surfaceCard, "rgba(14, 20, 32, 0.85)");
   assert.equal(colors.gold, "#F59E0B");
+  assert.equal(colors.primary, "#F59E0B");
   assert.equal(colors.emerald, "#10B981");
-  assert.equal(colors.sky, "#38BDF8");
   assert.equal(colors.violet, "#8B5CF6");
 });
 

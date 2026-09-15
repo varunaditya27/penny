@@ -229,7 +229,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
           onPress={() => onNavigate("trajectory")}
           activeOpacity={0.8}
         >
-          <TrendUp size={18} color={colors.sky} weight="duotone" />
+          <TrendUp size={18} color={colors.emerald} weight="duotone" />
           <Text style={styles.actionText}>90d Forecast</Text>
         </TouchableOpacity>
 
@@ -248,20 +248,22 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
       {/* 30-Day Cash Flow Bento Grid */}
       {profile?.risk_metrics ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>MONTHLY CASH FLOW</Text>
+          <Text style={styles.sectionTitle}>30-DAY CASH FLOW</Text>
           <View style={styles.gridRow}>
             <View style={styles.gridCol}>
               <MetricCard
                 label="Monthly Income"
                 value={`$${profile.risk_metrics.monthly_confirmed_income.toLocaleString()}`}
-                icon={<ArrowUpRight size={16} color={colors.emerald} weight="bold" />}
+                subValue="Payroll & deposits"
+                icon={<TrendUp size={16} color={colors.emerald} weight="duotone" />}
                 variant="success"
               />
             </View>
             <View style={styles.gridCol}>
               <MetricCard
-                label="Fixed Bills"
+                label="Fixed Expenses"
                 value={`$${profile.risk_metrics.monthly_fixed_burn_rate.toLocaleString()}`}
+                subValue="Rent & obligations"
                 icon={<Flame size={16} color={colors.gold} weight="duotone" />}
                 variant="warning"
               />
@@ -271,8 +273,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             label="Free Cash Flow"
             value={`$${profile.risk_metrics.discretionary_cashflow.toLocaleString()}`}
             subValue={`Fixed expenses take ${(profile.risk_metrics.fixed_cost_ratio * 100).toFixed(0)}% of income`}
-            icon={<Wallet size={16} color={colors.sky} weight="duotone" />}
-            variant="default"
+            icon={<Wallet size={16} color={colors.emerald} weight="duotone" />}
+            variant="success"
           />
         </View>
       ) : null}

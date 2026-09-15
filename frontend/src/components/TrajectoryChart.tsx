@@ -162,8 +162,8 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
         <Svg width={chartWidth} height={height}>
           <Defs>
             <LinearGradient id="baselineAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor={colors.primary} stopOpacity="0.35" />
-              <Stop offset="100%" stopColor={colors.primary} stopOpacity="0.0" />
+              <Stop offset="0%" stopColor={colors.emerald} stopOpacity="0.35" />
+              <Stop offset="100%" stopColor={colors.emerald} stopOpacity="0.0" />
             </LinearGradient>
           </Defs>
 
@@ -223,7 +223,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
           <Path
             d={baselinePath}
             fill="none"
-            stroke={colors.primary}
+            stroke={colors.emerald}
             strokeWidth="2.5"
           />
 
@@ -232,9 +232,9 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
             <Path
               d={purchasePath}
               fill="none"
-              stroke={colors.warning}
-              strokeWidth="2"
-              strokeDasharray="5 3"
+              stroke={colors.gold}
+              strokeWidth="2.5"
+              strokeDasharray="6 3"
             />
           ) : null}
 
@@ -264,7 +264,7 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
                 cx={scaleX(selectedIndex)}
                 cy={scaleY(points[selectedIndex].baseline_balance)}
                 r="6"
-                fill={colors.primary}
+                fill={colors.emerald}
                 stroke={colors.white}
                 strokeWidth="2"
               />
@@ -305,12 +305,12 @@ const TrajectoryChartComponent: React.FC<TrajectoryChartProps> = ({
       {/* Legend */}
       <View style={styles.legendRow}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendIndicator, { backgroundColor: colors.primary }]} />
+          <View style={[styles.legendIndicator, { backgroundColor: colors.emerald }]} />
           <Text style={styles.legendText}>Baseline 90d</Text>
         </View>
         {hasPurchase ? (
           <View style={styles.legendItem}>
-            <View style={[styles.legendIndicator, { backgroundColor: colors.warning }]} />
+            <View style={[styles.legendIndicator, { backgroundColor: colors.gold }]} />
             <Text style={styles.legendText}>With Purchase</Text>
           </View>
         ) : null}

@@ -38,9 +38,9 @@ const DecisionCardViewComponent: React.FC<DecisionCardViewProps> = ({ decision }
       case "affordable_later":
         return {
           title: "AFFORDABLE LATER",
-          color: colors.sky,
-          bgColor: colors.skyLight,
-          borderColor: "rgba(56, 189, 248, 0.35)",
+          color: colors.goldDark,
+          bgColor: colors.goldLight,
+          borderColor: colors.surfaceBorderActive,
           Icon: ClockCountdown,
         };
       case "not_affordable":

@@ -33,11 +33,11 @@ export const colors = {
   emeraldLight: "rgba(16, 185, 129, 0.12)",
   emeraldGlow: "rgba(16, 185, 129, 0.25)",
   
-  // Projection Sky Blue (Forward Simulation)
-  sky: "#38BDF8",
-  skyDark: "#0284C7",
-  skyLight: "rgba(56, 189, 248, 0.12)",
-  skyGlow: "rgba(56, 189, 248, 0.25)",
+  // Growth & Forecast Emerald
+  sky: "#10B981",
+  skyDark: "#059669",
+  skyLight: "rgba(16, 185, 129, 0.12)",
+  skyGlow: "rgba(16, 185, 129, 0.25)",
   
   // Multi-Agent Reasoning Violet
   violet: "#8B5CF6",
@@ -55,9 +55,11 @@ export const colors = {
   white: "#FFFFFF",
   black: "#000000",
 
-  // Legacy mappings for backward compatibility
-  primary: "#38BDF8",
-  primaryDark: "#0284C7",
+  // Harmonized mappings (Obsidian Luxe Gold & Emerald)
+  primary: "#F59E0B",
+  primaryDark: "#D97706",
+  primaryLight: "rgba(245, 158, 11, 0.12)",
+  primaryGlow: "rgba(245, 158, 11, 0.25)",
   success: "#10B981",
   successLight: "rgba(16, 185, 129, 0.12)",
   warning: "#F59E0B",

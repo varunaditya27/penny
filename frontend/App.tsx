@@ -136,7 +136,7 @@ function MainApp() {
                 size={22}
                 color={
                   currentTab === "trajectory"
-                    ? colors.sky
+                    ? colors.emerald
                     : colors.textSecondary
                 }
                 weight={currentTab === "trajectory" ? "duotone" : "regular"}
@@ -146,7 +146,7 @@ function MainApp() {
                   styles.dockLabel,
                   currentTab === "trajectory" && [
                     styles.dockLabelActive,
-                    { color: colors.sky },
+                    { color: colors.emerald },
                   ],
                 ]}
               >

@@ -139,7 +139,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
         <View style={styles.toggleRow}>
           <View style={styles.toggleTextContainer}>
             <View style={styles.toggleTitleRow}>
-              <Receipt size={14} color={colors.sky} weight="duotone" />
+              <Receipt size={14} color={colors.gold} weight="duotone" />
               <Text style={styles.toggleLabel}>Consider Installment Plans</Text>
             </View>
             <Text style={styles.toggleSubtext}>
@@ -202,7 +202,7 @@ export const AffordabilityScreen: React.FC<AffordabilityScreenProps> = ({
               onPress={onNavigateToTrajectory}
               activeOpacity={0.8}
             >
-              <TrendUp size={16} color={colors.sky} weight="duotone" />
+              <TrendUp size={16} color={colors.emerald} weight="duotone" />
               <Text style={styles.trajActionBtnText}>
                 View 90-Day Forecast
               </Text>
@@ -421,9 +421,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: colors.skyLight,
+    backgroundColor: colors.emeraldLight,
     borderWidth: 1,
-    borderColor: colors.skyGlow,
+    borderColor: colors.surfaceBorderEmerald,
     paddingVertical: 12,
     borderRadius: 12,
     gap: 6,
@@ -431,6 +431,6 @@ const styles = StyleSheet.create({
   trajActionBtnText: {
     fontSize: 12,
     fontWeight: "700",
-    color: colors.sky,
+    color: colors.emerald,
   },
 });

@@ -90,7 +90,7 @@ export const TrajectoryScreen: React.FC = () => {
             <View style={styles.tabContentRow}>
               <Calendar
                 size={13}
-                color={days === d ? colors.sky : colors.textMuted}
+                color={days === d ? colors.gold : colors.textMuted}
                 weight={days === d ? "duotone" : "regular"}
               />
               <Text style={[styles.tabText, days === d && styles.tabTextActive]}>
@@ -104,7 +104,7 @@ export const TrajectoryScreen: React.FC = () => {
       {/* Prospective Purchase Simulator Strip */}
       <View style={styles.simCard}>
         <View style={styles.simHeader}>
-          <Sparkle size={14} color={colors.sky} weight="fill" />
+          <Sparkle size={14} color={colors.gold} weight="fill" />
           <Text style={styles.simHeading}>TEST A PURCHASE AMOUNT</Text>
         </View>
         <View style={styles.simInputRow}>
@@ -159,7 +159,7 @@ export const TrajectoryScreen: React.FC = () => {
       {/* Trajectory Interactive Chart */}
       {loading ? (
         <View style={styles.loadingBox}>
-          <ActivityIndicator size="large" color={colors.sky} />
+          <ActivityIndicator size="large" color={colors.emerald} />
           <Text style={styles.loadingText}>Forecasting {days}-day cash flow...</Text>
         </View>
       ) : trajectory ? (
@@ -265,9 +265,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   tabActive: {
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: colors.goldLight,
     borderWidth: 1,
-    borderColor: colors.surfaceBorderLight,
+    borderColor: colors.surfaceBorderActive,
   },
   tabContentRow: {
     flexDirection: "row",
@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
   },
   tabTextActive: {
-    color: colors.sky,
+    color: colors.gold,
   },
   simCard: {
     backgroundColor: colors.surfaceCard,
@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   simHeading: {
     fontSize: 10,
     fontWeight: "800",
-    color: colors.sky,
+    color: colors.gold,
     letterSpacing: 0.8,
   },
   simInputRow: {
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
   currencyPrefix: {
     fontSize: 18,
     fontWeight: "800",
-    color: colors.sky,
+    color: colors.gold,
     marginRight: 6,
   },
   input: {
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   applyButton: {
-    backgroundColor: colors.sky,
+    backgroundColor: colors.gold,
     borderRadius: 12,
     paddingHorizontal: 18,
     justifyContent: "center",
@@ -363,8 +363,8 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceBorder,
   },
   chipActive: {
-    backgroundColor: colors.skyLight,
-    borderColor: colors.skyGlow,
+    backgroundColor: colors.goldLight,
+    borderColor: colors.surfaceBorderActive,
   },
   chipText: {
     fontSize: 11,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   chipTextActive: {
-    color: colors.sky,
+    color: colors.gold,
   },
   loadingBox: {
     height: 240,
